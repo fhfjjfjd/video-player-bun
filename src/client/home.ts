@@ -3,6 +3,7 @@ import './antidev';
 import { api, escapeHtml, getCurrentUser } from './api';
 import { renderAuthNav } from './main';
 import { card, thumb, info } from './ui';
+import { confirmDialog } from './confirm';
 
 const grid = document.getElementById('video-grid') as HTMLElement;
 const emptyMsg = document.getElementById('empty-msg') as HTMLElement;
@@ -30,7 +31,7 @@ const emptyMsg = document.getElementById('empty-msg') as HTMLElement;
         e.preventDefault();
         e.stopPropagation();
         const item = (btn as HTMLElement).closest('.relative') as HTMLElement;
-        if (!confirm('Bạn có chắc muốn xóa video này?')) return;
+        if (!(await confirmDialog('Video sẽ bị xóa vĩnh viễn, không thể khôi phục. Bạn có chắc muốn tiếp tục?'))) return;
         try {
           await api.del('/api/videos/' + (btn as HTMLElement).dataset.videoId);
           item.remove();
