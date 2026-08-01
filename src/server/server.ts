@@ -142,6 +142,21 @@ app.post('/api/videos', authUser, upload.single('video'), (req, res) => {
   res.json({ id: result.lastInsertRowid, message: 'Upload thành công' });
 });
 
+app.delete('/api/videos/:id', authUser, (req, res) => {
+  const video = db.prepare('SELECT * FROM videos WHERE id = ?').get(String(req.params.id)) as any;
+  if (!video) return res.status(404).json({ error: 'Không tìm thấy video' });
+  if (Number(video.uploader_id) !== Number(req.userId)) {
+    return res.status(403).json({ error: 'Bạn không có quyền xóa video này' });
+  }
+  db.prepare('DELETE FROM comments WHERE video_id = ?').run(String(req.params.id));
+  db.prepare('DELETE FROM history WHERE video_id = ?').run(String(req.params.id));
+  db.prepare('DELETE FROM videos WHERE id = ?').run(String(req.params.id));
+  try {
+    fs.unlinkSync(path.join(UPLOAD_DIR, video.filename));
+  } catch (e) {}
+  res.json({ message: 'Đã xóa video' });
+});
+
 app.get('/api/videos/:id/stream', (req, res) => {
   const video = db.prepare('SELECT * FROM videos WHERE id = ?').get(String(req.params.id)) as any;
   if (!video) return res.status(404).json({ error: 'Không tìm thấy video' });

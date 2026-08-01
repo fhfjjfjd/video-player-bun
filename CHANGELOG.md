@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.8.0
+- Thêm nút **Xóa video** chỉ dành cho người đã đăng video đó:
+  - Endpoint mới `DELETE /api/videos/:id` (`src/server/server.ts`), yêu cầu đăng nhập; chỉ người có `uploader_id` khớp với tài khoản hiện tại mới được xóa, người khác nhận `403`. Khi xóa sẽ xóa luôn bình luận, lịch sử xem và file video trong `uploads/`.
+  - Trang chủ (`src/client/home.ts`): mỗi thẻ video của chính mình hiện nút "Xóa" ở góc phải; bấm xóa có xác nhận, sau khi xóa thẻ biến mất ngay và danh sách rỗng sẽ hiện thông báo.
+  - Trang xem video (`player.html`, `src/client/player.ts`): nếu bạn là chủ video sẽ hiện nút "Xóa video" bên dưới tiêu đề; sau khi xóa chuyển về trang chủ.
+  - Thêm method `api.del()` trong `src/client/api.ts`.
+
 ## 1.7.2
 - Sửa lỗi trang bị khóa ("Đã phát hiện DevTools") khi giữ để sao chép text trên mobile: thao tác long-press kích hoạt sự kiện `contextmenu` → `hardBlock()` xóa sạch trang. Tắt toàn bộ hard-block trên thiết bị cảm ứng (`antidev.ts`): bỏ chặn `contextmenu`, bỏ kiểm tra kích thước cửa sổ, bỏ gọi thư viện `DisableDevtool` khi `isTouch`. Trên mobile chỉ còn giữ phím tắt (F12/Ctrl+U...), vòng lặp `debugger` và ngụy trang console — không làm ảnh hưởng đến thao tác bình thường.
 

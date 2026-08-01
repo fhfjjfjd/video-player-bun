@@ -78,6 +78,22 @@ function loadScript(src: string) {
     }
   });
 
+  if (user && Number(video.uploader_id) === Number(user.id)) {
+    const actionsEl = document.getElementById('video-actions') as HTMLElement;
+    actionsEl.innerHTML = `
+      <button id="delete-video-btn" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-sm font-semibold cursor-pointer bg-danger/15 border border-danger/40 text-[#ff8a95] transition hover:bg-danger/25">Xóa video</button>
+    `;
+    actionsEl.querySelector('#delete-video-btn')!.addEventListener('click', async () => {
+      if (!confirm('Bạn có chắc muốn xóa video này?')) return;
+      try {
+        await api.del('/api/videos/' + videoId);
+        location.href = '/index.html';
+      } catch (e: any) {
+        alert(e.message);
+      }
+    });
+  }
+
   async function renderComments() {
     try {
       const comments = await api.get('/api/videos/' + videoId + '/comments');

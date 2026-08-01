@@ -53,6 +53,7 @@ data.db            # SQLite database (not committed)
 - `POST /api/register`, `POST /api/login`, `POST /api/logout`, `GET /api/me`
 - `GET /api/videos`, `GET /api/videos/:id`
 - `POST /api/videos` — upload (multipart, requires login)
+- `DELETE /api/videos/:id` — delete a video (login + owner only)
 - `GET /api/videos/:id/stream` — video streaming, supports HTTP Range
 - `GET/POST /api/videos/:id/comments`
 - `GET/POST /api/history` — watch history (progress 0–1)

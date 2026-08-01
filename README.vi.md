@@ -53,6 +53,7 @@ data.db            # Database SQLite (không commit)
 - `POST /api/register`, `POST /api/login`, `POST /api/logout`, `GET /api/me`
 - `GET /api/videos`, `GET /api/videos/:id`
 - `POST /api/videos` — upload (multipart, cần đăng nhập)
+- `DELETE /api/videos/:id` — xóa video (cần đăng nhập, chỉ chủ video)
 - `GET /api/videos/:id/stream` — phát video, hỗ trợ HTTP Range
 - `GET/POST /api/videos/:id/comments`
 - `GET/POST /api/history` — lịch sử xem (tiến độ 0–1)

@@ -9,17 +9,37 @@ const emptyMsg = document.getElementById('empty-msg') as HTMLElement;
 
 (async () => {
   try {
-    const videos = await api.get('/api/videos');
+    const [videos, user] = await Promise.all([api.get('/api/videos'), getCurrentUser()]);
     emptyMsg.classList.toggle('hidden', videos.length > 0);
     grid.innerHTML = videos.map((v: any) => `
-      <a href="/player.html?id=${v.id}" class="${card}">
-        <div class="${thumb}">▶ <span class="text-[13px] text-dim">${escapeHtml(v.original_name)}</span></div>
-        <div class="${info}">
-          <h3 class="text-[15px] mb-1.5 truncate">${escapeHtml(v.title)}</h3>
-          <p class="text-[13px] text-dim leading-relaxed line-clamp-2">${escapeHtml(v.uploader || 'Ẩn danh')} · ${Number(v.views || 0).toLocaleString('vi-VN')} lượt xem · ${escapeHtml((v.description || '').slice(0, 60))}</p>
-        </div>
-      </a>
+      <div class="relative">
+        <a href="/player.html?id=${v.id}" class="${card}">
+          <div class="${thumb}">▶ <span class="text-[13px] text-dim">${escapeHtml(v.original_name)}</span></div>
+          <div class="${info}">
+            <h3 class="text-[15px] mb-1.5 truncate">${escapeHtml(v.title)}</h3>
+            <p class="text-[13px] text-dim leading-relaxed line-clamp-2">${escapeHtml(v.uploader || 'Ẩn danh')} · ${Number(v.views || 0).toLocaleString('vi-VN')} lượt xem · ${escapeHtml((v.description || '').slice(0, 60))}</p>
+          </div>
+        </a>
+        ${user && Number(v.uploader_id) === Number(user.id) ? `
+          <button class="absolute top-2 right-2 z-10 px-2.5 py-1.5 rounded-[8px] text-xs font-semibold text-white bg-danger/90 hover:bg-danger cursor-pointer" data-video-id="${v.id}">Xóa</button>
+        ` : ''}
+      </div>
     `).join('');
+    grid.querySelectorAll('button[data-video-id]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const item = (btn as HTMLElement).closest('.relative') as HTMLElement;
+        if (!confirm('Bạn có chắc muốn xóa video này?')) return;
+        try {
+          await api.del('/api/videos/' + (btn as HTMLElement).dataset.videoId);
+          item.remove();
+          if (!grid.querySelector('a[href^="/player.html"]')) emptyMsg.classList.toggle('hidden', false);
+        } catch (err: any) {
+          alert(err.message);
+        }
+      });
+    });
   } catch (e: any) {
     emptyMsg.classList.toggle('hidden', false);
     emptyMsg.textContent = 'Không thể tải danh sách video: ' + (e.message || 'lỗi mạng');

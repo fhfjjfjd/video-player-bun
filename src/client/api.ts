@@ -15,6 +15,9 @@ export const api = {
   post(path: string, body: unknown) {
     return this.request(path, { method: 'POST', body: JSON.stringify(body) });
   },
+  del(path: string) {
+    return this.request(path, { method: 'DELETE' });
+  },
 };
 
 export async function getCurrentUser() {
