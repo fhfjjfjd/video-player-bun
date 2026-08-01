@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.1
+
+**EN:** Fixed "Cannot GET /index.html": the server previously chose the static directory once at startup. If the server started before the build, it fell back to `public/` (vendor only) and returned 404 for all pages. It now tries `dist/public` first and falls back to `public` per request.
+
+**VI:** Sửa lỗi "Cannot GET /index.html": server trước đây chọn thư mục static một lần lúc khởi động. Nếu server chạy trước khi build, nó rơi vào fallback `public/` (chỉ có vendor) và trả 404 mọi trang. Giờ thử `dist/public` trước, rồi mới fallback `public` mỗi request.
+
 ## 1.9.0
 
 **EN:** Added autoplay: the video now plays automatically (muted) when the player page opens. A floating button appears while muted so the viewer can tap to unmute.

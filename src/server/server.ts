@@ -26,11 +26,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-if (fs.existsSync(STATIC_DIR)) {
-  app.use(express.static(STATIC_DIR));
-} else {
-  app.use(express.static(path.join(ROOT, 'public')));
-}
+app.use(express.static(STATIC_DIR));
+app.use(express.static(path.join(ROOT, 'public')));
 
 function hashPassword(password: string, salt = crypto.randomBytes(16).toString('hex')) {
   const hash = crypto.scryptSync(password, salt, 64).toString('hex');
