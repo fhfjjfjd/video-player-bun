@@ -1,60 +1,62 @@
 # Video Player
 
-Trình phát video chạy trên web: người dùng đăng ký, upload video, xem video (stream), bình luận và lưu lịch sử xem. Video được lưu nguyên định dạng trên máy chủ, không chuyển đổi.
+**English** | [Tiếng Việt](./README.vi.md)
 
-## Công nghệ
+A web-based video player: users register, upload videos, watch videos (streaming), comment, and keep a watch history. Videos are stored in their original format on the server — never converted.
+
+## Tech Stack
 
 - Backend: Node.js (>= 24) + Express 5 + TypeScript
-- Database: SQLite (module có sẵn `node:sqlite`)
+- Database: SQLite (built-in `node:sqlite` module)
 - Frontend: TypeScript + Vite (multi-page), XGPlayer
-- Upload: multer (tối đa 500MB, định dạng video)
-- Dev: nodemon + tsx (không cần biên dịch khi phát triển)
+- Upload: multer (max 500MB, video formats)
+- Dev: nodemon + tsx (no compilation needed while developing)
 
-## Cài đặt
+## Install
 
 ```bash
 npm install
 ```
 
-## Lệnh
+## Commands
 
-| Lệnh | Mô tả |
+| Command | Description |
 | --- | --- |
-| `npm run build` | Biên dịch server, build frontend, kiểm tra HTML/CSS/JS, load test server |
-| `npm start` | Chạy bản đã build (`node dist/server/server.js`) |
-| `npm run dev` | Chạy server bằng nodemon + tsx, tự khởi động lại khi sửa `src/server/` |
+| `npm run build` | Compile server, build frontend, check HTML/CSS/JS, load-test server |
+| `npm start` | Run the built version (`node dist/server/server.js`) |
+| `npm run dev` | Run the server with nodemon + tsx, auto-restart on `src/server/` changes |
 
-Lưu ý môi trường Termux: các lệnh gọi qua `node` trực tiếp do thiếu `/usr/bin/env`.
+Termux note: commands are invoked directly via `node` because `/usr/bin/env` is missing.
 
-## Chạy
+## Run
 
-1. `npm run build` — biên dịch lần đầu
-2. `npm start` — chạy server tại http://localhost:3000
-3. Mở trình duyệt, đăng ký tài khoản, upload và xem video
+1. `npm run build` — compile for the first time
+2. `npm start` — run the server at http://localhost:3000
+3. Open the browser, register an account, upload and watch videos
 
-Khi phát triển: `npm run dev` (server tự tải lại), rồi build frontend hoặc chạy bản đã build.
+While developing: `npm run dev` (server auto-reloads), then build the frontend or run the built version.
 
-## Cấu trúc
+## Project Structure
 
 ```
 src/server/        # Server TypeScript (Express + SQLite)
-src/client/        # Frontend TypeScript (module Vite)
+src/client/        # Frontend TypeScript (Vite modules)
 public/            # CSS + vendor (XGPlayer, disable-devtool)
-scripts/build.js   # Build + kiểm tra toàn bộ dự án
-dist/              # Kết quả build (server + public)
-uploads/           # Video người dùng upload (không commit)
-data.db            # Database SQLite (không commit)
+scripts/build.js   # Build + full project checks
+dist/              # Build output (server + public)
+uploads/           # User-uploaded videos (not committed)
+data.db            # SQLite database (not committed)
 ```
 
-## API chính
+## Main API
 
 - `POST /api/register`, `POST /api/login`, `POST /api/logout`, `GET /api/me`
 - `GET /api/videos`, `GET /api/videos/:id`
-- `POST /api/videos` — upload (multipart, cần đăng nhập)
-- `GET /api/videos/:id/stream` — phát video, hỗ trợ HTTP Range
+- `POST /api/videos` — upload (multipart, requires login)
+- `GET /api/videos/:id/stream` — video streaming, supports HTTP Range
 - `GET/POST /api/videos/:id/comments`
-- `GET/POST /api/history` — lịch sử xem (tiến độ 0–1)
+- `GET/POST /api/history` — watch history (progress 0–1)
 
-## Quy tắc phát triển
+## Development Rules
 
-Mỗi lần thay đổi code phải tăng phiên bản trong `package.json` và ghi `CHANGELOG.md` (phiên bản mới + danh sách thay đổi).
+Every code change must bump the version in `package.json` and record it in `CHANGELOG.md` (new version + list of changes).
