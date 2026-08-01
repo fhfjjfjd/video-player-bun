@@ -1,0 +1,9 @@
+export const btn = 'inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-[10px] text-sm font-semibold cursor-pointer no-underline bg-brand text-white transition hover:opacity-90 hover:-translate-y-px active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed';
+export const btnOutline = 'inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-[10px] text-sm font-semibold cursor-pointer no-underline bg-transparent border border-accent/50 text-accent transition hover:bg-accent/10 hover:-translate-y-px active:translate-y-0';
+export const card = 'block bg-surface border border-line-soft rounded-[16px] overflow-hidden transition duration-150 hover:-translate-y-1 hover:border-accent/50 hover:shadow-card no-underline text-inherit';
+export const thumb = 'relative flex items-center justify-center gap-2 text-3xl text-accent aspect-video bg-[linear-gradient(135deg,#1c2140,#14162b)] after:content-[\'\'] after:absolute after:inset-0 after:pointer-events-none after:bg-[radial-gradient(200px_80px_at_center,rgba(79,140,255,0.14),transparent)]';
+export const info = 'p-3.5';
+export const comment = 'bg-surface border border-line-soft rounded-[10px] p-3.5 mb-2.5 transition hover:border-line';
+export const msgBase = 'text-[13px] mb-3.5 p-3 rounded-[10px]';
+export const msgError = msgBase + ' block bg-danger/10 text-[#ff8a95] border border-danger/30';
+export const msgSuccess = msgBase + ' block bg-success/10 text-[#7ad39a] border border-success/30';

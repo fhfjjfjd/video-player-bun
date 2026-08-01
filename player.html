@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xem video</title>
+  <link rel="stylesheet" href="/vendor/xgplayer.min.css">
+  <script src="/vendor/disable-devtool.min.js"></script>
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+  <header class="sticky top-0 z-20 flex items-center justify-between gap-3 px-6 py-3.5 border-b border-line-soft bg-canvas/75 backdrop-blur-xl">
+    <h1 class="text-xl font-bold tracking-tight">
+      <a href="/index.html" class="inline-flex items-center gap-2 no-underline text-inherit">
+        <span class="w-7 h-7 rounded-lg bg-brand inline-flex items-center justify-center text-sm">▶</span>
+        Video Player
+      </a>
+    </h1>
+    <nav id="auth-nav" class="flex items-center gap-2.5 flex-wrap"></nav>
+  </header>
+
+  <main class="flex-1">
+    <div class="w-full max-w-[1120px] mx-auto px-5 pt-7 pb-10">
+      <a href="/index.html" class="inline-flex items-center gap-1.5 mb-4 text-accent no-underline text-sm font-semibold hover:text-[#7caaff]">← Quay lại danh sách</a>
+      <div id="player-container" class="flex flex-col">
+        <div id="video"></div>
+        <div class="flex items-start justify-between gap-4 mt-4 flex-wrap">
+          <div class="flex-1 min-w-0">
+            <h2 id="video-title" class="text-[22px] font-extrabold tracking-tight mb-1.5">Đang tải...</h2>
+            <div id="video-meta" class="text-[13px] text-dim mb-2.5"></div>
+          </div>
+          <div id="video-desc" class="w-full text-sm text-dim leading-relaxed bg-surface border border-line-soft rounded-[10px] p-3.5"></div>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <h3 class="mb-3.5 text-base font-bold">Bình luận</h3>
+        <div class="flex gap-2.5 mb-4">
+          <input type="text" id="comment-input" placeholder="Viết bình luận..." class="flex-1 mb-0 px-3.5 py-3 bg-canvas-soft border border-line rounded-[10px] text-ink text-sm transition focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/20">
+          <button id="comment-btn" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-[10px] text-sm font-semibold cursor-pointer no-underline bg-brand text-white transition hover:opacity-90 hover:-translate-y-px active:translate-y-0">Gửi</button>
+        </div>
+        <div id="comments"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-line-soft px-6 py-5 text-center text-[13px] text-dim">Video Player · Xem video an toàn và nhanh chóng</footer>
+
+  <script src="/vendor/xgplayer.min.js"></script>
+  <script type="module" src="/src/client/player.ts"></script>
+</body>
+</html>

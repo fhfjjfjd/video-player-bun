@@ -1,0 +1,10 @@
+node_modules/
+uploads/*
+!uploads/.gitkeep
+data.db
+data.db-wal
+data.db-shm
+*.log
+.env
+dist/
+AGENTS.md

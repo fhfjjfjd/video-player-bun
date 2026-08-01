@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Player - Trang chủ</title>
+  <script src="/vendor/disable-devtool.min.js"></script>
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+  <header class="sticky top-0 z-20 flex items-center justify-between gap-3 px-6 py-3.5 border-b border-line-soft bg-canvas/75 backdrop-blur-xl">
+    <h1 class="text-xl font-bold tracking-tight">
+      <a href="/index.html" class="inline-flex items-center gap-2 no-underline text-inherit">
+        <span class="w-7 h-7 rounded-lg bg-brand inline-flex items-center justify-center text-sm">▶</span>
+        Video Player
+      </a>
+    </h1>
+    <nav id="auth-nav" class="flex items-center gap-2.5 flex-wrap"></nav>
+  </header>
+
+  <main class="flex-1">
+    <div class="w-full max-w-[1120px] mx-auto px-5 pt-7 pb-10">
+      <section class="relative bg-surface border border-line-soft rounded-[16px] p-8 mb-8 overflow-hidden">
+        <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(500px_200px_at_85%_20%,rgba(124,92,255,0.18),transparent),radial-gradient(400px_200px_at_15%_80%,rgba(79,140,255,0.15),transparent)]"></div>
+        <h2 class="relative text-brand text-2xl font-extrabold tracking-tight mb-2">Video Player</h2>
+        <p class="relative text-dim text-[15px] max-w-[520px]">Trình phát video nhẹ, nhanh, bảo mật. Xem mọi video do cộng đồng chia sẻ ngay trong trình duyệt.</p>
+      </section>
+
+      <div id="history-section" class="hidden mb-7">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <h2 class="text-lg font-bold">Lịch sử xem của bạn</h2>
+        </div>
+        <div id="history-grid" class="grid gap-5 grid-cols-[repeat(auto-fill,minmax(260px,1fr))]"></div>
+      </div>
+
+      <div class="flex items-center justify-between gap-3 mb-4">
+        <h2 class="text-lg font-bold">Tất cả video</h2>
+      </div>
+      <div id="video-grid" class="grid gap-5 grid-cols-[repeat(auto-fill,minmax(260px,1fr))]"></div>
+      <div id="empty-msg" class="hidden text-center text-dim py-16 px-5 text-[15px]">Chưa có video nào. Hãy <a href="/upload.html" class="text-accent no-underline">tải lên</a> video đầu tiên!</div>
+    </div>
+  </main>
+
+  <footer class="border-t border-line-soft px-6 py-5 text-center text-[13px] text-dim">Video Player · Xem video an toàn và nhanh chóng</footer>
+
+  <script type="module" src="/src/client/home.ts"></script>
+</body>
+</html>

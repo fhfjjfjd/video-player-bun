@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng nhập</title>
+  <script src="/vendor/disable-devtool.min.js"></script>
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+  <header class="sticky top-0 z-20 flex items-center justify-between gap-3 px-6 py-3.5 border-b border-line-soft bg-canvas/75 backdrop-blur-xl">
+    <h1 class="text-xl font-bold tracking-tight">
+      <a href="/index.html" class="inline-flex items-center gap-2 no-underline text-inherit">
+        <span class="w-7 h-7 rounded-lg bg-brand inline-flex items-center justify-center text-sm">▶</span>
+        Video Player
+      </a>
+    </h1>
+    <nav><a class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-[10px] text-sm font-semibold cursor-pointer no-underline bg-transparent border border-accent/50 text-accent transition hover:bg-accent/10 hover:-translate-y-px active:translate-y-0" href="/index.html">Trang chủ</a></nav>
+  </header>
+
+  <main class="flex-1">
+    <div class="w-full max-w-[1120px] mx-auto px-5 pt-7 pb-10">
+      <div class="relative max-w-[440px] mx-auto my-16 p-8 bg-surface border border-line-soft rounded-[16px] shadow-card overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-[3px] before:bg-brand">
+        <h2 id="auth-title" class="mb-5 text-2xl font-extrabold tracking-tight">Đăng nhập</h2>
+        <div id="message" class="hidden text-[13px] mb-3.5 p-3 rounded-[10px]"></div>
+        <label for="username" class="block text-[13px] font-semibold text-dim mb-1.5">Tên đăng nhập</label>
+        <input type="text" id="username" autocomplete="username" class="w-full px-3.5 py-3 bg-canvas-soft border border-line rounded-[10px] text-ink text-sm mb-3.5 transition focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/20">
+        <label for="password" class="block text-[13px] font-semibold text-dim mb-1.5">Mật khẩu</label>
+        <input type="password" id="password" autocomplete="current-password" class="w-full px-3.5 py-3 bg-canvas-soft border border-line rounded-[10px] text-ink text-sm mb-3.5 transition focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/20">
+        <button id="submit-btn" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-[10px] text-sm font-semibold cursor-pointer no-underline bg-brand text-white transition hover:opacity-90 hover:-translate-y-px active:translate-y-0">Đăng nhập</button>
+        <p class="mt-3.5 text-[13px] text-dim text-center"> Chưa có tài khoản? <a href="#" id="toggle" class="text-accent no-underline">Đăng ký</a></p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-line-soft px-6 py-5 text-center text-[13px] text-dim">Video Player · Xem video an toàn và nhanh chóng</footer>
+
+  <script type="module" src="/src/client/auth.ts"></script>
+</body>
+</html>

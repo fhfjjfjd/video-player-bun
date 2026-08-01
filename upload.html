@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload video</title>
+  <script src="/vendor/disable-devtool.min.js"></script>
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+  <header class="sticky top-0 z-20 flex items-center justify-between gap-3 px-6 py-3.5 border-b border-line-soft bg-canvas/75 backdrop-blur-xl">
+    <h1 class="text-xl font-bold tracking-tight">
+      <a href="/index.html" class="inline-flex items-center gap-2 no-underline text-inherit">
+        <span class="w-7 h-7 rounded-lg bg-brand inline-flex items-center justify-center text-sm">▶</span>
+        Video Player
+      </a>
+    </h1>
+    <nav id="auth-nav" class="flex items-center gap-2.5 flex-wrap"></nav>
+  </header>
+
+  <main class="flex-1">
+    <div class="w-full max-w-[1120px] mx-auto px-5 pt-7 pb-10">
+      <div class="relative max-w-[440px] mx-auto my-16 p-8 bg-surface border border-line-soft rounded-[16px] shadow-card overflow-hidden before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-[3px] before:bg-brand">
+        <h2 class="mb-5 text-2xl font-extrabold tracking-tight">Upload video</h2>
+        <div id="message" class="hidden text-[13px] mb-3.5 p-3 rounded-[10px]"></div>
+        <label id="file-drop" for="file-input" data-active="false" class="block border-2 border-dashed border-line rounded-[10px] px-5 py-9 text-center text-dim text-sm mb-4 cursor-pointer transition hover:border-accent hover:text-ink bg-canvas-soft data-[active=true]:border-accent data-[active=true]:text-accent data-[active=true]:bg-accent/15">
+          <p class="text-[34px] mb-2">📁</p>
+          <p>Chạm để chọn video hoặc kéo thả vào đây</p>
+          <p class="text-xs mt-1.5">Tối đa 500MB · MP4/WebM/MOV/MKV/AVI</p>
+        </label>
+        <input type="file" id="file-input" accept="video/*,.mp4,.webm,.mov,.mkv,.avi,.ogv,.m4v,.3gp" class="sr-only">
+        <div id="file-info" class="text-[13px] text-accent mb-3.5 font-semibold"></div>
+        <div id="progress-wrap" class="hidden bg-canvas-soft rounded-full h-2.5 overflow-hidden mb-4 border border-line-soft">
+          <div id="progress-bar" class="h-full w-0 bg-brand rounded-full transition-[width] duration-200"></div>
+        </div>
+        <label for="title" class="block text-[13px] font-semibold text-dim mb-1.5">Tiêu đề</label>
+        <input type="text" id="title" placeholder="Tiêu đề video" class="w-full px-3.5 py-3 bg-canvas-soft border border-line rounded-[10px] text-ink text-sm mb-3.5 transition focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/20">
+        <label for="description" class="block text-[13px] font-semibold text-dim mb-1.5">Mô tả</label>
+        <textarea id="description" rows="3" placeholder="Mô tả video..." class="w-full px-3.5 py-3 bg-canvas-soft border border-line rounded-[10px] text-ink text-sm mb-3.5 transition focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/20 resize-none"></textarea>
+        <button id="upload-btn" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-[10px] text-sm font-semibold cursor-pointer no-underline bg-brand text-white transition hover:opacity-90 hover:-translate-y-px active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed">Upload</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-line-soft px-6 py-5 text-center text-[13px] text-dim">Video Player · Xem video an toàn và nhanh chóng</footer>
+
+  <script type="module" src="/src/client/upload.ts"></script>
+</body>
+</html>

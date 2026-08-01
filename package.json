@@ -1,0 +1,31 @@
+{
+  "name": "video-player",
+  "version": "1.7.2",
+  "description": "Trình phát video với backend Express + SQLite (TypeScript + Vite)",
+  "main": "dist/server/server.js",
+  "scripts": {
+    "start": "node dist/server/server.js",
+    "dev": "node node_modules/nodemon/bin/nodemon.js",
+    "build": "node scripts/build.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "disable-devtool": "^0.3.9",
+    "express": "^5.2.1",
+    "multer": "^2.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/express": "^5.0.0",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^24.0.0",
+    "nodemon": "^3.1.14",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.6"
+  }
+}
