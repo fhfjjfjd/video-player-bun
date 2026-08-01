@@ -47,6 +47,18 @@ function loadScript(src: string) {
     fluid: true,
     playsinline: true,
     download: false,
+    autoplay: true,
+    autoplayMuted: true,
+  });
+
+  const unmuteHint = document.getElementById('unmute-hint') as HTMLElement;
+  const syncUnmuteHint = () => {
+    unmuteHint.classList.toggle('hidden', !player.muted);
+  };
+  player.on('volumechange', syncUnmuteHint);
+  player.once('ready', syncUnmuteHint);
+  unmuteHint.addEventListener('click', () => {
+    player.muted = false;
   });
 
   const user = await getCurrentUser();

@@ -22,7 +22,10 @@
     <div class="w-full max-w-[1120px] mx-auto px-5 pt-7 pb-10">
       <a href="/index.html" class="inline-flex items-center gap-1.5 mb-4 text-accent no-underline text-sm font-semibold hover:text-[#7caaff]">← Quay lại danh sách</a>
       <div id="player-container" class="flex flex-col">
-        <div id="video"></div>
+        <div class="relative">
+          <div id="video"></div>
+          <button id="unmute-hint" class="hidden absolute bottom-16 left-1/2 -translate-x-1/2 z-10 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[13px] font-semibold text-white bg-black/75 border border-white/20 cursor-pointer hover:bg-black/85">🔇 Đang phát tắt tiếng · Bật âm thanh</button>
+        </div>
         <div class="flex items-start justify-between gap-4 mt-4 flex-wrap">
           <div class="flex-1 min-w-0">
             <h2 id="video-title" class="text-[22px] font-extrabold tracking-tight mb-1.5">Đang tải...</h2>

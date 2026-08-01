@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.0
+
+**EN:** Added autoplay: the video now plays automatically (muted) when the player page opens. A floating button appears while muted so the viewer can tap to unmute.
+
+**VI:** Thêm autoplay: video tự phát (tắt tiếng) ngay khi mở trang xem. Hiện nút nổi cho phép bật âm thanh khi đang phát tắt tiếng.
+
 ## 1.8.1
 - Thay hộp thoại xác nhận xóa video bằng modal tùy chỉnh (`src/client/confirm.ts`): bỏ `confirm()` mặc định của trình duyệt (xấu, hiện cả địa chỉ http://localhost:3000). Modal mới theo đúng giao diện dark của app, có nút Hủy / Xóa, bấm ra ngoài hoặc phím Esc để đóng, dùng trên cả trang chủ và trang xem video.
 
