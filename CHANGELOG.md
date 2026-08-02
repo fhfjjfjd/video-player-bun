@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.11.0
+
+**EN:** Autoplay now runs with sound: removed `autoplayMuted` from the player (`src/client/player.ts`) and the unmute floating button (`player.html`). Note: some browsers still block unmuted autoplay until the user interacts with the page.
+
+**VI:** Autoplay giờ phát có tiếng: bỏ `autoplayMuted` khỏi player (`src/client/player.ts`) và nút "Bật âm thanh" nổi (`player.html`). Lưu ý: một số trình duyệt vẫn chặn autoplay có tiếng cho tới khi người dùng tương tác với trang.
+
 ## 1.10.0
 
 **EN:** Fixed `npm run dev`: it previously started only the backend (nodemon + tsx, port 3000), so the frontend returned "Cannot GET /index.html" unless the project was built first. `npm run dev` now runs the backend AND the Vite dev server (frontend + HMR, port 5173, auto proxy `/api` → 3000) via a new `scripts/dev.js`. No build needed while developing — open http://localhost:5173.
