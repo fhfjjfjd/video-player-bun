@@ -1,6 +1,25 @@
 # Changelog
 
-## 1.11.0
+## 2.0.0
+
+**EN:**
+- **Database migrated from SQLite to PostgreSQL** (`pg`): new schema with indexes, `sessions`/`comments`/`history` use `ON DELETE CASCADE`, connection string from `DATABASE_URL` (default local DB `video_player`). Server auto-starts PostgreSQL if it is not running and a watchdog restarts it if the process is killed (Termux/Android low-memory safe).
+- **HLS transcoding with ffmpeg**: new uploads are converted to HLS (`.m3u8` + `.ts` segments) with adaptive multi-resolution renditions (e.g. 1080p→720p+480p). Status is stored in `videos.transcode_status` (`pending → processing → ready/failed`); the player polls and offers to switch to HLS once ready, falling back to the original file while processing. Old videos keep the original file (`transcode_status = none`).
+- **New player built on hls.js** (native `<video>` + controls): quality selector (auto / per-resolution), plays HLS via MediaSource, falls back to progressive MP4 on old browsers.
+- **Subtitles**: owners can upload `.srt`/`.vtt` per video; server converts SRT→WebVTT on the fly; viewers toggle subtitles from a list.
+- **Sharing & permissions**: videos can be `public` or `private`; private videos are hidden from the list and require a share token (`/share/<token>` or `?t=<token>`).
+- **Caching**: HLS `.ts` segments and subtitle files are cached `immutable` (1 year), stream responses cached for 1 day, HTML pages `no-cache`.
+- **Data migration**: `npm run db:migrate` copies existing `data.db` rows (users, videos, comments, history, sessions) into PostgreSQL.
+
+**VI:**
+- **Chuyển cơ sở dữ liệu từ SQLite sang PostgreSQL** (`pg`): schema mới có index, `sessions`/`comments`/`history` dùng `ON DELETE CASCADE`, chuỗi kết nối từ `DATABASE_URL` (mặc định DB nội bộ `video_player`). Server tự khởi động PostgreSQL nếu chưa chạy và có watchdog khởi động lại nếu tiến trình bị giết (an toàn với RAM thấp trên Termux/Android).
+- **Chuyển mã HLS bằng ffmpeg**: video upload mới được chuyển sang HLS (`.m3u8` + segment `.ts`) với nhiều mức độ phân giải thích ứng (vd 1080p→720p+480p). Trạng thái lưu ở `videos.transcode_status` (`pending → processing → ready/failed`); trình phát tự thăm dò và đề nghị chuyển sang HLS khi sẵn sàng, còn phát file gốc trong lúc xử lý. Video cũ giữ nguyên file gốc (`transcode_status = none`).
+- **Trình phát mới dùng hls.js** (`<video>` gốc + điều khiển): chọn chất lượng (tự động / từng độ phân giải), phát HLS qua MediaSource, rơi về MP4 tuần tự trên trình duyệt cũ.
+- **Phụ đề**: chủ video upload được `.srt`/`.vtt` cho từng video; server tự chuyển SRT→WebVTT; người xem bật/tắt phụ đề từ danh sách.
+- **Chia sẻ & quyền**: video có thể `public` hoặc `private`; video riêng tư ẩn khỏi danh sách và phải có token chia sẻ (`/share/<token>` hoặc `?t=<token>`).
+- **Cache**: segment `.ts` HLS và file phụ đề cache `immutable` (1 năm), stream cache 1 ngày, trang HTML `no-cache`.
+- **Di trú dữ liệu**: `npm run db:migrate` sao chép dữ liệu `data.db` cũ (users, videos, comments, history, sessions) sang PostgreSQL.
+
 
 **EN:** Autoplay now runs with sound: removed `autoplayMuted` from the player (`src/client/player.ts`) and the unmute floating button (`player.html`). Note: some browsers still block unmuted autoplay until the user interacts with the page.
 
