@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.10.0
+
+**EN:** Fixed `npm run dev`: it previously started only the backend (nodemon + tsx, port 3000), so the frontend returned "Cannot GET /index.html" unless the project was built first. `npm run dev` now runs the backend AND the Vite dev server (frontend + HMR, port 5173, auto proxy `/api` → 3000) via a new `scripts/dev.js`. No build needed while developing — open http://localhost:5173.
+
+**VI:** Sửa `npm run dev`: trước đây chỉ chạy backend (nodemon + tsx, cổng 3000) nên frontend báo "Cannot GET /index.html" nếu chưa build. Giờ `npm run dev` chạy đồng thời backend và Vite dev server (frontend + HMR, cổng 5173, tự proxy `/api` → 3000) qua script mới `scripts/dev.js`. Không cần build khi phát triển — mở http://localhost:5173.
+
 ## 1.9.1
 
 **EN:** Fixed "Cannot GET /index.html": the server previously chose the static directory once at startup. If the server started before the build, it fell back to `public/` (vendor only) and returned 404 for all pages. It now tries `dist/public` first and falls back to `public` per request.

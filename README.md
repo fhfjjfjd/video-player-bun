@@ -24,7 +24,7 @@ npm install
 | --- | --- |
 | `npm run build` | Compile server, build frontend, check HTML/CSS/JS, load-test server |
 | `npm start` | Run the built version (`node dist/server/server.js`) |
-| `npm run dev` | Run the server with nodemon + tsx, auto-restart on `src/server/` changes |
+| `npm run dev` | Run backend (nodemon + tsx, port 3000) and frontend (Vite + HMR, port 5173) together |
 
 Termux note: commands are invoked directly via `node` because `/usr/bin/env` is missing.
 
@@ -34,7 +34,7 @@ Termux note: commands are invoked directly via `node` because `/usr/bin/env` is 
 2. `npm start` — run the server at http://localhost:3000
 3. Open the browser, register an account, upload and watch videos
 
-While developing: `npm run dev` (server auto-reloads), then build the frontend or run the built version.
+While developing: `npm run dev` runs both the backend (auto-reloads via nodemon) and the Vite dev server (HMR). Open http://localhost:5173 — no build needed. Vite proxies `/api` to the backend on port 3000.
 
 ## Project Structure
 

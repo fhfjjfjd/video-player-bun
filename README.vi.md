@@ -24,7 +24,7 @@ npm install
 | --- | --- |
 | `npm run build` | Biên dịch server, build frontend, kiểm tra HTML/CSS/JS, load test server |
 | `npm start` | Chạy bản đã build (`node dist/server/server.js`) |
-| `npm run dev` | Chạy server bằng nodemon + tsx, tự khởi động lại khi sửa `src/server/` |
+| `npm run dev` | Chạy backend (nodemon + tsx, cổng 3000) và frontend (Vite + HMR, cổng 5173) cùng lúc |
 
 Lưu ý môi trường Termux: các lệnh gọi qua `node` trực tiếp do thiếu `/usr/bin/env`.
 
@@ -34,7 +34,7 @@ Lưu ý môi trường Termux: các lệnh gọi qua `node` trực tiếp do thi
 2. `npm start` — chạy server tại http://localhost:3000
 3. Mở trình duyệt, đăng ký tài khoản, upload và xem video
 
-Khi phát triển: `npm run dev` (server tự tải lại), rồi build frontend hoặc chạy bản đã build.
+Khi phát triển: `npm run dev` chạy cả backend (tự tải lại qua nodemon) và Vite dev server (HMR). Mở http://localhost:5173 — không cần build. Vite proxy `/api` sang backend ở cổng 3000.
 
 ## Cấu trúc
 
