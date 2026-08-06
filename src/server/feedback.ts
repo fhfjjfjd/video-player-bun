@@ -17,9 +17,16 @@ import type { FeedbackItem, FeedbackStatus, FeedbackType } from "../types";
  *   ---
  *   <free-form description>
  *
+ * When an item is closed, a reply must be appended at the end of the file so
+ * the submitter sees what was done:
+ *
+ *   ## Reply
+ *
+ *   <what the agent did>
+ *
  * Files with `status: open` are still actionable; `status: closed` items are
- * done and must not be edited. The agent edits the file to flip status after
- * implementing a suggestion.
+ * done and must not be edited. The agent edits the file to flip status (and
+ * add the reply) after implementing a suggestion.
  */
 export const FEEDBACK_DIR = process.env.FEEDBACK_DIR ?? path.join(process.cwd(), "feedback");
 
@@ -47,6 +54,8 @@ function fileName(item: Pick<FeedbackItem, "id" | "title">): string {
 }
 
 function toMarkdown(item: FeedbackItem): string {
+  const parts = [item.body];
+  if (item.reply) parts.push("", "", "## Reply", "", item.reply);
   return [
     "---",
     `id: ${item.id}`,
@@ -57,9 +66,17 @@ function toMarkdown(item: FeedbackItem): string {
     `author: ${item.author ?? ""}`,
     "---",
     "",
-    item.body,
+    ...parts,
     "",
   ].join("\n");
+}
+
+function splitReply(body: string): { description: string; reply?: string } {
+  const match = /(?:^|\n)##\s+(?:Reply|Trả lời)\s*\n/.exec(body);
+  if (!match) return { description: body };
+  const description = body.slice(0, match.index).trim();
+  const reply = body.slice(match.index + match[0].length).trim();
+  return { description, reply: reply || undefined };
 }
 
 function parseItem(raw: string): FeedbackItem | null {
@@ -82,6 +99,7 @@ function parseItem(raw: string): FeedbackItem | null {
   if (!FEEDBACK_TYPES.includes(type as FeedbackType)) return null;
   if (status !== "open" && status !== "closed") return null;
 
+  const { description, reply } = splitReply(match[2].trim());
   return {
     id,
     type: type as FeedbackType,
@@ -89,7 +107,8 @@ function parseItem(raw: string): FeedbackItem | null {
     status: status as FeedbackStatus,
     created_at,
     author: fields.author || undefined,
-    body: match[2].trim(),
+    body: description,
+    reply,
   };
 }
 

@@ -106,5 +106,7 @@ Rules:
 - Check the `feedback/` folder when starting work and after every change.
 - If a file has `status: open`, do what it asks: fix the bug, add the
   feature, or implement whatever it requests.
-- After finishing, edit the file and set `status: closed`.
+- After finishing, edit the file to set `status: closed` AND append a
+  `## Reply` section explaining what was done, so the submitter sees the
+  answer. Never close an item without replying.
 - Never modify or "fix" files with `status: closed`.

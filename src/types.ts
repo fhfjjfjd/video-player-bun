@@ -31,4 +31,6 @@ export interface FeedbackItem {
   status: FeedbackStatus;
   created_at: string;
   author?: string;
+  /** Agent's reply explaining what was done — required when an item is closed. */
+  reply?: string;
 }

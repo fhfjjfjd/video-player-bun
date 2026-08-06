@@ -16,7 +16,7 @@ share videos through dedicated per-video URLs.
 - Hardened responses: Content-Security-Policy, `X-Content-Type-Options`, `X-Frame-Options` and other security headers on every request
 - Full-featured player: play/pause, seek, volume, playback speed, fullscreen, keyboard shortcuts
 - HLS (`.m3u8`) support via hls.js
-- Logged-in users can send feedback (feature request, bug report, or other) from a "Góp ý" dialog on the home page; each suggestion is stored as a Markdown file in the `feedback/` folder with an `open`/`closed` status
+- Logged-in users can send feedback (feature request, bug report, or other) from a "Góp ý" dialog on the home page; each suggestion is stored as a Markdown file in the `feedback/` folder with an `open`/`closed` status and an agent reply once closed
 
 ## Tech Stack
 
