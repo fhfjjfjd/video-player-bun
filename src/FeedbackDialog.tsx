@@ -31,6 +31,21 @@ function formatDate(value: string): string {
   });
 }
 
+/** Renders `**bold**` markers so replies read cleanly instead of showing raw syntax. */
+function InlineMarkdown({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/(\*\*[^*]+\*\*)/g).map((part, index) =>
+        part.length > 4 && part.startsWith("**") && part.endsWith("**") ? (
+          <strong key={index}>{part.slice(2, -2)}</strong>
+        ) : (
+          <span key={index}>{part}</span>
+        ),
+      )}
+    </>
+  );
+}
+
 export function FeedbackDialog({ open, onClose }: FeedbackDialogProps) {
   const [items, setItems] = useState<FeedbackItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -191,7 +206,9 @@ export function FeedbackDialog({ open, onClose }: FeedbackDialogProps) {
                     {item.reply && (
                       <div className="mt-2 rounded-md border border-emerald-500/20 bg-emerald-500/5 px-3 py-2">
                         <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-300">Phản hồi</p>
-                        <p className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-zinc-300">{item.reply}</p>
+                        <p className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-zinc-300">
+                          <InlineMarkdown text={item.reply} />
+                        </p>
                       </div>
                     )}
                     {item.author && <p className="mt-1 text-[11px] text-zinc-500">Bởi {item.author}</p>}
