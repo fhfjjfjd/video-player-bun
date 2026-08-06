@@ -1,7 +1,6 @@
-import { Film, MessageSquare, MonitorPlay, Search, Upload } from "lucide-react";
+import { Film, MonitorPlay, Search, Upload } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FeedbackDialog } from "./FeedbackDialog";
 import { HeaderActions } from "./HeaderActions";
 import { UploadModal } from "./UploadModal";
 import { VideoLibrary } from "./VideoLibrary";
@@ -19,7 +18,6 @@ interface HomePageProps {
 export function HomePage({ user, onLogout, onLogin, search, onSearchChange, onOpenVideo }: HomePageProps) {
   const { videos, deleteVideo } = useVideoList(search, user ?? "");
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
@@ -50,15 +48,6 @@ export function HomePage({ user, onLogout, onLogin, search, onSearchChange, onOp
             >
               <Upload className="h-4 w-4" />
               <span className="hidden sm:inline">Tải lên</span>
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => setFeedbackOpen(true)}
-              className="h-10 shrink-0 gap-2 text-white hover:bg-white/10"
-            >
-              <MessageSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">Góp ý</span>
             </Button>
           </>
         )}
@@ -92,8 +81,6 @@ export function HomePage({ user, onLogout, onLogin, search, onSearchChange, onOp
         onClose={() => setUploadModalOpen(false)}
         onUploaded={videoId => onOpenVideo(videoId)}
       />
-
-      <FeedbackDialog open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
     </div>
   );
 }

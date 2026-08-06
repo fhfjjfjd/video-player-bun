@@ -16,7 +16,6 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 - Tăng cường bảo mật: Content-Security-Policy, `X-Content-Type-Options`, `X-Frame-Options` và các header bảo mật khác trên mọi request
 - Player đầy đủ: phát/tạm dừng, tua, âm lượng, tốc độ phát, toàn màn hình, phím tắt
 - Hỗ trợ HLS (`.m3u8`) qua hls.js
-- Người dùng đã đăng nhập có thể gửi góp ý (tính năng mới, báo lỗi hoặc ý kiến khác) từ hộp thoại "Góp ý" trên trang chủ; mỗi góp ý được lưu thành một file Markdown trong thư mục `feedback/` kèm trạng thái `open`/`closed` và phản hồi khi được đóng
 
 ## Công nghệ
 
@@ -64,9 +63,6 @@ bun start
 - `src/server/api.ts` — server API độc lập (port 3001)
 - `src/server/` — routes, handlers, db (SQLite), auth (session cookie), storage (upload), media token (`mediaToken.ts`), security headers (`security.ts`)
 - `src/App.tsx` — routing (trang chủ `/` và trang xem `/video/:id`)
-- `src/HomePage.tsx` — trang chủ: tìm kiếm, tải lên, danh sách video, hộp thoại góp ý
+- `src/HomePage.tsx` — trang chủ: tìm kiếm, tải lên, danh sách video
 - `src/UploadModal.tsx` — modal tải lên video và ảnh thu nhỏ với thanh tiến trình
-- `src/FeedbackDialog.tsx` — hộp thoại "Góp ý": gửi và xem danh sách góp ý (mở/đóng)
 - `src/VideoPage.tsx` — trang xem video
-- `src/VideoPlayer.tsx` — player (video element + controls + HLS)
-- `src/server/feedback.ts` — lưu trữ góp ý (mỗi góp ý một file Markdown trong `feedback/`, có thể ghi đè qua biến `FEEDBACK_DIR`)
