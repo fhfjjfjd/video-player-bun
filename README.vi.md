@@ -4,8 +4,6 @@
 
 Một web video player: đăng ký, đăng nhập, tải video lên, xem video trực tuyến, tìm kiếm và chia sẻ video qua URL riêng.
 
-🌐 **Tunnel URL:** `https://videohubhuy.duckdns.org`
-
 ## Tính năng
 
 - Xem video công khai mà không cần đăng nhập
@@ -53,40 +51,10 @@ bun devs
 
 # production
 bun start
-
-# tunnel HTTPS công khai (Cloudflare)
-bun run tunnel   # quick tunnel (tạm thời)
-bash tunnel.sh   # named tunnel với hostname cố định
 ```
 
 `bun dev` dùng một script nhỏ (`dev.ts`) theo dõi thư mục `src/` và tự khởi
 động lại server khi bạn sửa file — không cần restart thủ công.
-
-## Truy cập công khai qua HTTPS (Cloudflare Tunnel)
-
-Để đưa ứng dụng ra ngoài với link HTTPS an toàn, dùng Cloudflare Tunnel.
-Tên miền phải được quản lý trên Cloudflare (nameserver trỏ về Cloudflare).
-
-```bash
-# quick tunnel (tạm thời, không cần tài khoản)
-bun run tunnel          # chạy: cloudflared tunnel --url http://localhost:3000
-
-# named tunnel (hostname cố định, cần tài khoản Cloudflare + domain)
-bash tunnel.sh          # lần đầu: login, tạo tunnel, trỏ DNS rồi chạy
-bash tunnel.sh          # các lần sau: chỉ chạy tunnel
-
-# với DuckDNS (free DDNS, không cần account Cloudflare cho DNS)
-# Tạo file .env trong ~/.cloudflared/ với nội dung:
-#   DUCKDNS_TOKEN=<token>
-#   DUCKDNS_DOMAIN=<tên miền duckdns của bạn>
-# Sau đó chạy: bash tunnel.sh
-```
-
-Với **named tunnel**, chạy `TUNNEL_HOSTNAME=video.example.com bash tunnel.sh` để
-bỏ qua bước nhập hostname. Script đăng nhập Cloudflare, tạo tunnel `videohub`,
-ghi `~/.cloudflared/videohub.yml` (ingress → `http://localhost:3000`),
-trỏ DNS rồi chạy. `bun dev` chạy cả hai cổng trong một process, nên tunnel
-tới cổng 3000 là truy cập được toàn app.
 
 ## Cấu trúc
 
