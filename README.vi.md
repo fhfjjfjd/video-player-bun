@@ -72,6 +72,13 @@ bun run tunnel          # chạy: cloudflared tunnel --url http://localhost:3000
 # named tunnel (hostname cố định, cần tài khoản Cloudflare + domain)
 bash tunnel.sh          # lần đầu: login, tạo tunnel, trỏ DNS rồi chạy
 bash tunnel.sh          # các lần sau: chỉ chạy tunnel
+
+# với DuckDNS (free DDNS, không cần account Cloudflare cho DNS)
+# Tạo file .env trong ~/.cloudflared/ với nội dung:
+#   DUCKDNS_TOKEN=<token>
+#   DUCKDNS_DOMAIN=videohubhuy.duckdns.org
+# Sau đó chạy: bash tunnel.sh
+DUCKDNS_TOKEN=<token> DUCKDNS_DOMAIN=videohubhuy.duckdns.org bash tunnel.sh
 ```
 
 Với **named tunnel**, chạy `TUNNEL_HOSTNAME=video.example.com bash tunnel.sh` để

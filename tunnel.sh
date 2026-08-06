@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# Named Cloudflare Tunnel setup + run for the video player.
+# Cloudflare Tunnel setup + run for the video player.
+# Supports both Quick Tunnel (free, no account) and Named Tunnel with DuckDNS (free DDNS).
 #
-#   bash tunnel.sh                          # create/config route DNS and run
-#   TUNNEL_HOSTNAME=video.example.com bash tunnel.sh   # skip the hostname prompt
-#
-# Requirements: cloudflared installed (`pkg install cloudflared`) and a
-# Cloudflare account with the domain's DNS managed by Cloudflare.
+#   bash tunnel.sh                              # interactive setup
+#   TUNNEL_HOSTNAME=videohubhuy.duckdns.org bash tunnel.sh  # skip hostname prompt
+#   DUCKDNS_TOKEN=... DUCKDNS_DOMAIN=... bash tunnel.sh    # auto-update DuckDNS
 
 set -euo pipefail
 
@@ -13,6 +12,17 @@ TUNNEL_NAME="${TUNNEL_NAME:-videohub}"
 CONFIG_DIR="${HOME}/.cloudflared"
 CONFIG_FILE="${CONFIG_DIR}/${TUNNEL_NAME}.yml"
 SUBDOMAIN="${TUNNEL_HOSTNAME:-}"
+
+# Đọc biến môi trường từ .env (nếu có) — không đưa file này lên git.
+ENV_FILE="${CONFIG_DIR}/.env"
+if [ -f "${ENV_FILE}" ]; then
+  set -a
+  source "${ENV_FILE}"
+  set +a
+fi
+
+DUCKDNS_TOKEN="${DUCKDNS_TOKEN:-}"
+DUCKDNS_DOMAIN="${DUCKDNS_DOMAIN:-}"
 
 if ! command -v cloudflared >/dev/null 2>&1; then
   echo "✗ cloudflared chưa được cài. Chạy: pkg install cloudflared"
@@ -38,8 +48,19 @@ if [ -n "${CANDIDATE}" ] && [ ! -f "${EXPECTED}" ]; then
   echo "   Đã copy credentials → ${EXPECTED}"
 fi
 
+# Nếu có DuckDNS token + domain, tự động update DDNS.
+if [ -n "${DUCKDNS_TOKEN}" ] && [ -n "${DUCKDNS_DOMAIN}" ]; then
+  echo "==> Cập nhật DuckDNS ${DUCKDNS_DOMAIN}…"
+  DUCKDNS_IP=$(curl -s "https://www.duckdns.org/update?domains=${DUCKDNS_DOMAIN}&token=${DUCKDNS_TOKEN}&ip=")
+  echo "   DuckDNS response: ${DUCKDNS_IP}"
+  if [ "${DUCKDNS_IP}" != "OK" ]; then
+    echo "   ⚠ DuckDNS update có thể thất bại — kiểm tra token và domain."
+  fi
+  SUBDOMAIN="${DUCKDNS_DOMAIN}"
+fi
+
 if [ -z "${SUBDOMAIN}" ]; then
-  read -rp "Nhập hostname (ví dụ: video.example.com): " SUBDOMAIN
+  read -rp "Nhập hostname (ví dụ: video.example.com hoặc videohubhuy.duckdns.org): " SUBDOMAIN
 fi
 SUBDOMAIN="$(echo "${SUBDOMAIN}" | tr -d '[:space:]')"
 if [ -z "${SUBDOMAIN}" ]; then
@@ -66,11 +87,10 @@ EOF
   echo "==> Trỏ DNS ${SUBDOMAIN} tới tunnel…"
   if ! cloudflared tunnel route dns "${TUNNEL_NAME}" "${SUBDOMAIN}" 2>&1 | while IFS= read -r line; do echo "   ${line}"; done; then
     echo ""
-    echo "✗ Không thể trỏ DNS. Hãy đảm bảo:"
-    echo "   1. Domain ${SUBDOMAIN} đã được thêm vào Cloudflare account."
-    echo "   2. Nameservers của domain đã trỏ về Cloudflare."
-    echo "   Sau khi DNS sẵn sàng, chạy lại: bash tunnel.sh"
-    exit 1
+    echo "⚠ Không thể trỏ DNS qua Cloudflare (domain có thể không nằm trên Cloudflare)."
+    echo "   Tunnel vẫn chạy — dùng Quick Tunnel URL tạm thời:"
+    echo "   cloudflared tunnel --url http://localhost:3000"
+    echo "   Hoặc đảm bảo domain đã thêm vào Cloudflare và nameserver trỏ về Cloudflare."
   fi
 fi
 
