@@ -29,15 +29,23 @@ db.exec(`
     filename TEXT NOT NULL UNIQUE,
     size INTEGER NOT NULL,
     content_type TEXT NOT NULL,
+    thumbnail_filename TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
 `);
+;
 
 // Migration for databases created before the `email` column existed.
 const userColumns = db.query("PRAGMA table_info(users)").all() as { name: string }[];
 if (!userColumns.some(column => column.name === "email")) {
   db.exec("ALTER TABLE users ADD COLUMN email TEXT");
   db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL");
+}
+
+// Migration for databases created before the `thumbnail_filename` column existed.
+const videoTableColumns = db.query("PRAGMA table_info(videos)").all() as { name: string }[];
+if (!videoTableColumns.some(column => column.name === "thumbnail_filename")) {
+  db.exec("ALTER TABLE videos ADD COLUMN thumbnail_filename TEXT");
 }
 
 interface UserRow {
@@ -108,13 +116,14 @@ interface VideoRow {
   filename: string;
   size: number;
   content_type: string;
+  thumbnail_filename: string | null;
   created_at: string;
 }
 
-export function createVideo(userId: number, title: string, filename: string, size: number, contentType: string): VideoRow {
+export function createVideo(userId: number, title: string, filename: string, size: number, contentType: string, thumbnailFilename?: string | null): VideoRow {
   const result = db
-    .query("INSERT INTO videos (user_id, title, filename, size, content_type) VALUES (?, ?, ?, ?, ?)")
-    .run(userId, title, filename, size, contentType);
+    .query("INSERT INTO videos (user_id, title, filename, size, content_type, thumbnail_filename) VALUES (?, ?, ?, ?, ?, ?)")
+    .run(userId, title, filename, size, contentType, thumbnailFilename ?? null);
 
   return {
     id: Number(result.lastInsertRowid),
@@ -123,6 +132,7 @@ export function createVideo(userId: number, title: string, filename: string, siz
     filename,
     size,
     content_type: contentType,
+    thumbnail_filename: thumbnailFilename ?? null,
     created_at: new Date().toISOString(),
   };
 }

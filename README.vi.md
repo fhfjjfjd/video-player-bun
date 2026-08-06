@@ -9,7 +9,8 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 - Xem video công khai mà không cần đăng nhập
 - Đăng ký / đăng nhập để tải video lên và quản lý video của mình (đăng ký bắt buộc có email Gmail; đăng nhập nhận Gmail hoặc username)
 - Chỉ chủ sở hữu mới xóa được video của mình
-- Tìm kiếm video theo tên
+- Hỗ trợ hình ảnh thu nhỏ (thumbnail) tùy chỉnh khi tải lên video
+- Tối ưu hóa giao diện di động hoàn chỉnh và lưới thẻ video responsive trực quan
 - Mỗi video có URL riêng (`/video/:id`) để chia sẻ
 - Server không bao giờ lộ URL media trực tiếp — API trả token media ký HMAC có thời hạn ngắn, client phát video qua `/api/media?t=<token>` (hỗ trợ Range request)
 - Tăng cường bảo mật: Content-Security-Policy, `X-Content-Type-Options`, `X-Frame-Options` và các header bảo mật khác trên mọi request
@@ -64,6 +65,7 @@ bun start
 - `src/server/` — routes, handlers, db (SQLite), auth (session cookie), storage (upload), media token (`mediaToken.ts`), security headers (`security.ts`)
 - `src/App.tsx` — routing (trang chủ `/` và trang xem `/video/:id`)
 - `src/HomePage.tsx` — trang chủ: tìm kiếm, tải lên, danh sách video, hộp thoại góp ý
+- `src/UploadModal.tsx` — modal tải lên video và ảnh thu nhỏ với thanh tiến trình
 - `src/FeedbackDialog.tsx` — hộp thoại "Góp ý": gửi và xem danh sách góp ý (mở/đóng)
 - `src/VideoPage.tsx` — trang xem video
 - `src/VideoPlayer.tsx` — player (video element + controls + HLS)

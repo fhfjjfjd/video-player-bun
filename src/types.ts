@@ -8,6 +8,7 @@ export interface Video {
   title: string;
   /** Signed media token — used as `/api/media?t=<token>`; validated server-side. */
   url: string;
+  thumbnail_url?: string;
   size: number;
   content_type: string;
   created_at: string;

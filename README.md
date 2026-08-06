@@ -10,7 +10,8 @@ share videos through dedicated per-video URLs.
 - Watch videos publicly without logging in
 - Register / log in to upload videos and manage your own uploads (registration requires a Gmail address; login accepts your Gmail or username)
 - Only the owner can delete a video
-- Search videos by title
+- Support for custom video thumbnails (images uploaded alongside videos)
+- Completely optimized mobile UI and responsive video library card grid
 - Every video has its own shareable URL (`/video/:id`)
 - Direct media URLs are never exposed — the API returns a short-lived HMAC-signed media token, and the client streams the video through `/api/media?t=<token>` (Range requests supported)
 - Hardened responses: Content-Security-Policy, `X-Content-Type-Options`, `X-Frame-Options` and other security headers on every request
@@ -65,6 +66,7 @@ server automatically when you edit files — no manual restarts.
 - `src/server/` — routes, handlers, db (SQLite), auth (session cookie), storage (upload), media tokens (`mediaToken.ts`), security headers (`security.ts`)
 - `src/App.tsx` — routing (home `/` and watch page `/video/:id`)
 - `src/HomePage.tsx` — home page: search, upload, video list, feedback dialog
+- `src/UploadModal.tsx` — upload modal with video and thumbnail image selection + progress bar
 - `src/FeedbackDialog.tsx` — "Góp ý" dialog: submit and browse suggestions (open/closed)
 - `src/VideoPage.tsx` — video watch page
 - `src/VideoPlayer.tsx` — the player (video element + controls + HLS)

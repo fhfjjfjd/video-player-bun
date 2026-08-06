@@ -17,6 +17,7 @@ const toVideoDto = (
     filename: string;
     size: number;
     content_type: string;
+    thumbnail_filename: string | null;
     created_at: string;
   },
   viewerId?: number,
@@ -24,6 +25,7 @@ const toVideoDto = (
   id: row.id,
   title: row.title,
   url: createMediaToken(row.filename),
+  thumbnail_url: row.thumbnail_filename ? createMediaToken(row.thumbnail_filename) : undefined,
   size: row.size,
   content_type: row.content_type,
   created_at: row.created_at,
@@ -42,7 +44,7 @@ export async function uploadVideo(req: BunRequest): Promise<Response> {
   if (!user) return jsonError(401, "Chưa đăng nhập.");
 
   const form = await req.formData().catch(() => null);
-  const file = form?.get("video");
+  const file = form?.get("video") ?? form?.get("file");
   if (!(file instanceof File)) return jsonError(400, "Thiếu file video trong request.");
 
   if (!file.type.startsWith("video/")) {
@@ -51,13 +53,28 @@ export async function uploadVideo(req: BunRequest): Promise<Response> {
   if (file.size === 0) return jsonError(400, "File video rỗng.");
   if (file.size > MAX_UPLOAD_SIZE) return jsonError(400, "File vượt quá giới hạn 1GB.");
 
+  const thumbnailFile = form?.get("thumbnail");
+  let storedThumbnailName: string | null = null;
+  if (thumbnailFile instanceof File && thumbnailFile.size > 0) {
+    if (!thumbnailFile.type.startsWith("image/")) {
+      return jsonError(400, "File ảnh thu nhỏ không hợp lệ.");
+    }
+    const thumbExt = path.extname(thumbnailFile.name).slice(0, 12) || ".jpg";
+    storedThumbnailName = `${crypto.randomUUID()}${thumbExt}`;
+    const thumbDestination = path.join(UPLOAD_DIR, storedThumbnailName);
+    await Bun.write(thumbDestination, thumbnailFile);
+  }
+
+  const customTitle = form?.get("title");
+  const title = (typeof customTitle === "string" && customTitle.trim()) || file.name || "Video";
+
   const extension = path.extname(file.name).slice(0, 12);
   const storedName = `${crypto.randomUUID()}${extension}`;
   const destination = path.join(UPLOAD_DIR, storedName);
 
   await Bun.write(destination, file);
 
-  const row = createVideo(user.id, file.name || storedName, storedName, file.size, file.type);
+  const row = createVideo(user.id, title, storedName, file.size, file.type, storedThumbnailName);
   return Response.json({ video: toVideoDto(row, user.id) }, { status: 201 });
 }
 
@@ -84,6 +101,9 @@ export async function deleteVideo(req: BunRequest<"/api/videos/:id">): Promise<R
   if (!video) return jsonError(404, "Video không tồn tại.");
 
   await Bun.file(path.join(UPLOAD_DIR, video.filename)).delete().catch(() => {});
+  if (video.thumbnail_filename) {
+    await Bun.file(path.join(UPLOAD_DIR, video.thumbnail_filename)).delete().catch(() => {});
+  }
   deleteVideoRecord(id);
   return Response.json({ ok: true });
 }
