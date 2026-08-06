@@ -28,6 +28,10 @@ share videos through dedicated per-video URLs.
 bun install
 ```
 
+> **Official package manager: Bun only.** npm and pnpm are NOT supported. Do
+> not use them, and do not open issues about problems caused by npm or pnpm —
+> they are not considered official. Only Bun is supported.
+
 ## Run
 
 ```bash

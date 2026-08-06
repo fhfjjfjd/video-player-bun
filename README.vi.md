@@ -27,6 +27,10 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 bun install
 ```
 
+> **Trình quản lý gói chính thức: chỉ có Bun.** npm và pnpm KHÔNG được hỗ trợ.
+> Đừng dùng chúng và đừng mở issue về lỗi do npm hoặc pnpm gây ra — chúng
+> không được coi là chính thức. Chỉ Bun được hỗ trợ.
+
 ## Chạy
 
 ```bash
