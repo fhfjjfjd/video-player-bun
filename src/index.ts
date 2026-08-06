@@ -66,14 +66,9 @@ const server = serve({
     "/api/*": proxyToApi,
     "/*": index,
   },
-  development: config.isDevelopment
-    ? {
-        // Enable browser hot reloading in development.
-        hmr: true,
-        // Echo console logs from the browser to the server.
-        console: true,
-      }
-    : undefined,
+  // Dev features (HMR, console relay) are disabled: Bun's HMR injects an inline
+  // bootstrap script that conflicts with the strict Content-Security-Policy.
+  development: false,
 });
 
 const log = (message: string) => console.log(`[web] ${message}`);
