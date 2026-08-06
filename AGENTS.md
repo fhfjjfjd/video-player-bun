@@ -1,6 +1,6 @@
 # Agent Rules — Build, Version, Release Workflow
 
-This project lives at `https://github.com/fhfjjfjd/video-player-node` (branch `main`).
+This project lives at `https://github.com/fhfjjfjd/video-player-bun` (branch `main`).
 
 These rules are MANDATORY. Follow them every time you complete a task, add a
 feature, or fix a bug.
@@ -68,7 +68,7 @@ git push origin v<version>  # e.g. git push origin v3.0.1
 ### Step 7 — Create a GitHub release
 
 ```bash
-gh release create v<version> --repo fhfjjfjd/video-player-node \
+gh release create v<version> --repo fhfjjfjd/video-player-bun \
   --title "v<version> - <short summary>" \
   --latest \
   --notes "<what changed, in English>"
