@@ -86,26 +86,30 @@ Release notes go in English and summarize the changes in this version.
 ## 4. Feedback (Góp ý) handling
 
 Suggestions from the "Góp ý" dialog are saved as Markdown files in the
-`feedback/` folder (gitignored). Each file has a frontmatter field:
+`feedback/` folder (gitignored). Each file has a frontmatter block plus the
+detailed content (nội dung chi tiết) below it:
 
 ```markdown
 ---
 id: <uuid>
 type: feature|bug|other
-title: <title>
+title: <short title>
 status: open|closed
 created_at: <ISO timestamp>
 author: <username>
 ---
 
-<description>
+<nội dung chi tiết — detailed description of the request>
 ```
 
 Rules:
 
 - Check the `feedback/` folder when starting work and after every change.
-- If a file has `status: open`, do what it asks: fix the bug, add the
-  feature, or implement whatever it requests.
+- Read EVERY open file COMPLETELY — both its `title` and the full detailed
+  content (`nội dung chi tiết`) below the frontmatter — before acting. Never
+  act on the title alone.
+- If a file has `status: open`, do what its full content asks: fix the bug,
+  add the feature, or implement whatever it requests.
 - After finishing, edit the file to set `status: closed` AND append a
   `## Reply` section explaining what was done, so the submitter sees the
   answer. Never close an item without replying. Write the reply in BOTH

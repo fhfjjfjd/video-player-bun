@@ -202,7 +202,7 @@ export function FeedbackDialog({ open, onClose }: FeedbackDialogProps) {
                       <span className="ml-auto text-[11px] tabular-nums text-zinc-500">{formatDate(item.created_at)}</span>
                     </div>
                     <p className="mt-1.5 text-sm font-medium leading-snug">{item.title}</p>
-                    <p className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-zinc-400">{item.body}</p>
+                    <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-zinc-300">{item.body}</p>
                     {item.reply && (
                       <div className="mt-2 rounded-md border border-emerald-500/20 bg-emerald-500/5 px-3 py-2">
                         <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-300">Phản hồi</p>
