@@ -38,7 +38,7 @@ bun install
 ## Run
 
 ```bash
-# run both frontend (3000) and API (3001)
+# run both frontend (3000) and API (3001) — auto-restarts on src/ changes
 bun dev
 
 # API only
@@ -54,9 +54,13 @@ bun devs
 bun start
 ```
 
+`bun dev` uses a small runner (`dev.ts`) that watches `src/` and restarts the
+server automatically when you edit files — no manual restarts.
+
 ## Structure
 
 - `src/index.ts` — frontend server (port 3000), proxies `/api/*` to the API and serves the SPA
+- `dev.ts` — dev runner: watches `src/` and auto-restarts the dev server on file changes
 - `src/server/api.ts` — standalone API server (port 3001)
 - `src/server/` — routes, handlers, db (SQLite), auth (session cookie), storage (upload), media tokens (`mediaToken.ts`), security headers (`security.ts`)
 - `src/App.tsx` — routing (home `/` and watch page `/video/:id`)

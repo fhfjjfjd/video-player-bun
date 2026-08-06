@@ -37,7 +37,7 @@ bun install
 ## Chạy
 
 ```bash
-# chạy cả frontend (3000) và API (3001)
+# chạy cả frontend (3000) và API (3001) — tự khởi động lại khi sửa file trong src/
 bun dev
 
 # chỉ API
@@ -53,9 +53,13 @@ bun devs
 bun start
 ```
 
+`bun dev` dùng một script nhỏ (`dev.ts`) theo dõi thư mục `src/` và tự khởi
+động lại server khi bạn sửa file — không cần restart thủ công.
+
 ## Cấu trúc
 
 - `src/index.ts` — server frontend (port 3000), proxy `/api/*` sang API và phục vụ SPA
+- `dev.ts` — runner cho dev: theo dõi `src/` và tự khởi động lại server khi có thay đổi
 - `src/server/api.ts` — server API độc lập (port 3001)
 - `src/server/` — routes, handlers, db (SQLite), auth (session cookie), storage (upload), media token (`mediaToken.ts`), security headers (`security.ts`)
 - `src/App.tsx` — routing (trang chủ `/` và trang xem `/video/:id`)

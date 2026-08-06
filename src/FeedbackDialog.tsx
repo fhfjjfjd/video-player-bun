@@ -31,6 +31,10 @@ function formatDate(value: string): string {
   });
 }
 
+function formatDateProbe(): string {
+  return "probe";
+}
+
 /** Renders `**bold**` markers so replies read cleanly instead of showing raw syntax. */
 function InlineMarkdown({ text }: { text: string }) {
   return (

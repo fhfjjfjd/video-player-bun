@@ -7,6 +7,8 @@ import { VideoLibrary } from "./VideoLibrary";
 import { useVideoList } from "./useVideoList";
 import type { Video } from "./types";
 
+// auto-reload probe
+
 interface HomePageProps {
   user: string | null;
   onLogout: () => void;
