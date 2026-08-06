@@ -11,6 +11,7 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 - Chỉ chủ sở hữu mới xóa được video của mình
 - Tìm kiếm video theo tên
 - Mỗi video có URL riêng (`/video/:id`) để chia sẻ
+- Server không bao giờ lộ URL media trực tiếp — chỉ trả token mã hóa mà client phải giải mã mới lấy được URL thật
 - Player đầy đủ: phát/tạm dừng, tua, âm lượng, tốc độ phát, toàn màn hình, phím tắt
 - Hỗ trợ HLS (`.m3u8`) qua hls.js
 

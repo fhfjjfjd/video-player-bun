@@ -12,6 +12,7 @@ share videos through dedicated per-video URLs.
 - Only the owner can delete a video
 - Search videos by title
 - Every video has its own shareable URL (`/video/:id`)
+- Direct media URLs are never exposed by the server — it returns an encrypted token that the client must decode to obtain the real URL
 - Full-featured player: play/pause, seek, volume, playback speed, fullscreen, keyboard shortcuts
 - HLS (`.m3u8`) support via hls.js
 

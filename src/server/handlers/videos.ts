@@ -4,6 +4,7 @@ import type { Video } from "../../types";
 import { getAuthenticatedUser } from "../auth";
 import { createVideo, deleteVideoRecord, findVideoById, findVideoByIdAndUser, listAllVideos } from "../db";
 import { MAX_UPLOAD_SIZE, UPLOAD_DIR } from "../storage";
+import { encodeVideoUrl } from "../videoUrl";
 
 const jsonError = (status: number, message: string): Response =>
   Response.json({ error: message }, { status });
@@ -22,7 +23,7 @@ const toVideoDto = (
 ): Video => ({
   id: row.id,
   title: row.title,
-  url: `/uploads/${row.filename}`,
+  url: encodeVideoUrl(`/uploads/${row.filename}`),
   size: row.size,
   content_type: row.content_type,
   created_at: row.created_at,

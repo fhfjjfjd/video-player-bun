@@ -1,6 +1,7 @@
 import { Film, Play, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { decodeVideoUrl } from "@/lib/videoUrl";
 import type { Video } from "./types";
 
 const formatBytes = (bytes: number): string => {
@@ -38,7 +39,7 @@ export function VideoLibrary({ videos, activeUrl, onPlay, onDelete }: VideoLibra
       </h2>
       <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {videos.map(video => {
-          const isActive = activeUrl === new URL(video.url, window.location.origin).href;
+          const isActive = activeUrl === new URL(decodeVideoUrl(video.url), window.location.origin).href;
           return (
             <li
               key={video.id}

@@ -6,6 +6,7 @@ export interface User {
 export interface Video {
   id: number;
   title: string;
+  /** Encrypted media token — the client must decode it to get the real URL. */
   url: string;
   size: number;
   content_type: string;
