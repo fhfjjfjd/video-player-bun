@@ -3,7 +3,7 @@
 # Supports both Quick Tunnel (free, no account) and Named Tunnel with DuckDNS (free DDNS).
 #
 #   bash tunnel.sh                              # interactive setup
-#   TUNNEL_HOSTNAME=videohubhuy.duckdns.org bash tunnel.sh  # skip hostname prompt
+#   TUNNEL_HOSTNAME=<tên miền của bạn> bash tunnel.sh  # skip hostname prompt
 #   DUCKDNS_TOKEN=... DUCKDNS_DOMAIN=... bash tunnel.sh    # auto-update DuckDNS
 
 set -euo pipefail

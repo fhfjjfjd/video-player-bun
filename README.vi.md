@@ -4,6 +4,8 @@
 
 Một web video player: đăng ký, đăng nhập, tải video lên, xem video trực tuyến, tìm kiếm và chia sẻ video qua URL riêng.
 
+🌐 **Tunnel URL:** `https://videohubhuy.duckdns.org`
+
 ## Tính năng
 
 - Xem video công khai mà không cần đăng nhập
@@ -76,9 +78,8 @@ bash tunnel.sh          # các lần sau: chỉ chạy tunnel
 # với DuckDNS (free DDNS, không cần account Cloudflare cho DNS)
 # Tạo file .env trong ~/.cloudflared/ với nội dung:
 #   DUCKDNS_TOKEN=<token>
-#   DUCKDNS_DOMAIN=videohubhuy.duckdns.org
+#   DUCKDNS_DOMAIN=<tên miền duckdns của bạn>
 # Sau đó chạy: bash tunnel.sh
-DUCKDNS_TOKEN=<token> DUCKDNS_DOMAIN=videohubhuy.duckdns.org bash tunnel.sh
 ```
 
 Với **named tunnel**, chạy `TUNNEL_HOSTNAME=video.example.com bash tunnel.sh` để
