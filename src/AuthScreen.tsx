@@ -17,6 +17,7 @@ export function AuthScreen({
 }) {
   const [mode, setMode] = useState<Mode>("login");
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -31,7 +32,9 @@ export function AuthScreen({
       const response = await fetch(`/api/${mode}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify(
+          mode === "register" ? { username, email, password } : { username, password },
+        ),
       });
       const data = (await response.json()) as { user?: User; error?: string; ok?: boolean };
       if (!response.ok) {
@@ -98,16 +101,29 @@ export function AuthScreen({
 
           <form onSubmit={onSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username">{mode === "login" ? "Gmail hoặc Username" : "Username"}</Label>
               <Input
                 id="username"
                 value={username}
                 onChange={event => setUsername(event.target.value)}
-                placeholder="3–32 ký tự chữ, số hoặc _"
+                placeholder={mode === "login" ? "Tên người dùng hoặc …@gmail.com" : "3–32 ký tự chữ, số hoặc _"}
                 autoComplete="username"
                 autoFocus
               />
             </div>
+            {mode === "register" && (
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="email">Email (Gmail)</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={event => setEmail(event.target.value)}
+                  placeholder="Bắt buộc dùng Gmail (…@gmail.com)"
+                  autoComplete="email"
+                />
+              </div>
+            )}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="password">Password</Label>
               <Input

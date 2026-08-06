@@ -8,7 +8,7 @@ share videos through dedicated per-video URLs.
 ## Features
 
 - Watch videos publicly without logging in
-- Register / log in to upload videos and manage your own uploads
+- Register / log in to upload videos and manage your own uploads (registration requires a Gmail address; login accepts your Gmail or username)
 - Only the owner can delete a video
 - Search videos by title
 - Every video has its own shareable URL (`/video/:id`)

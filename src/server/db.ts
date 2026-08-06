@@ -11,6 +11,7 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
+    email TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
@@ -32,10 +33,18 @@ db.exec(`
   );
 `);
 
+// Migration for databases created before the `email` column existed.
+const userColumns = db.query("PRAGMA table_info(users)").all() as { name: string }[];
+if (!userColumns.some(column => column.name === "email")) {
+  db.exec("ALTER TABLE users ADD COLUMN email TEXT");
+  db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL");
+}
+
 interface UserRow {
   id: number;
   username: string;
   password_hash: string;
+  email: string | null;
 }
 
 interface SessionRow {
@@ -44,10 +53,10 @@ interface SessionRow {
   expires_at: string;
 }
 
-export function createUser(username: string, passwordHash: string): User {
+export function createUser(username: string, email: string, passwordHash: string): User {
   const result = db
-    .query("INSERT INTO users (username, password_hash) VALUES (?, ?)")
-    .run(username, passwordHash);
+    .query("INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)")
+    .run(username, email, passwordHash);
 
   return {
     id: Number(result.lastInsertRowid),
@@ -57,6 +66,17 @@ export function createUser(username: string, passwordHash: string): User {
 
 export function findUserByUsername(username: string): UserRow | null {
   return db.query("SELECT * FROM users WHERE username = ?").get(username) as UserRow | null;
+}
+
+export function findUserByEmail(email: string): UserRow | null {
+  return db.query("SELECT * FROM users WHERE email = ?").get(email) as UserRow | null;
+}
+
+/** Resolves a login identifier: an email address is matched against the
+ * (lower-cased) `email` column, anything else is treated as a username. */
+export function findUserByIdentifier(identifier: string): UserRow | null {
+  if (identifier.includes("@")) return findUserByEmail(identifier.toLowerCase());
+  return findUserByUsername(identifier);
 }
 
 export function createSession(userId: number, token: string, expiresAt: string): void {

@@ -7,7 +7,7 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 ## Tính năng
 
 - Xem video công khai mà không cần đăng nhập
-- Đăng ký / đăng nhập để tải video lên và quản lý video của mình
+- Đăng ký / đăng nhập để tải video lên và quản lý video của mình (đăng ký bắt buộc có email Gmail; đăng nhập nhận Gmail hoặc username)
 - Chỉ chủ sở hữu mới xóa được video của mình
 - Tìm kiếm video theo tên
 - Mỗi video có URL riêng (`/video/:id`) để chia sẻ
