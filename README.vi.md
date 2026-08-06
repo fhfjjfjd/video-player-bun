@@ -56,6 +56,19 @@ bun start
 `bun dev` dùng một script nhỏ (`dev.ts`) theo dõi thư mục `src/` và tự khởi
 động lại server khi bạn sửa file — không cần restart thủ công.
 
+## Truy cập công khai qua HTTPS (Cloudflare Tunnel)
+
+Để đưa ứng dụng ra ngoài với link HTTPS an toàn, dùng Cloudflare Tunnel:
+
+```bash
+# cài cloudflared, sau đó mở tunnel nhanh tới frontend local
+cloudflared tunnel --url http://localhost:3000
+```
+
+Cloudflared in ra URL `https://…trycloudflare.com`. Muốn địa chỉ cố định, trỏ
+một named tunnel vào ứng dụng hoặc dùng custom domain. `bun dev` chạy cả hai
+cổng trong một process, nên tunnel tới cổng 3000 là truy cập được toàn app.
+
 ## Cấu trúc
 
 - `src/index.ts` — server frontend (port 3000), proxy `/api/*` sang API và phục vụ SPA

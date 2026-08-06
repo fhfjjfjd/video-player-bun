@@ -57,6 +57,19 @@ bun start
 `bun dev` uses a small runner (`dev.ts`) that watches `src/` and restarts the
 server automatically when you edit files — no manual restarts.
 
+## Public access over HTTPS (Cloudflare Tunnel)
+
+To expose the app publicly with a secure HTTPS link, use Cloudflare Tunnel:
+
+```bash
+# install cloudflared, then start a quick tunnel to the local frontend
+cloudflared tunnel --url http://localhost:3000
+```
+
+Cloudflared prints a `https://…trycloudflare.com` URL. For a stable address,
+point a named tunnel at the app or use a custom domain. `bun dev` runs both
+ports in one process, so tunneling to port 3000 gives access to the whole app.
+
 ## Structure
 
 - `src/index.ts` — frontend server (port 3000), proxies `/api/*` to the API and serves the SPA
