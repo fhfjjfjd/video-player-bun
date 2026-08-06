@@ -63,6 +63,10 @@ server automatically when you edit files — no manual restarts.
 - `dev.ts` — dev runner: watches `src/` and auto-restarts the dev server on file changes
 - `src/server/api.ts` — standalone API server (port 3001)
 - `src/server/` — routes, handlers, db (SQLite), auth (session cookie), storage (upload), media tokens (`mediaToken.ts`), security headers (`security.ts`)
+- `bin/` — platform-specific native C++ binaries (linux-x64, linux-arm64, darwin-x64, darwin-arm64, windows-x64, android-arm64). The server detects the current architecture and loads the correct binary from this directory. This is mandatory — the server will not start without the correct binary.
+- `src/server/cpp/` — C++ source code for native modules (mediatoken, security, auth, db, videos)
+- `build_cpp.sh` — compiles C++ source into shared libraries for the current platform
+- `bin/detect.ts` — detects platform architecture and copies the correct binaries to `bin/`
 - `src/App.tsx` — routing (home `/` and watch page `/video/:id`)
 - `src/HomePage.tsx` — home page: search, upload, video list, feedback link to GitHub Issues
 - `src/UploadModal.tsx` — upload modal with video and thumbnail image selection + progress bar

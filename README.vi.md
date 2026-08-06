@@ -62,7 +62,11 @@ bun start
 - `src/index.ts` — server frontend (port 3000), proxy `/api/*` sang API và phục vụ SPA
 - `dev.ts` — runner cho dev: theo dõi `src/` và tự khởi động lại server khi có thay đổi
 - `src/server/api.ts` — server API độc lập (port 3001)
-- `src/server/` — routes, handlers, db (SQLite), auth (session cookie), storage (upload), media token (`mediaToken.ts`), security headers (`security.ts`)
+- `src/server/` — routes, handlers, db (SQLite), auth (session cookie), storage (upload), media tokens (`mediaToken.ts`), security headers (`security.ts`)
+- `bin/` — các binary C++ native theo nền tảng (linux-x64, linux-arm64, darwin-x64, darwin-arm64, windows-x64, android-arm64). Server tự động phát hiện kiến trúc hiện tại và tải binary đúng từ thư mục này. Đây là bắt buộc — server sẽ không khởi động nếu thiếu binary đúng.
+- `src/server/cpp/` — mã nguồn C++ cho các module native (mediatoken, security, auth, db, videos)
+- `build_cpp.sh` — biên dịch C++ thành shared library cho nền tảng hiện tại
+- `bin/detect.ts` — phát hiện nền tảng kiến trúc và sao chép binary đúng vào `bin/`
 - `src/App.tsx` — routing (trang chủ `/` và trang xem `/video/:id`)
 - `src/HomePage.tsx` — trang chủ: tìm kiếm, tải lên, danh sách video, nút góp ý mở GitHub Issues
 - `src/UploadModal.tsx` — modal tải lên video và ảnh thu nhỏ với thanh tiến trình

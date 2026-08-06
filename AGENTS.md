@@ -65,7 +65,16 @@ git tag v<version>          # e.g. git tag v3.0.1
 git push origin v<version>  # e.g. git push origin v3.0.1
 ```
 
-### Step 7 — Create a GitHub release
+### Step 7 — Run GitHub Actions manually
+
+After pushing the tag, go to the GitHub repository → **Actions** tab →
+select the **Build C++ Libraries** workflow → click **Run workflow**
+(or trigger it automatically by the push). Wait for it to complete
+across all platforms (Linux x86, Linux ARM, macOS x86, macOS ARM,
+Windows x86, Android ARM). Download the produced binary artifacts for
+each platform.
+
+### Step 8 — Create a GitHub release
 
 ```bash
 gh release create v<version> --repo fhfjjfjd/video-player-bun \
@@ -74,7 +83,18 @@ gh release create v<version> --repo fhfjjfjd/video-player-bun \
   --notes "<what changed, in English>"
 ```
 
-Release notes go in English and summarize the changes in this version.
+### Step 9 — Upload binary artifacts to the release
+
+After creating the release, upload the binary artifacts produced by
+GitHub Actions (the native binaries for each platform) to the release
+page using the GitHub CLI or the web UI:
+
+```bash
+gh release upload v<version> <path-to-binary> --repo fhfjjfjd/video-player-bun
+```
+
+Repeat for each platform binary. Release notes go in English and
+summarize the changes in this version.
 
 ### Rule: do not modify a published release
 

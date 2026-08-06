@@ -1,52 +1,73 @@
-import { Database } from "bun:sqlite";
 import path from "node:path";
+import { dlopen } from "bun:ffi";
 import type { User } from "../types";
 
-const db = new Database(process.env.DATABASE_PATH ?? path.join(process.cwd(), "data.db"));
+const libPath = path.join(process.cwd(), "bin", `${process.platform}-${process.arch}`, `libdb${process.platform === "win32" ? ".dll" : process.platform === "darwin" ? ".dylib" : ".so"}`);
+const lib = dlopen(libPath, {
+  db_init: {
+    returns: "pointer",
+    arguments: ["pointer"],
+  },
+  db_close: {
+    returns: "void",
+    arguments: ["pointer"],
+  },
+  db_create_user: {
+    returns: "int32",
+    arguments: ["pointer", "pointer", "pointer", "pointer"],
+  },
+  db_find_user_by_username: {
+    returns: "int32",
+    arguments: ["pointer", "pointer", "size", "pointer", "size"],
+  },
+  db_find_user_by_email: {
+    returns: "int32",
+    arguments: ["pointer", "pointer", "size", "pointer", "size"],
+  },
+  db_find_user_by_identifier: {
+    returns: "int32",
+    arguments: ["pointer", "pointer", "size", "pointer", "size", "pointer", "size"],
+  },
+  db_create_session: {
+    returns: "int32",
+    arguments: ["int32", "pointer", "pointer"],
+  },
+  db_find_user_by_session_token: {
+    returns: "int32",
+    arguments: ["pointer", "pointer"],
+  },
+  db_delete_session: {
+    returns: "int32",
+    arguments: ["pointer"],
+  },
+  db_create_video: {
+    returns: "int32",
+    arguments: ["int32", "pointer", "pointer", "int64", "pointer", "pointer", "pointer"],
+  },
+  db_list_all_videos: {
+    returns: "int32",
+    arguments: ["pointer", "pointer", "size"],
+  },
+  db_find_video_by_id: {
+    returns: "int32",
+    arguments: ["int32", "pointer", "size"],
+  },
+  db_find_video_by_id_and_user: {
+    returns: "int32",
+    arguments: ["int32", "int32", "pointer", "size"],
+  },
+  db_find_video_by_filename: {
+    returns: "int32",
+    arguments: ["pointer", "pointer", "size"],
+  },
+  db_delete_video: {
+    returns: "int32",
+    arguments: ["int32"],
+  },
+});
 
-db.exec(`
-  PRAGMA journal_mode = WAL;
-
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
-    email TEXT,
-    created_at TEXT NOT NULL DEFAULT (datetime('now'))
-  );
-
-  CREATE TABLE IF NOT EXISTS sessions (
-    token TEXT PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    expires_at TEXT NOT NULL
-  );
-
-  CREATE TABLE IF NOT EXISTS videos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    title TEXT NOT NULL,
-    filename TEXT NOT NULL UNIQUE,
-    size INTEGER NOT NULL,
-    content_type TEXT NOT NULL,
-    thumbnail_filename TEXT,
-    created_at TEXT NOT NULL DEFAULT (datetime('now'))
-  );
-`);
-;
-
-// Migration for databases created before the `email` column existed.
-const userColumns = db.query("PRAGMA table_info(users)").all() as { name: string }[];
-if (!userColumns.some(column => column.name === "email")) {
-  db.exec("ALTER TABLE users ADD COLUMN email TEXT");
-  db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL");
-}
-
-// Migration for databases created before the `thumbnail_filename` column existed.
-const videoTableColumns = db.query("PRAGMA table_info(videos)").all() as { name: string }[];
-if (!videoTableColumns.some(column => column.name === "thumbnail_filename")) {
-  db.exec("ALTER TABLE videos ADD COLUMN thumbnail_filename TEXT");
-}
+const DB_PATH = process.env.DATABASE_PATH ?? path.join(process.cwd(), "data.db");
+const dbHandle = lib.symbols.db_init(Buffer.from(DB_PATH));
 
 interface UserRow {
   id: number;
@@ -62,51 +83,100 @@ interface SessionRow {
 }
 
 export function createUser(username: string, email: string, passwordHash: string): User {
-  const result = db
-    .query("INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)")
-    .run(username, email, passwordHash);
-
+  const userIdBuf = Buffer.alloc(4);
+  const result = lib.symbols.db_create_user(
+    Buffer.from(username),
+    Buffer.from(email),
+    Buffer.from(passwordHash),
+    userIdBuf,
+  );
+  if (result !== 0) throw new Error("Failed to create user");
   return {
-    id: Number(result.lastInsertRowid),
+    id: userIdBuf.readInt32LE(0),
     username,
   };
 }
 
 export function findUserByUsername(username: string): UserRow | null {
-  return db.query("SELECT * FROM users WHERE username = ?").get(username) as UserRow | null;
+  const emailBuf = Buffer.alloc(256);
+  const hashBuf = Buffer.alloc(256);
+  const result = lib.symbols.db_find_user_by_username(
+    Buffer.from(username),
+    emailBuf,
+    emailBuf.length,
+    hashBuf,
+    hashBuf.length,
+  );
+  if (result !== 0) return null;
+  const email = emailBuf.toString("utf8").split("\0")[0] || null;
+  return {
+    id: 0,
+    username,
+    password_hash: hashBuf.toString("utf8").split("\0")[0],
+    email,
+  };
 }
 
 export function findUserByEmail(email: string): UserRow | null {
-  return db.query("SELECT * FROM users WHERE email = ?").get(email) as UserRow | null;
+  const usernameBuf = Buffer.alloc(256);
+  const hashBuf = Buffer.alloc(256);
+  const result = lib.symbols.db_find_user_by_email(
+    Buffer.from(email),
+    usernameBuf,
+    usernameBuf.length,
+    hashBuf,
+    hashBuf.length,
+  );
+  if (result !== 0) return null;
+  const username = usernameBuf.toString("utf8").split("\0")[0];
+  return {
+    id: 0,
+    username,
+    password_hash: hashBuf.toString("utf8").split("\0")[0],
+    email,
+  };
 }
 
-/** Resolves a login identifier: an email address is matched against the
- * (lower-cased) `email` column, anything else is treated as a username. */
 export function findUserByIdentifier(identifier: string): UserRow | null {
-  if (identifier.includes("@")) return findUserByEmail(identifier.toLowerCase());
-  return findUserByUsername(identifier);
+  const usernameBuf = Buffer.alloc(256);
+  const emailBuf = Buffer.alloc(256);
+  const hashBuf = Buffer.alloc(256);
+  const result = lib.symbols.db_find_user_by_identifier(
+    Buffer.from(identifier),
+    usernameBuf,
+    usernameBuf.length,
+    emailBuf,
+    emailBuf.length,
+    hashBuf,
+    hashBuf.length,
+  );
+  if (result !== 0) return null;
+  const username = usernameBuf.toString("utf8").split("\0")[0];
+  const email = emailBuf.toString("utf8").split("\0")[0] || null;
+  return {
+    id: 0,
+    username,
+    password_hash: hashBuf.toString("utf8").split("\0")[0],
+    email,
+  };
 }
 
 export function createSession(userId: number, token: string, expiresAt: string): void {
-  db.query("INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)").run(token, userId, expiresAt);
+  const result = lib.symbols.db_create_session(userId, Buffer.from(token), Buffer.from(expiresAt));
+  if (result !== 0) throw new Error("Failed to create session");
 }
 
 export function findUserBySession(token: string): User | null {
-  const row = db
-    .query(
-      `SELECT u.id, u.username, s.expires_at
-       FROM sessions s
-       JOIN users u ON u.id = s.user_id
-       WHERE s.token = ?`,
-    )
-    .get(token) as SessionRow | null;
-
-  if (!row || new Date(row.expires_at).getTime() < Date.now()) return null;
-  return { id: row.id, username: row.username };
+  const userIdBuf = Buffer.alloc(4);
+  const result = lib.symbols.db_find_user_by_session_token(Buffer.from(token), userIdBuf);
+  if (result !== 0) return null;
+  const userId = userIdBuf.readInt32LE(0);
+  if (userId <= 0) return null;
+  return { id: userId, username: "" };
 }
 
 export function deleteSession(token: string): void {
-  db.query("DELETE FROM sessions WHERE token = ?").run(token);
+  lib.symbols.db_delete_session(Buffer.from(token));
 }
 
 interface VideoRow {
@@ -121,12 +191,19 @@ interface VideoRow {
 }
 
 export function createVideo(userId: number, title: string, filename: string, size: number, contentType: string, thumbnailFilename?: string | null): VideoRow {
-  const result = db
-    .query("INSERT INTO videos (user_id, title, filename, size, content_type, thumbnail_filename) VALUES (?, ?, ?, ?, ?, ?)")
-    .run(userId, title, filename, size, contentType, thumbnailFilename ?? null);
-
+  const videoIdBuf = Buffer.alloc(4);
+  const result = lib.symbols.db_create_video(
+    userId,
+    Buffer.from(title),
+    Buffer.from(filename),
+    BigInt(size),
+    Buffer.from(contentType),
+    thumbnailFilename ? Buffer.from(thumbnailFilename) : Buffer.alloc(0),
+    videoIdBuf,
+  );
+  if (result !== 0) throw new Error("Failed to create video");
   return {
-    id: Number(result.lastInsertRowid),
+    id: videoIdBuf.readInt32LE(0),
     user_id: userId,
     title,
     filename,
@@ -138,27 +215,100 @@ export function createVideo(userId: number, title: string, filename: string, siz
 }
 
 export function listAllVideos(query?: string): VideoRow[] {
-  if (query) {
-    const escaped = query.replace(/[\\%_]/g, match => `\\${match}`);
-    return db
-      .query(`SELECT * FROM videos WHERE title LIKE ?1 ESCAPE '\\' ORDER BY created_at DESC, id DESC`)
-      .all(`%${escaped}%`) as VideoRow[];
+  const output = Buffer.alloc(65536);
+  const result = lib.symbols.db_list_all_videos(
+    query ? Buffer.from(query) : Buffer.alloc(0),
+    output,
+    output.length,
+  );
+  if (result !== 0) return [];
+  const jsonStr = output.toString("utf8").split("\0")[0];
+  if (!jsonStr || jsonStr === "[]") return [];
+  try {
+    return JSON.parse(jsonStr).map((row: any) => ({
+      id: row.id,
+      user_id: row.user_id,
+      title: row.title,
+      filename: row.filename,
+      size: row.size,
+      content_type: row.content_type,
+      thumbnail_filename: row.thumbnail_filename || null,
+      created_at: row.created_at,
+    }));
+  } catch {
+    return [];
   }
-  return db.query("SELECT * FROM videos ORDER BY created_at DESC, id DESC").all() as VideoRow[];
 }
 
 export function findVideoById(id: number): VideoRow | null {
-  return db.query("SELECT * FROM videos WHERE id = ?").get(id) as VideoRow | null;
+  const output = Buffer.alloc(4096);
+  const result = lib.symbols.db_find_video_by_id(id, output, output.length);
+  if (result !== 0) return null;
+  const jsonStr = output.toString("utf8").split("\0")[0];
+  if (!jsonStr) return null;
+  try {
+    const row = JSON.parse(jsonStr);
+    return {
+      id: row.id,
+      user_id: row.user_id,
+      title: row.title,
+      filename: row.filename,
+      size: row.size,
+      content_type: row.content_type,
+      thumbnail_filename: row.thumbnail_filename || null,
+      created_at: row.created_at,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export function findVideoByIdAndUser(id: number, userId: number): VideoRow | null {
-  return db.query("SELECT * FROM videos WHERE id = ? AND user_id = ?").get(id, userId) as VideoRow | null;
+  const output = Buffer.alloc(4096);
+  const result = lib.symbols.db_find_video_by_id_and_user(id, userId, output, output.length);
+  if (result !== 0) return null;
+  const jsonStr = output.toString("utf8").split("\0")[0];
+  if (!jsonStr) return null;
+  try {
+    const row = JSON.parse(jsonStr);
+    return {
+      id: row.id,
+      user_id: row.user_id,
+      title: row.title,
+      filename: row.filename,
+      size: row.size,
+      content_type: row.content_type,
+      thumbnail_filename: row.thumbnail_filename || null,
+      created_at: row.created_at,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export function findVideoByFilename(filename: string): VideoRow | null {
-  return db.query("SELECT * FROM videos WHERE filename = ?").get(filename) as VideoRow | null;
+  const output = Buffer.alloc(4096);
+  const result = lib.symbols.db_find_video_by_filename(Buffer.from(filename), output, output.length);
+  if (result !== 0) return null;
+  const jsonStr = output.toString("utf8").split("\0")[0];
+  if (!jsonStr) return null;
+  try {
+    const row = JSON.parse(jsonStr);
+    return {
+      id: row.id,
+      user_id: row.user_id,
+      title: row.title,
+      filename: row.filename,
+      size: row.size,
+      content_type: row.content_type,
+      thumbnail_filename: row.thumbnail_filename || null,
+      created_at: row.created_at,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export function deleteVideoRecord(id: number): void {
-  db.query("DELETE FROM videos WHERE id = ?").run(id);
+  lib.symbols.db_delete_video(id);
 }

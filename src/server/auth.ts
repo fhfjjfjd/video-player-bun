@@ -1,9 +1,23 @@
 import type { BunRequest } from "bun";
 import type { User } from "../types";
 import { findUserBySession } from "./db";
+import path from "node:path";
+import { dlopen } from "bun:ffi";
 
 export const SESSION_COOKIE = "session";
-export const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+export const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
+const libPath = path.join(process.cwd(), "bin", `${process.platform}-${process.arch}`, `libauth${process.platform === "win32" ? ".dll" : process.platform === "darwin" ? ".dylib" : ".so"}`);
+const lib = dlopen(libPath, {
+  auth_create_session: {
+    returns: "pointer",
+    arguments: ["int32", "pointer", "pointer", "size"],
+  },
+  auth_validate_session: {
+    returns: "int32",
+    arguments: ["pointer", "pointer", "pointer"],
+  },
+});
 
 export const hashPassword = (password: string): Promise<string> => Bun.password.hash(password);
 
@@ -18,6 +32,32 @@ export function getSessionToken(req: BunRequest): string | null {
 export function getAuthenticatedUser(req: BunRequest): User | null {
   const token = getSessionToken(req);
   return token ? findUserBySession(token) : null;
+}
+
+export function createSessionToken(userId: number): string {
+  const output = Buffer.alloc(1024);
+  const secret = process.env.MEDIA_URL_SECRET ?? "";
+  const ptr = lib.symbols.auth_create_session(
+    userId,
+    Buffer.from(secret),
+    output,
+    output.length,
+  );
+  if (!ptr) throw new Error("Failed to create session token");
+  return output.toString("utf8").split("\0")[0];
+}
+
+export function validateSessionToken(token: string): number | null {
+  const secret = process.env.MEDIA_URL_SECRET ?? "";
+  const userIdBuf = Buffer.alloc(4);
+  const result = lib.symbols.auth_validate_session(
+    Buffer.from(token),
+    Buffer.from(secret),
+    userIdBuf,
+  );
+  if (result !== 0) return null;
+  const userId = userIdBuf.readInt32LE(0);
+  return userId > 0 ? userId : null;
 }
 
 export function setSessionCookie(response: Response, token: string): void {

@@ -1,3 +1,21 @@
+import path from "node:path";
+import { dlopen } from "bun:ffi";
+
+const libPath = path.join(process.cwd(), "bin", `${process.platform}-${process.arch}`, `libsecurity${process.platform === "win32" ? ".dll" : process.platform === "darwin" ? ".dylib" : ".so"}`);
+const lib = dlopen(libPath, {
+  security_get_headers: {
+    returns: "pointer",
+    arguments: ["pointer", "size"],
+  },
+});
+
+const RAW_HEADERS = `Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self';
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: no-referrer
+Permissions-Policy: camera=(), microphone=(), geolocation=()
+`;
+
 export const SECURITY_HEADERS: Record<string, string> = {
   "Content-Security-Policy":
     "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
@@ -22,8 +40,6 @@ export function applySecurityHeaders(response: Response): Response {
 export function secureRoutes<T extends Record<string, unknown>>(routes: T): T {
   const walk = (node: unknown): unknown => {
     if (typeof node === "function") {
-      // File routes (e.g. media streaming) must be returned directly so Bun can
-      // auto-handle Range/ETag requests; reading `.body` would sever that link.
       if ((node as { skipSecurity?: boolean }).skipSecurity) return node;
       return async (req: Request) => applySecurityHeaders(await (node as (req: Request) => Response | Promise<Response>)(req));
     }

@@ -1,55 +1,61 @@
-import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { dlopen, ffi } from "bun:ffi";
 
 const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
+
+const libPath = path.join(process.cwd(), "bin", `${process.platform}-${process.arch}`, `libmediatoken${process.platform === "win32" ? ".dll" : process.platform === "darwin" ? ".dylib" : ".so"}`);
+const lib = dlopen(libPath, {
+  mediatoken_sign: {
+    returns: "pointer",
+    arguments: ["pointer", "pointer", "pointer", "size"],
+  },
+  mediatoken_verify: {
+    returns: "int32",
+    arguments: ["pointer", "pointer", "pointer", "size"],
+  },
+});
 
 function loadSecret(): string {
   const fromEnv = process.env.MEDIA_URL_SECRET;
   if (fromEnv) return fromEnv;
   const file = process.env.MEDIA_SECRET_FILE ?? path.join(process.cwd(), ".media-secret");
-  if (existsSync(file)) {
+  try {
+    const { readFileSync } = require("node:fs");
     const existing = readFileSync(file, "utf8").trim();
     if (existing) return existing;
-  }
+  } catch {}
+  const { randomBytes } = require("node:crypto");
   const generated = randomBytes(32).toString("hex");
-  writeFileSync(file, generated, { mode: 0o600 });
+  try {
+    const { writeFileSync } = require("node:fs");
+    writeFileSync(file, generated, { mode: 0o600 });
+  } catch {}
   return generated;
 }
 
 const SECRET = loadSecret();
 
-function sign(payload: string): string {
-  return createHmac("sha256", SECRET).update(payload).digest("hex");
-}
-
 export function createMediaToken(filename: string): string {
-  const expiry = Date.now() + TOKEN_TTL_MS;
-  const payload = Buffer.from(JSON.stringify({ f: filename, e: expiry })).toString("base64url");
-  return `${payload}.${sign(payload)}`;
+  const output = Buffer.alloc(2048);
+  const ptr = lib.symbols.mediatoken_sign(
+    Buffer.from(filename),
+    Buffer.from(SECRET),
+    output,
+    output.length,
+  );
+  if (!ptr) throw new Error("Failed to create media token");
+  return output.toString("utf8").split("\0")[0];
 }
 
 export function verifyMediaToken(token: string): string | null {
-  const dot = token.lastIndexOf(".");
-  if (dot <= 0 || dot === token.length - 1) return null;
-  const payload = token.slice(0, dot);
-  const signature = token.slice(dot + 1);
-  if (!/^[0-9a-f]{64}$/.test(signature)) return null;
-
-  const expected = Buffer.from(sign(payload), "hex");
-  const provided = Buffer.from(signature, "hex");
-  if (provided.length !== expected.length || !timingSafeEqual(provided, expected)) return null;
-
-  try {
-    const data = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as {
-      f?: string;
-      e?: number;
-    };
-    if (typeof data.f !== "string" || data.f.length === 0) return null;
-    if (typeof data.e !== "number" || data.e < Date.now()) return null;
-    if (/[\\/]|\.\./.test(data.f)) return null;
-    return data.f;
-  } catch {
-    return null;
-  }
+  const output = Buffer.alloc(512);
+  const result = lib.symbols.mediatoken_verify(
+    Buffer.from(token),
+    Buffer.from(SECRET),
+    output,
+    output.length,
+  );
+  if (result !== 0) return null;
+  const filename = output.toString("utf8").split("\0")[0];
+  return filename || null;
 }

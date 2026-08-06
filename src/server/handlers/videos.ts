@@ -5,38 +5,30 @@ import { getAuthenticatedUser } from "../auth";
 import { createVideo, deleteVideoRecord, findVideoByFilename, findVideoById, findVideoByIdAndUser, listAllVideos } from "../db";
 import { MAX_UPLOAD_SIZE, UPLOAD_DIR } from "../storage";
 import { createMediaToken, verifyMediaToken } from "../mediaToken";
+import { dlopen } from "bun:ffi";
+
+const cppLibPath = path.join(process.cwd(), "bin", `${process.platform}-${process.arch}`, `libvideos${process.platform === "win32" ? ".dll" : process.platform === "darwin" ? ".dylib" : ".so"}`);
+const cppLib = dlopen(cppLibPath, {
+  videos_generate_thumbnail: {
+    returns: "pointer",
+    arguments: ["pointer", "pointer", "size"],
+  },
+});
 
 const jsonError = (status: number, message: string): Response =>
   Response.json({ error: message }, { status });
 
 async function generateThumbnailWithFfmpeg(videoPath: string): Promise<string | null> {
-  const thumbFilename = `${crypto.randomUUID()}.jpg`;
-  const thumbPath = path.join(UPLOAD_DIR, thumbFilename);
-
-  try {
-    // Try seeking 1s first
-    let proc = Bun.spawn(
-      ["ffmpeg", "-y", "-ss", "00:00:01", "-i", videoPath, "-vframes", "1", "-q:v", "2", thumbPath],
-      { stdout: "ignore", stderr: "ignore" },
-    );
-    let code = await proc.exited;
-
-    if (code !== 0 || !(await Bun.file(thumbPath).exists()) || (await Bun.file(thumbPath).size) === 0) {
-      // Fallback: seek at 0s
-      proc = Bun.spawn(
-        ["ffmpeg", "-y", "-i", videoPath, "-vframes", "1", "-q:v", "2", thumbPath],
-        { stdout: "ignore", stderr: "ignore" },
-      );
-      code = await proc.exited;
-    }
-
-    if (code === 0 && (await Bun.file(thumbPath).exists()) && (await Bun.file(thumbPath).size) > 0) {
-      return thumbFilename;
-    }
-  } catch {
-    // ffmpeg missing or execution error
-  }
-  return null;
+  const output = Buffer.alloc(512);
+  const ptr = cppLib.symbols.videos_generate_thumbnail(
+    Buffer.alloc(0),
+    Buffer.from(videoPath),
+    output,
+    output.length,
+  );
+  if (!ptr) return null;
+  const thumbFilename = output.toString("utf8").split("\0")[0];
+  return thumbFilename || null;
 }
 
 const toVideoDto = (
