@@ -30,6 +30,7 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
   const isDraggingRef = useRef(false);
 
   const [currentUrl, setCurrentUrl] = useState<string | null>(null);
+  const [aspectRatio, setAspectRatio] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -58,6 +59,7 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
 
     setError(null);
     setCurrentUrl(url.href);
+    setAspectRatio(null);
     setCurrentTime(0);
     setDragTime(null);
     setDuration(0);
@@ -150,7 +152,12 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
     const onTimeUpdate = () => {
       if (!isDraggingRef.current) setCurrentTime(video.currentTime);
     };
-    const onLoadedMetadata = () => setDuration(video.duration || 0);
+    const onLoadedMetadata = () => {
+      setDuration(video.duration || 0);
+      if (video.videoWidth > 0 && video.videoHeight > 0) {
+        setAspectRatio(video.videoWidth / video.videoHeight);
+      }
+    };
     const onDurationChange = () => setDuration(video.duration || 0);
     const onPlay = () => setIsPlaying(true);
     const onPause = () => setIsPlaying(false);
@@ -294,7 +301,7 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
   const controlsHidden = isPlaying && !controlsVisible;
 
   return (
-    <div className="flex w-full flex-1 flex-col items-center gap-6 p-4 sm:p-6">
+    <div className="flex w-full flex-col items-center gap-6">
       {currentUrl ? (
         <div
           ref={containerRef}
@@ -303,9 +310,10 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
           onClick={() => showControls()}
           className={cn(
             "group relative overflow-hidden bg-black shadow-2xl select-none",
-            isFullscreen ? "h-full w-full" : "aspect-video w-full max-w-5xl rounded-xl",
+            isFullscreen ? "h-full w-full" : "aspect-video w-full max-w-6xl rounded-xl",
             controlsHidden && "cursor-none",
           )}
+          style={!isFullscreen && aspectRatio ? { aspectRatio: String(aspectRatio) } : undefined}
         >
           <video ref={videoRef} className="h-full w-full object-contain" onClick={togglePlay} />
 
