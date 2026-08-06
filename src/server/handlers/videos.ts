@@ -9,6 +9,36 @@ import { createMediaToken, verifyMediaToken } from "../mediaToken";
 const jsonError = (status: number, message: string): Response =>
   Response.json({ error: message }, { status });
 
+async function generateThumbnailWithFfmpeg(videoPath: string): Promise<string | null> {
+  const thumbFilename = `${crypto.randomUUID()}.jpg`;
+  const thumbPath = path.join(UPLOAD_DIR, thumbFilename);
+
+  try {
+    // Try seeking 1s first
+    let proc = Bun.spawn(
+      ["ffmpeg", "-y", "-ss", "00:00:01", "-i", videoPath, "-vframes", "1", "-q:v", "2", thumbPath],
+      { stdout: "ignore", stderr: "ignore" },
+    );
+    let code = await proc.exited;
+
+    if (code !== 0 || !(await Bun.file(thumbPath).exists()) || (await Bun.file(thumbPath).size) === 0) {
+      // Fallback: seek at 0s
+      proc = Bun.spawn(
+        ["ffmpeg", "-y", "-i", videoPath, "-vframes", "1", "-q:v", "2", thumbPath],
+        { stdout: "ignore", stderr: "ignore" },
+      );
+      code = await proc.exited;
+    }
+
+    if (code === 0 && (await Bun.file(thumbPath).exists()) && (await Bun.file(thumbPath).size) > 0) {
+      return thumbFilename;
+    }
+  } catch {
+    // ffmpeg missing or execution error
+  }
+  return null;
+}
+
 const toVideoDto = (
   row: {
     id: number;
@@ -73,6 +103,10 @@ export async function uploadVideo(req: BunRequest): Promise<Response> {
   const destination = path.join(UPLOAD_DIR, storedName);
 
   await Bun.write(destination, file);
+
+  if (!storedThumbnailName) {
+    storedThumbnailName = await generateThumbnailWithFfmpeg(destination);
+  }
 
   const row = createVideo(user.id, title, storedName, file.size, file.type, storedThumbnailName);
   return Response.json({ video: toVideoDto(row, user.id) }, { status: 201 });

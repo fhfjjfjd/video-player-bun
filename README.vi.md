@@ -9,7 +9,7 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 - Xem video công khai mà không cần đăng nhập
 - Đăng ký / đăng nhập để tải video lên và quản lý video của mình (đăng ký bắt buộc có email Gmail; đăng nhập nhận Gmail hoặc username)
 - Chỉ chủ sở hữu mới xóa được video của mình
-- Hỗ trợ hình ảnh thu nhỏ (thumbnail) tùy chỉnh khi tải lên video
+- Hỗ trợ hình ảnh thu nhỏ (thumbnail) tùy chỉnh hoặc tự động trích xuất bằng FFmpeg khi tải video lên
 - Tối ưu hóa giao diện di động hoàn chỉnh và lưới thẻ video responsive trực quan
 - Mỗi video có URL riêng (`/video/:id`) để chia sẻ
 - Server không bao giờ lộ URL media trực tiếp — API trả token media ký HMAC có thời hạn ngắn, client phát video qua `/api/media?t=<token>` (hỗ trợ Range request)

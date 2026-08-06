@@ -200,8 +200,8 @@ export function UploadModal({ open, onClose, onUploaded }: UploadModalProps) {
                   <ImagePlus className="h-5 w-5 text-emerald-400" />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-medium text-zinc-200">Thêm ảnh thu nhỏ (Thumbnail)</p>
-                  <p className="text-xs text-zinc-500">JPG, PNG, WebP</p>
+                  <p className="text-sm font-medium text-zinc-200">Thêm ảnh thu nhỏ tùy chỉnh (Tùy chọn)</p>
+                  <p className="text-xs text-zinc-500">Nếu bỏ qua, hệ thống sẽ tự động trích xuất khung ảnh từ video bằng FFmpeg</p>
                 </div>
               </button>
             )}

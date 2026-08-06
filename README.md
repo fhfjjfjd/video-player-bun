@@ -10,7 +10,7 @@ share videos through dedicated per-video URLs.
 - Watch videos publicly without logging in
 - Register / log in to upload videos and manage your own uploads (registration requires a Gmail address; login accepts your Gmail or username)
 - Only the owner can delete a video
-- Support for custom video thumbnails (images uploaded alongside videos)
+- Support for video thumbnails (automatic extraction using FFmpeg upon upload, or custom image upload)
 - Completely optimized mobile UI and responsive video library card grid
 - Every video has its own shareable URL (`/video/:id`)
 - Direct media URLs are never exposed — the API returns a short-lived HMAC-signed media token, and the client streams the video through `/api/media?t=<token>` (Range requests supported)
