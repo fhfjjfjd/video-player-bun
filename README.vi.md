@@ -62,21 +62,23 @@ bash tunnel.sh   # named tunnel với hostname cố định
 
 ## Truy cập công khai qua HTTPS (Cloudflare Tunnel)
 
-Để đưa ứng dụng ra ngoài với link HTTPS an toàn, dùng Cloudflare Tunnel:
+Để đưa ứng dụng ra ngoài với link HTTPS an toàn, dùng Cloudflare Tunnel.
+Tên miền phải được quản lý trên Cloudflare (nameserver trỏ về Cloudflare).
 
 ```bash
 # quick tunnel (tạm thời, không cần tài khoản)
 bun run tunnel          # chạy: cloudflared tunnel --url http://localhost:3000
 
 # named tunnel (hostname cố định, cần tài khoản Cloudflare + domain)
-bash tunnel.sh
+bash tunnel.sh          # lần đầu: login, tạo tunnel, trỏ DNS rồi chạy
+bash tunnel.sh          # các lần sau: chỉ chạy tunnel
 ```
 
 Với **named tunnel**, chạy `TUNNEL_HOSTNAME=video.example.com bash tunnel.sh` để
-bỏ qua bước nhập hostname. Script sẽ đăng nhập Cloudflare, tạo tunnel, ghi
-`~/.cloudflared/videohub.yml` (ingress → `http://localhost:3000`), trỏ DNS
-rồi chạy tunnel. `bun dev` chạy cả hai cổng trong một process, nên tunnel tới
-cổng 3000 là truy cập được toàn app.
+bỏ qua bước nhập hostname. Script đăng nhập Cloudflare, tạo tunnel `videohub`,
+ghi `~/.cloudflared/videohub.yml` (ingress → `http://localhost:3000`),
+trỏ DNS rồi chạy. `bun dev` chạy cả hai cổng trong một process, nên tunnel
+tới cổng 3000 là truy cập được toàn app.
 
 ## Cấu trúc
 

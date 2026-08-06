@@ -63,19 +63,21 @@ server automatically when you edit files — no manual restarts.
 
 ## Public access over HTTPS (Cloudflare Tunnel)
 
-To expose the app publicly with a secure HTTPS link, use Cloudflare Tunnel:
+To expose the app publicly with a secure HTTPS link, use Cloudflare Tunnel.
+Your domain must be managed by Cloudflare (nameservers pointing to Cloudflare).
 
 ```bash
 # quick tunnel (ephemeral, no account needed)
 bun run tunnel          # runs: cloudflared tunnel --url http://localhost:3000
 
 # named tunnel (fixed hostname, needs a Cloudflare account + domain)
-bash tunnel.sh
+bash tunnel.sh          # first run: login, create tunnel, route DNS, then run
+bash tunnel.sh          # subsequent runs: just starts the tunnel
 ```
 
-For a **named tunnel** set `TUNNEL_HOSTNAME=video.example.com bash tunnel.sh` to
-skip the hostname prompt. The script logs in to Cloudflare, creates the tunnel,
-writes `~/.cloudflared/videohub.yml` (ingress → `http://localhost:3000`),
+For the named tunnel, set `TUNNEL_HOSTNAME=video.example.com bash tunnel.sh` to
+skip the hostname prompt. The script logs in to Cloudflare, creates the tunnel
+`videohub`, writes `~/.cloudflared/videohub.yml` (ingress → `http://localhost:3000`),
 routes DNS, and runs it. `bun dev` runs both ports in one process, so tunneling
 to port 3000 gives access to the whole app.
 
