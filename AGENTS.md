@@ -85,9 +85,8 @@ Release notes go in English and summarize the changes in this version.
 
 ## 4. Feedback (Góp ý) handling
 
-Users who are logged in can submit suggestions via the "Góp ý" button on the
-home page. Each submission is stored as a Markdown file in the `feedback/`
-folder (gitignored). Each file has a frontmatter block with a `status` field:
+Suggestions from the "Góp ý" dialog are saved as Markdown files in the
+`feedback/` folder (gitignored). Each file has a frontmatter field:
 
 ```markdown
 ---
@@ -102,10 +101,10 @@ author: <username>
 <description>
 ```
 
-- `status: open` means the suggestion is still actionable. When starting work,
-  or after a change, scan `feedback/` for open items and implement the
-  reasonable ones (new feature, bug fix, or other improvement).
-- After implementing a suggestion, edit its file and set `status: closed`. Do
-  not modify, edit, or "fix" files marked `status: closed`.
-- `type` tells you what kind of request it is: `feature` (new feature),
-  `bug` (bug fix), or `other` (miscellaneous).
+Rules:
+
+- Check the `feedback/` folder when starting work and after every change.
+- If a file has `status: open`, do what it asks: fix the bug, add the
+  feature, or implement whatever it requests.
+- After finishing, edit the file and set `status: closed`.
+- Never modify or "fix" files with `status: closed`.
