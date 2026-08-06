@@ -108,5 +108,7 @@ Rules:
   feature, or implement whatever it requests.
 - After finishing, edit the file to set `status: closed` AND append a
   `## Reply` section explaining what was done, so the submitter sees the
-  answer. Never close an item without replying.
+  answer. Never close an item without replying. Write the reply in BOTH
+  English and Vietnamese (a short English paragraph and a short Vietnamese
+  paragraph) so everyone can read it.
 - Never modify or "fix" files with `status: closed`.
