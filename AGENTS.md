@@ -76,6 +76,12 @@ gh release create v<version> --repo fhfjjfjd/video-player-node \
 
 Release notes go in English and summarize the changes in this version.
 
+### Rule: do not modify a published release
+
+Once a release is published, do NOT go back and edit it. If you need to
+fix something or add something, make the change and release a new version
+following the same workflow above.
+
 ## 3. Reminders
 
 - Always use the GitHub CLI (`gh`) for releases; it is authenticated.
