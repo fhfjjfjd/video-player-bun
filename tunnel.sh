@@ -9,7 +9,7 @@
 
 set -euo pipefail
 
-TUNNEL_NAME="${TUNNEL_NAME:-video-player}"
+TUNNEL_NAME="${TUNNEL_NAME:-videohub}"
 CONFIG_DIR="${HOME}/.cloudflared"
 CONFIG_FILE="${CONFIG_DIR}/${TUNNEL_NAME}.yml"
 SUBDOMAIN="${TUNNEL_HOSTNAME:-}"

@@ -74,7 +74,7 @@ bash tunnel.sh
 
 Với **named tunnel**, chạy `TUNNEL_HOSTNAME=video.example.com bash tunnel.sh` để
 bỏ qua bước nhập hostname. Script sẽ đăng nhập Cloudflare, tạo tunnel, ghi
-`~/.cloudflared/video-player.yml` (ingress → `http://localhost:3000`), trỏ DNS
+`~/.cloudflared/videohub.yml` (ingress → `http://localhost:3000`), trỏ DNS
 rồi chạy tunnel. `bun dev` chạy cả hai cổng trong một process, nên tunnel tới
 cổng 3000 là truy cập được toàn app.
 

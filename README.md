@@ -75,7 +75,7 @@ bash tunnel.sh
 
 For a **named tunnel** set `TUNNEL_HOSTNAME=video.example.com bash tunnel.sh` to
 skip the hostname prompt. The script logs in to Cloudflare, creates the tunnel,
-writes `~/.cloudflared/video-player.yml` (ingress → `http://localhost:3000`),
+writes `~/.cloudflared/videohub.yml` (ingress → `http://localhost:3000`),
 routes DNS, and runs it. `bun dev` runs both ports in one process, so tunneling
 to port 3000 gives access to the whole app.
 
