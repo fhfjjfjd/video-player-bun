@@ -1,6 +1,7 @@
-import { Film, Loader2, MonitorPlay, Search, Upload } from "lucide-react";
+import { Film, Loader2, MonitorPlay, MessageSquare, Search, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { FeedbackDialog } from "./FeedbackDialog";
 import { HeaderActions } from "./HeaderActions";
 import { VideoLibrary } from "./VideoLibrary";
 import { useVideoList } from "./useVideoList";
@@ -20,6 +21,7 @@ export function HomePage({ user, onLogout, onLogin, search, onSearchChange, onOp
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const uploadVideo = (file: File) => {
@@ -97,6 +99,15 @@ export function HomePage({ user, onLogout, onLogin, search, onSearchChange, onOp
               {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
               <span className="hidden sm:inline">Tải lên</span>
             </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setFeedbackOpen(true)}
+              className="h-9 shrink-0 gap-2 text-white hover:bg-white/10 hover:text-white"
+            >
+              <MessageSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Góp ý</span>
+            </Button>
             {uploading && (
               <div className="w-24 shrink-0">
                 <div className="h-1 overflow-hidden rounded-full bg-white/10">
@@ -143,6 +154,8 @@ export function HomePage({ user, onLogout, onLogin, search, onSearchChange, onOp
           />
         )}
       </main>
+
+      <FeedbackDialog open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
     </div>
   );
 }

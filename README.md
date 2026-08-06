@@ -16,6 +16,7 @@ share videos through dedicated per-video URLs.
 - Hardened responses: Content-Security-Policy, `X-Content-Type-Options`, `X-Frame-Options` and other security headers on every request
 - Full-featured player: play/pause, seek, volume, playback speed, fullscreen, keyboard shortcuts
 - HLS (`.m3u8`) support via hls.js
+- Logged-in users can send feedback (feature request, bug report, or other) from a "Góp ý" dialog on the home page; each suggestion is stored as a Markdown file in the `feedback/` folder with an `open`/`closed` status
 
 ## Tech Stack
 
@@ -59,6 +60,8 @@ bun start
 - `src/server/api.ts` — standalone API server (port 3001)
 - `src/server/` — routes, handlers, db (SQLite), auth (session cookie), storage (upload), media tokens (`mediaToken.ts`), security headers (`security.ts`)
 - `src/App.tsx` — routing (home `/` and watch page `/video/:id`)
-- `src/HomePage.tsx` — home page: search, upload, video list
+- `src/HomePage.tsx` — home page: search, upload, video list, feedback dialog
+- `src/FeedbackDialog.tsx` — "Góp ý" dialog: submit and browse suggestions (open/closed)
 - `src/VideoPage.tsx` — video watch page
 - `src/VideoPlayer.tsx` — the player (video element + controls + HLS)
+- `src/server/feedback.ts` — feedback storage (one Markdown file per suggestion in `feedback/`, overridable via `FEEDBACK_DIR`)

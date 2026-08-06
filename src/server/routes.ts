@@ -2,6 +2,7 @@ import { getHealth } from "./handlers/health";
 import { getHello, getHelloByName, putHello } from "./handlers/hello";
 import { login, logout, me, register } from "./handlers/auth";
 import { deleteVideo, getVideo, listVideos, serveMedia, uploadVideo } from "./handlers/videos";
+import { createFeedbackHandler, listFeedbackHandler } from "./handlers/feedback";
 
 /**
  * Router table for the API server (port 3001).
@@ -39,6 +40,10 @@ export function createApiRoutes() {
     },
     "/api/media": {
       GET: serveMedia,
+    },
+    "/api/feedback": {
+      GET: listFeedbackHandler,
+      POST: createFeedbackHandler,
     },
   };
 }

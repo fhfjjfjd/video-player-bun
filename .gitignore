@@ -23,6 +23,9 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # user uploads
 uploads
 
+# user feedback (góp ý) — one markdown file per suggestion
+feedback
+
 # media signing secret
 .media-secret
 

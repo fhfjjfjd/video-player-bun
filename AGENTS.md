@@ -82,3 +82,30 @@ Release notes go in English and summarize the changes in this version.
 - Keep the local repo clean: never commit secrets, databases, uploads, or build
   output.
 - If you are unsure which version to bump to, ask the user instead of guessing.
+
+## 4. Feedback (Góp ý) handling
+
+Users who are logged in can submit suggestions via the "Góp ý" button on the
+home page. Each submission is stored as a Markdown file in the `feedback/`
+folder (gitignored). Each file has a frontmatter block with a `status` field:
+
+```markdown
+---
+id: <uuid>
+type: feature|bug|other
+title: <title>
+status: open|closed
+created_at: <ISO timestamp>
+author: <username>
+---
+
+<description>
+```
+
+- `status: open` means the suggestion is still actionable. When starting work,
+  or after a change, scan `feedback/` for open items and implement the
+  reasonable ones (new feature, bug fix, or other improvement).
+- After implementing a suggestion, edit its file and set `status: closed`. Do
+  not modify, edit, or "fix" files marked `status: closed`.
+- `type` tells you what kind of request it is: `feature` (new feature),
+  `bug` (bug fix), or `other` (miscellaneous).
