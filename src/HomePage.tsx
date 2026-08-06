@@ -1,4 +1,4 @@
-import { Film, MonitorPlay, Search, Upload } from "lucide-react";
+import { Film, MessageSquare, MonitorPlay, Search, Upload } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { HeaderActions } from "./HeaderActions";
@@ -48,6 +48,15 @@ export function HomePage({ user, onLogout, onLogin, search, onSearchChange, onOp
             >
               <Upload className="h-4 w-4" />
               <span className="hidden sm:inline">Tải lên</span>
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => window.open("https://github.com/fhfjjfjd/video-player-bun/issues", "_blank")}
+              className="h-10 shrink-0 gap-2 text-white hover:bg-white/10"
+            >
+              <MessageSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Góp ý</span>
             </Button>
           </>
         )}

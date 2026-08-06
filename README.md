@@ -16,7 +16,7 @@ share videos through dedicated per-video URLs.
 - Direct media URLs are never exposed — the API returns a short-lived HMAC-signed media token, and the client streams the video through `/api/media?t=<token>` (Range requests supported)
 - Hardened responses: Content-Security-Policy, `X-Content-Type-Options`, `X-Frame-Options` and other security headers on every request
 - Full-featured player: play/pause, seek, volume, playback speed, fullscreen, keyboard shortcuts
-- HLS (`.m3u8`) support via hls.js
+- Logged-in users can submit feedback (feature request, bug report, or other) via the "Góp ý" button which opens the GitHub Issues page
 
 ## Tech Stack
 
@@ -64,6 +64,6 @@ server automatically when you edit files — no manual restarts.
 - `src/server/api.ts` — standalone API server (port 3001)
 - `src/server/` — routes, handlers, db (SQLite), auth (session cookie), storage (upload), media tokens (`mediaToken.ts`), security headers (`security.ts`)
 - `src/App.tsx` — routing (home `/` and watch page `/video/:id`)
-- `src/HomePage.tsx` — home page: search, upload, video list
+- `src/HomePage.tsx` — home page: search, upload, video list, feedback link to GitHub Issues
 - `src/UploadModal.tsx` — upload modal with video and thumbnail image selection + progress bar
 - `src/VideoPage.tsx` — video watch page

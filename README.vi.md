@@ -16,6 +16,7 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 - Tăng cường bảo mật: Content-Security-Policy, `X-Content-Type-Options`, `X-Frame-Options` và các header bảo mật khác trên mọi request
 - Player đầy đủ: phát/tạm dừng, tua, âm lượng, tốc độ phát, toàn màn hình, phím tắt
 - Hỗ trợ HLS (`.m3u8`) qua hls.js
+ - Người dùng đã đăng nhập có thể gửi góp ý (tính năng mới, báo lỗi hoặc ý kiến khác) bằng nút "Góp ý" trên giao diện, sẽ mở trang GitHub Issues của dự án
 
 ## Công nghệ
 
@@ -63,6 +64,6 @@ bun start
 - `src/server/api.ts` — server API độc lập (port 3001)
 - `src/server/` — routes, handlers, db (SQLite), auth (session cookie), storage (upload), media token (`mediaToken.ts`), security headers (`security.ts`)
 - `src/App.tsx` — routing (trang chủ `/` và trang xem `/video/:id`)
-- `src/HomePage.tsx` — trang chủ: tìm kiếm, tải lên, danh sách video
+- `src/HomePage.tsx` — trang chủ: tìm kiếm, tải lên, danh sách video, nút góp ý mở GitHub Issues
 - `src/UploadModal.tsx` — modal tải lên video và ảnh thu nhỏ với thanh tiến trình
 - `src/VideoPage.tsx` — trang xem video
