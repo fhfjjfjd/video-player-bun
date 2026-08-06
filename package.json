@@ -1,6 +1,6 @@
 {
   "name": "bun-react-template",
-  "version": "3.6.1",
+  "version": "3.7.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,6 +10,7 @@
     "devs": "HOSTNAME=0.0.0.0 bun run dev.ts",
     "start": "NODE_ENV=production bun src/index.ts",
     "start:api": "NODE_ENV=production bun src/server/api.ts",
+    "tunnel": "bash tunnel.sh",
     "build": "bun run build.ts"
   },
   "dependencies": {

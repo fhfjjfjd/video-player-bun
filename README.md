@@ -52,6 +52,10 @@ bun devs
 
 # production
 bun start
+
+# public HTTPS tunnel (Cloudflare)
+bun run tunnel   # quick tunnel (ephemeral)
+bash tunnel.sh   # named tunnel with a fixed hostname
 ```
 
 `bun dev` uses a small runner (`dev.ts`) that watches `src/` and restarts the
@@ -62,13 +66,18 @@ server automatically when you edit files — no manual restarts.
 To expose the app publicly with a secure HTTPS link, use Cloudflare Tunnel:
 
 ```bash
-# install cloudflared, then start a quick tunnel to the local frontend
-cloudflared tunnel --url http://localhost:3000
+# quick tunnel (ephemeral, no account needed)
+bun run tunnel          # runs: cloudflared tunnel --url http://localhost:3000
+
+# named tunnel (fixed hostname, needs a Cloudflare account + domain)
+bash tunnel.sh
 ```
 
-Cloudflared prints a `https://…trycloudflare.com` URL. For a stable address,
-point a named tunnel at the app or use a custom domain. `bun dev` runs both
-ports in one process, so tunneling to port 3000 gives access to the whole app.
+For a **named tunnel** set `TUNNEL_HOSTNAME=video.example.com bash tunnel.sh` to
+skip the hostname prompt. The script logs in to Cloudflare, creates the tunnel,
+writes `~/.cloudflared/video-player.yml` (ingress → `http://localhost:3000`),
+routes DNS, and runs it. `bun dev` runs both ports in one process, so tunneling
+to port 3000 gives access to the whole app.
 
 ## Structure
 

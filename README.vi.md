@@ -51,6 +51,10 @@ bun devs
 
 # production
 bun start
+
+# tunnel HTTPS công khai (Cloudflare)
+bun run tunnel   # quick tunnel (tạm thời)
+bash tunnel.sh   # named tunnel với hostname cố định
 ```
 
 `bun dev` dùng một script nhỏ (`dev.ts`) theo dõi thư mục `src/` và tự khởi
@@ -61,13 +65,18 @@ bun start
 Để đưa ứng dụng ra ngoài với link HTTPS an toàn, dùng Cloudflare Tunnel:
 
 ```bash
-# cài cloudflared, sau đó mở tunnel nhanh tới frontend local
-cloudflared tunnel --url http://localhost:3000
+# quick tunnel (tạm thời, không cần tài khoản)
+bun run tunnel          # chạy: cloudflared tunnel --url http://localhost:3000
+
+# named tunnel (hostname cố định, cần tài khoản Cloudflare + domain)
+bash tunnel.sh
 ```
 
-Cloudflared in ra URL `https://…trycloudflare.com`. Muốn địa chỉ cố định, trỏ
-một named tunnel vào ứng dụng hoặc dùng custom domain. `bun dev` chạy cả hai
-cổng trong một process, nên tunnel tới cổng 3000 là truy cập được toàn app.
+Với **named tunnel**, chạy `TUNNEL_HOSTNAME=video.example.com bash tunnel.sh` để
+bỏ qua bước nhập hostname. Script sẽ đăng nhập Cloudflare, tạo tunnel, ghi
+`~/.cloudflared/video-player.yml` (ingress → `http://localhost:3000`), trỏ DNS
+rồi chạy tunnel. `bun dev` chạy cả hai cổng trong một process, nên tunnel tới
+cổng 3000 là truy cập được toàn app.
 
 ## Cấu trúc
 
