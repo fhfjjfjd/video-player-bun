@@ -5,7 +5,6 @@ import { HeaderActions } from "./HeaderActions";
 import { VideoLibrary } from "./VideoLibrary";
 import { VideoPlayer } from "./VideoPlayer";
 import { useVideoList } from "./useVideoList";
-import { decodeVideoUrl } from "@/lib/videoUrl";
 import type { Video } from "./types";
 
 interface VideoPageProps {
@@ -87,10 +86,10 @@ export function VideoPage({ videoId, user, onLogout, onLogin, search, onOpenVide
           </div>
         ) : video ? (
           <>
-            <VideoPlayer src={decodeVideoUrl(video.url)} />
+            <VideoPlayer src={`/api/media?t=${encodeURIComponent(video.url)}`} />
             <VideoLibrary
               videos={videos}
-              activeUrl={new URL(decodeVideoUrl(video.url), window.location.origin).href}
+              activeVideoId={video.id}
               onPlay={next => onOpenVideo(next.id)}
               onDelete={handleDelete}
             />

@@ -11,7 +11,8 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 - Chỉ chủ sở hữu mới xóa được video của mình
 - Tìm kiếm video theo tên
 - Mỗi video có URL riêng (`/video/:id`) để chia sẻ
-- Server không bao giờ lộ URL media trực tiếp — chỉ trả token mã hóa mà client phải giải mã mới lấy được URL thật
+- Server không bao giờ lộ URL media trực tiếp — API trả token media ký HMAC có thời hạn ngắn, client phát video qua `/api/media?t=<token>` (hỗ trợ Range request)
+- Tăng cường bảo mật: Content-Security-Policy, `X-Content-Type-Options`, `X-Frame-Options` và các header bảo mật khác trên mọi request
 - Player đầy đủ: phát/tạm dừng, tua, âm lượng, tốc độ phát, toàn màn hình, phím tắt
 - Hỗ trợ HLS (`.m3u8`) qua hls.js
 
@@ -53,9 +54,9 @@ bun start
 
 ## Cấu trúc
 
-- `src/index.ts` — server frontend (port 3000), proxy `/api/*` và `/uploads/*` sang API
+- `src/index.ts` — server frontend (port 3000), proxy `/api/*` sang API và phục vụ SPA
 - `src/server/api.ts` — server API độc lập (port 3001)
-- `src/server/` — routes, handlers, db (SQLite), auth (session cookie), storage (upload)
+- `src/server/` — routes, handlers, db (SQLite), auth (session cookie), storage (upload), media token (`mediaToken.ts`), security headers (`security.ts`)
 - `src/App.tsx` — routing (trang chủ `/` và trang xem `/video/:id`)
 - `src/HomePage.tsx` — trang chủ: tìm kiếm, tải lên, danh sách video
 - `src/VideoPage.tsx` — trang xem video

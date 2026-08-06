@@ -125,6 +125,10 @@ export function findVideoByIdAndUser(id: number, userId: number): VideoRow | nul
   return db.query("SELECT * FROM videos WHERE id = ? AND user_id = ?").get(id, userId) as VideoRow | null;
 }
 
+export function findVideoByFilename(filename: string): VideoRow | null {
+  return db.query("SELECT * FROM videos WHERE filename = ?").get(filename) as VideoRow | null;
+}
+
 export function deleteVideoRecord(id: number): void {
   db.query("DELETE FROM videos WHERE id = ?").run(id);
 }

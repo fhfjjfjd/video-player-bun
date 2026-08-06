@@ -2,9 +2,9 @@ import type { BunRequest } from "bun";
 import path from "node:path";
 import type { Video } from "../../types";
 import { getAuthenticatedUser } from "../auth";
-import { createVideo, deleteVideoRecord, findVideoById, findVideoByIdAndUser, listAllVideos } from "../db";
+import { createVideo, deleteVideoRecord, findVideoByFilename, findVideoById, findVideoByIdAndUser, listAllVideos } from "../db";
 import { MAX_UPLOAD_SIZE, UPLOAD_DIR } from "../storage";
-import { encodeVideoUrl } from "../videoUrl";
+import { createMediaToken, verifyMediaToken } from "../mediaToken";
 
 const jsonError = (status: number, message: string): Response =>
   Response.json({ error: message }, { status });
@@ -23,7 +23,7 @@ const toVideoDto = (
 ): Video => ({
   id: row.id,
   title: row.title,
-  url: encodeVideoUrl(`/uploads/${row.filename}`),
+  url: createMediaToken(row.filename),
   size: row.size,
   content_type: row.content_type,
   created_at: row.created_at,
@@ -88,13 +88,26 @@ export async function deleteVideo(req: BunRequest<"/api/videos/:id">): Promise<R
   return Response.json({ ok: true });
 }
 
-export async function serveUpload(req: BunRequest<"/uploads/:filename">): Promise<Response> {
-  const filename = req.params.filename;
-  if (filename.includes("/") || filename.includes("\\") || filename.includes("..")) {
-    return new Response("Not Found", { status: 404 });
-  }
+import { SECURITY_HEADERS } from "../security";
 
-  const file = Bun.file(path.join(UPLOAD_DIR, filename));
-  if (await file.exists()) return new Response(file);
-  return new Response("Not Found", { status: 404 });
-}
+export const serveMedia: (req: BunRequest) => Promise<Response> = Object.assign(
+  async function serveMedia(req: BunRequest): Promise<Response> {
+    const token = new URL(req.url).searchParams.get("t");
+    if (!token) return new Response("Bad Request", { status: 400 });
+
+    const filename = verifyMediaToken(token);
+    if (!filename) return new Response("Forbidden", { status: 403 });
+
+    const video = findVideoByFilename(filename);
+    const file = Bun.file(path.join(UPLOAD_DIR, filename));
+    if (!(await file.exists())) return new Response("Not Found", { status: 404 });
+
+    // Return the Bun.file directly so Bun auto-handles Range/ETag/304 requests.
+    // Security headers must be set in the constructor here (the secureRoutes
+    // wrapper skips this handler via the skipSecurity marker).
+    const headers: Record<string, string> = { ...SECURITY_HEADERS, "Accept-Ranges": "bytes" };
+    if (video?.content_type) headers["Content-Type"] = video.content_type;
+    return new Response(file, { headers });
+  },
+  { skipSecurity: true },
+);

@@ -23,6 +23,9 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # user uploads
 uploads
 
+# media signing secret
+.media-secret
+
 # dotenv environment variable files
 .env
 .env.development.local

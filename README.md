@@ -12,7 +12,8 @@ share videos through dedicated per-video URLs.
 - Only the owner can delete a video
 - Search videos by title
 - Every video has its own shareable URL (`/video/:id`)
-- Direct media URLs are never exposed by the server — it returns an encrypted token that the client must decode to obtain the real URL
+- Direct media URLs are never exposed — the API returns a short-lived HMAC-signed media token, and the client streams the video through `/api/media?t=<token>` (Range requests supported)
+- Hardened responses: Content-Security-Policy, `X-Content-Type-Options`, `X-Frame-Options` and other security headers on every request
 - Full-featured player: play/pause, seek, volume, playback speed, fullscreen, keyboard shortcuts
 - HLS (`.m3u8`) support via hls.js
 
@@ -54,9 +55,9 @@ bun start
 
 ## Structure
 
-- `src/index.ts` — frontend server (port 3000), proxies `/api/*` and `/uploads/*` to the API
+- `src/index.ts` — frontend server (port 3000), proxies `/api/*` to the API and serves the SPA
 - `src/server/api.ts` — standalone API server (port 3001)
-- `src/server/` — routes, handlers, db (SQLite), auth (session cookie), storage (upload)
+- `src/server/` — routes, handlers, db (SQLite), auth (session cookie), storage (upload), media tokens (`mediaToken.ts`), security headers (`security.ts`)
 - `src/App.tsx` — routing (home `/` and watch page `/video/:id`)
 - `src/HomePage.tsx` — home page: search, upload, video list
 - `src/VideoPage.tsx` — video watch page

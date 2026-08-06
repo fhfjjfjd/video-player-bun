@@ -3,6 +3,7 @@ import os from "node:os";
 import index from "./index.html";
 import { loadConfig } from "./server/config";
 import { API_PORT, startApiServer } from "./server/api";
+import { applySecurityHeaders } from "./server/security";
 
 const config = loadConfig();
 const apiBaseUrl = `http://127.0.0.1:${API_PORT}`;
@@ -52,9 +53,9 @@ async function proxyToApi(req: Request): Promise<Response> {
     headers.delete("keep-alive");
     headers.delete("transfer-encoding");
     headers.delete("upgrade");
-    return new Response(upstream.body, { status: upstream.status, headers });
+    return applySecurityHeaders(new Response(upstream.body, { status: upstream.status, headers }));
   } catch {
-    return Response.json({ error: "Không thể kết nối máy chủ API." }, { status: 502 });
+    return applySecurityHeaders(Response.json({ error: "Không thể kết nối máy chủ API." }, { status: 502 }));
   }
 }
 
@@ -63,7 +64,6 @@ const server = serve({
   port: config.port,
   routes: {
     "/api/*": proxyToApi,
-    "/uploads/*": proxyToApi,
     "/*": index,
   },
   development: config.isDevelopment

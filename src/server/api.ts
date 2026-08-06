@@ -1,5 +1,6 @@
 import { serve } from "bun";
 import { createApiRoutes } from "./routes";
+import { secureRoutes } from "./security";
 
 export const API_PORT = Number(process.env.API_PORT ?? 3001);
 
@@ -7,7 +8,7 @@ export function startApiServer() {
   return serve({
     hostname: "127.0.0.1",
     port: API_PORT,
-    routes: createApiRoutes(),
+    routes: secureRoutes(createApiRoutes()),
     development: process.env.NODE_ENV !== "production" ? { console: true } : undefined,
   });
 }

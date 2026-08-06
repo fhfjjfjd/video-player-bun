@@ -6,7 +6,7 @@ export interface User {
 export interface Video {
   id: number;
   title: string;
-  /** Encrypted media token — the client must decode it to get the real URL. */
+  /** Signed media token — used as `/api/media?t=<token>`; validated server-side. */
   url: string;
   size: number;
   content_type: string;

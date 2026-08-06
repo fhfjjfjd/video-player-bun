@@ -1,7 +1,6 @@
 import { Film, Play, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { decodeVideoUrl } from "@/lib/videoUrl";
 import type { Video } from "./types";
 
 const formatBytes = (bytes: number): string => {
@@ -18,12 +17,12 @@ const formatDate = (iso: string): string => {
 
 interface VideoLibraryProps {
   videos: Video[];
-  activeUrl?: string | null;
+  activeVideoId?: number | null;
   onPlay: (video: Video) => void;
   onDelete: (id: number) => void;
 }
 
-export function VideoLibrary({ videos, activeUrl, onPlay, onDelete }: VideoLibraryProps) {
+export function VideoLibrary({ videos, activeVideoId, onPlay, onDelete }: VideoLibraryProps) {
   if (videos.length === 0) {
     return (
       <div className="w-full rounded-xl border border-dashed border-white/15 px-6 py-8 text-center text-sm text-zinc-500">
@@ -39,7 +38,7 @@ export function VideoLibrary({ videos, activeUrl, onPlay, onDelete }: VideoLibra
       </h2>
       <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {videos.map(video => {
-          const isActive = activeUrl === new URL(decodeVideoUrl(video.url), window.location.origin).href;
+          const isActive = activeVideoId === video.id;
           return (
             <li
               key={video.id}
