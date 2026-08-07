@@ -349,9 +349,14 @@ hand. Never assume a push will build the backend.
      management. (The Phase 13.1 upload snippet uses `gh auth token` internally
      — that is still gh-backed.)
 
-3.5. **Never modify a published release or move its tag.** If you need to fix
-     something after publishing, make the change and cut a NEW version via the
-     full pipeline. Do not edit, delete, or re-upload to an existing release.
+3.5. **Never add content to a published release or move its tag.** Once a
+     release is published, do NOT add new features or change its binary
+     artifacts, and never move the tag it points to — if you need to ship a
+     fix, make the change and cut a NEW version via the full pipeline.
+     **Language and wording edits are allowed:** fixing the title or notes of
+     an already-published release to the correct language, or fixing typos,
+     is normal and does not count as "modifying the release". Never re-upload
+     binaries or repoint the tag of a published release.
 
 3.6. **Keep the local repo clean.** Never commit secrets, credentials,
      databases, uploads, or build output.
