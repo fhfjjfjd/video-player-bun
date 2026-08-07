@@ -25,6 +25,34 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 - Backend C++ native với SQLite (lưu trữ), không cần cài database riêng
 - hls.js cho phát HLS
 
+## Cài đặt nhanh (một lệnh duy nhất)
+
+Không cần cấu hình thủ công. Chạy script cài đặt cho hệ điều hành của bạn —
+script sẽ tự clone mã nguồn, tải binary backend phù hợp với CPU/OS của bạn,
+build frontend và tạo lệnh `videohub`:
+
+- **Linux / macOS / Android (Termux):**
+
+  ```bash
+  curl -fsSL https://raw.githubusercontent.com/fhfjjfjd/video-player-bun/main/install.sh | bash
+  ```
+
+- **Windows (PowerShell):**
+
+  ```powershell
+  Invoke-WebRequest -Uri "https://raw.githubusercontent.com/fhfjjfjd/video-player-bun/main/install.bat" -OutFile install.bat
+  .\install.bat
+  ```
+
+Khi hoàn tất, mở terminal mới và chỉ cần gõ:
+
+```bash
+videohub
+```
+
+Ứng dụng được cài vào `~/videohub` (đặt biến `VIDEOHUB_DIR` để đổi vị trí).
+Chạy lại script cài đặt để cập nhật cả mã nguồn lẫn binary.
+
 ## Cài đặt
 
 ```bash

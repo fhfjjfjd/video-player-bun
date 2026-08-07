@@ -25,6 +25,34 @@ share videos through dedicated per-video URLs.
 - Native C++ backend with SQLite storage — no separate database to install
 - hls.js for HLS playback
 
+## Quick install (one command)
+
+No manual setup needed. Run the installer for your OS — it clones the source,
+downloads the pre-built backend binary for your CPU/OS, builds the frontend,
+and creates a `videohub` command:
+
+- **Linux / macOS / Android (Termux):**
+
+  ```bash
+  curl -fsSL https://raw.githubusercontent.com/fhfjjfjd/video-player-bun/main/install.sh | bash
+  ```
+
+- **Windows (PowerShell):**
+
+  ```powershell
+  Invoke-WebRequest -Uri "https://raw.githubusercontent.com/fhfjjfjd/video-player-bun/main/install.bat" -OutFile install.bat
+  .\install.bat
+  ```
+
+When it finishes, open a new terminal and just type:
+
+```bash
+videohub
+```
+
+The app installs to `~/videohub` (set `VIDEOHUB_DIR` to change the location).
+Re-run the installer to update both the source and the binary.
+
 ## Install
 
 ```bash
