@@ -79,15 +79,22 @@ git tag v<version>          # e.g. git tag v3.0.1
 git push origin v<version>  # e.g. git push origin v3.0.1
 ```
 
-### Step 7 — Run GitHub Actions manually
+### Step 7 — Run the backend build workflows manually
 
-After pushing the tag, go to the GitHub repository → **Actions** tab →
-run the backend build workflows (one per OS: Linux, macOS, Windows,
-Android) — or let them trigger automatically by the push. Wait for them
-to complete for each OS and chip (x86 and ARM). Download the produced
-binary artifacts for each platform. Each artifact contains the
-pre-compiled backend executable for that platform — never compile it on
-a local machine.
+The 4 backend build workflows (Linux, macOS, Windows, Android) are
+**manual-only** (`workflow_dispatch`): they do NOT run automatically on
+push. After pushing the tag, you MUST trigger them by hand:
+
+1. Go to the GitHub repository → **Actions** tab.
+2. For EACH of the 4 workflows (`Build C++ Server (Linux)`, `(macOS)`,
+   `(Windows)`, `(Android)`) click **Run workflow** → choose the
+   `main` branch → **Run workflow**.
+3. Wait for every job to finish for each OS and chip (x86 and ARM).
+   Each job produces a binary artifact (the pre-compiled backend
+   executable for that platform) — never compile it on a local machine.
+
+Never rely on automatic triggering — the builds only run when you start
+them manually.
 
 ### Step 7b — Check the build results
 
