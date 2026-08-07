@@ -22,7 +22,7 @@ case "$TARGET" in
 esac
 
 if [[ "$CXX" == *android* ]]; then
-  LIBS="-lpthread -lm"
+  LIBS="-lm"
 fi
 
 SQLITE_FLAGS="-DSQLITE_THREADSAFE=1 -DSQLITE_OMIT_LOAD_EXTENSION"

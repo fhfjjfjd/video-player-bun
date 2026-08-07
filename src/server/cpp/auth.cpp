@@ -46,7 +46,7 @@ const char* auth_hash_password(const char* password, char* output, size_t output
 
     std::stringstream ss;
     ss << "pbkdf2$100000$";
-    char hex_buf[64];
+    char hex_buf[65];
     to_hex(salt, sizeof(salt), hex_buf);
     ss << hex_buf << "$";
     to_hex(key, sizeof(key), hex_buf);
