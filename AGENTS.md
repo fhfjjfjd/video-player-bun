@@ -97,11 +97,13 @@ next one starts. If any phase fails, do not proceed; fix and retry.
      this phase on a red build.
 
 2.3. **NEVER build, compile, or syntax-check the backend on this machine.**
-     This is a low-power Android/Termux device. Do NOT run `build_cpp.sh`,
-     `g++`, `clang++`, `gcc`, or any local compile/syntax check
-     (`-fsyntax-only`, etc.) for the backend, ever, regardless of the language
-     the backend is written in. All backend compilation happens exclusively on
-     GitHub Actions (Phases 9–10).
+     This is a low-power Android/Termux device. Do NOT run `bash build.sh`,
+     any language-specific build script (`build_cpp.sh`, `cargo build`, `go
+     build`, `bun run build`, etc.), any compiler (`g++`, `gcc`, `clang++`,
+     `rustc`, `go`, ...), or any local compile/syntax check for the backend,
+     ever, regardless of the language the backend is written in. All backend
+     compilation happens exclusively on GitHub Actions (Phases 9–10), which
+     call the language-agnostic `bash build.sh` (Section 3.9).
 
 2.4. If the change touched frontend behavior, optionally delegate to a
      `general` subagent to review the affected UI logic for regressions
@@ -205,14 +207,16 @@ hand. Never assume a push will build the backend.
      `.github/workflows/build-linux.yml`, `build-macos.yml`,
      `build-windows.yml`, and `build-android.yml` exist and that their `on:`
      block contains ONLY `workflow_dispatch` (no `push:` / `pull_request:`).
+     Confirm each workflow calls `bash build.sh` (NEVER a language-specific
+     build script directly — Section 3.9) and uploads `src/server/out/`.
 
 9.2. **Trigger all four workflows.** Trigger each one against the `main`
      branch:
      ```bash
-     gh workflow run "Build C++ Server (Linux)" --repo fhfjjfjd/video-player-bun --ref main
-     gh workflow run "Build C++ Server (macOS)" --repo fhfjjfjd/video-player-bun --ref main
-     gh workflow run "Build C++ Server (Windows)" --repo fhfjjfjd/video-player-bun --ref main
-     gh workflow run "Build C++ Server (Android)" --repo fhfjjfjd/video-player-bun --ref main
+     gh workflow run "Build Backend Server (Linux)" --repo fhfjjfjd/video-player-bun --ref main
+     gh workflow run "Build Backend Server (macOS)" --repo fhfjjfjd/video-player-bun --ref main
+     gh workflow run "Build Backend Server (Windows)" --repo fhfjjfjd/video-player-bun --ref main
+     gh workflow run "Build Backend Server (Android)" --repo fhfjjfjd/video-player-bun --ref main
      ```
      (Or do it via the web: **Actions** tab → workflow → **Run workflow** →
      branch `main` → **Run workflow**.)
@@ -334,9 +338,9 @@ hand. Never assume a push will build the backend.
 
 ## 3. Absolute rules (apply at all times)
 
-3.1. **Never compile or run the backend on this machine.** No `build_cpp.sh`,
-     `g++`, `clang++`, `gcc`, or `-fsyntax-only` for backend code. Ever.
-     Backend builds happen only on GitHub Actions, triggered manually.
+3.1. **Never compile or run the backend on this machine.** No `bash build.sh`,
+     no language build tool, no compiler, no syntax check for backend code.
+     Ever. Backend builds happen only on GitHub Actions, triggered manually.
 
 3.2. **Backend CI is manual-only.** The 4 build workflows never auto-run. You
      must trigger them by hand (Phase 9) after every backend-related change.
@@ -367,6 +371,35 @@ hand. Never assume a push will build the backend.
      config, commands, or CI MUST also update `README.md` and every existing
      per-language mirror (Phase 4). Pushing code before the docs are synced is
      a violation — fix the docs and amend/push again before releasing.
+
+### 3.9. Language-agnostic backend builds (apply to ANY backend language)
+
+The backend may be written in **any** language (currently C++, but Rust, Go,
+Python, Node, ... are all first-class). The build system is designed so that
+changing the backend language NEVER requires touching CI workflows, runtime
+launch logic, or release assets:
+
+- 3.9.1. **`build.sh` is the single backend entry point.** Every CI workflow
+     calls `bash build.sh` and nothing else. Never call a language-specific
+     script (`build_cpp.sh`, `cargo build`, ...) from a workflow, a doc, or a
+     local command — always route through `build.sh`.
+- 3.9.2. **Language detection is marker-based.** `build.sh` detects the
+     backend language from marker files in `src/server/`: `Cargo.toml` (Rust),
+     `go.mod` (Go), `pyproject.toml` / `requirements.txt` (Python),
+     `package.json` (Node), or a `cpp/` directory (C++). To adopt a new
+     language, add the marker check + a `case` branch in `build.sh` — no
+     workflow edits needed.
+- 3.9.3. **The output is always `src/server/out/video-server` (or
+     `video-server.exe`).** CI, `bin/detect.ts`, `install.sh`, and the release
+     assets all rely on this fixed name and path. Never rename it.
+- 3.9.4. **Never hardcode a language or compiler into the rules above.** Phases
+     2.3, 9, 10, 11, 13 and rules 3.1–3.3 are deliberately language-neutral.
+     When documenting or reviewing backend code, refer to it as "the backend"
+     / "the `video-server` binary", not "the C++ server".
+- 3.9.5. **Native toolchains are provided by the CI environment**, not by this
+     repo. The workflows install OS cross-compilers (g++/clang, NDK, llvm-mingw)
+     and pass `CXX`/`CC`/`EXTRA_CFLAGS`/`TARGET_OS` to `build.sh`. A new
+     language should use the toolchains already present on the runners.
 
 ---
 

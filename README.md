@@ -22,7 +22,8 @@ share videos through dedicated per-video URLs.
 
 - Bun 1.3 (runtime + bundler)
 - React 19 + TypeScript + Tailwind 4 + shadcn/ui
-- Native C++ backend with SQLite storage — no separate database to install
+- Native backend server (currently C++ with SQLite) — no separate database to install
+- Backend build is **language-agnostic** (`build.sh`): switching to Rust, Go, Python, or Node needs no CI or release changes
 - hls.js for HLS playback
 
 ## Quick install (one command)
@@ -51,7 +52,13 @@ videohub
 ```
 
 The app installs to `~/videohub` (set `VIDEOHUB_DIR` to change the location).
-Re-run the installer to update both the source and the binary.
+To update both the source and the binary, run:
+
+```bash
+videohub update
+```
+
+or re-run the installer (`bash install.sh update`).
 
 ## Install
 
@@ -97,10 +104,11 @@ Supported paths: `bin/linux-x64`, `bin/linux-arm64`, `bin/darwin-x64`,
 
 ## Structure
 
-- `src/server/cpp/` — C++ backend source (HTTP server, SQLite, auth/sessions, media tokens, SHA-256/HMAC/PBKDF2)
+- `src/server/` — backend source; language is auto-detected by `build.sh` from marker files (`Cargo.toml`, `go.mod`, `pyproject.toml`, `package.json`, or `cpp/`)
+- `src/server/cpp/` — current backend implementation in C++ (HTTP server, SQLite, auth/sessions, media tokens, SHA-256/HMAC/PBKDF2)
 - `src/server/cpp/vendor/` — vendored SQLite (amalgamation source, no system lib needed)
-- `build_cpp.sh` — cross-platform build script (used by GitHub Actions; not meant to be run locally)
-- `.github/workflows/build-<os>.yml` — CI workflows that compile the backend for Linux, macOS, Windows and Android
+- `build.sh` — language-agnostic backend build dispatcher (detects language, always outputs `src/server/out/video-server`; used by GitHub Actions, never run locally)
+- `.github/workflows/build-<os>.yml` — manual-only CI workflows that build the backend for Linux, macOS, Windows and Android via `build.sh`
 - `bin/` — pre-compiled `video-server` executables, one per platform/arch (downloaded from Releases, not committed)
 - `bin/detect.ts` — detects the current platform/arch and launches the matching binary
 - `src/App.tsx` — routing (home `/` and watch page `/video/:id`)

@@ -21,13 +21,13 @@ function getPlatform(): string {
 const ARCH = getArch();
 const PLATFORM = getPlatform();
 const BIN_DIR = path.join(process.cwd(), "bin", `${PLATFORM}-${ARCH}`);
-const SRC_LIB = path.join(process.cwd(), "src", "server", "cpp", "lib", "video-server");
+const SRC_LIB = path.join(process.cwd(), "src", "server", "out", "video-server");
 const BIN_NAME = PLATFORM === "windows" ? "video-server.exe" : "video-server";
 const BIN_PATH = path.join(BIN_DIR, BIN_NAME);
 
 console.log(`Detected platform: ${PLATFORM}-${ARCH}`);
 
-// Dev convenience: if the C++ server was built locally (src/server/cpp/lib),
+// Dev convenience: if the backend server was built locally (src/server/out),
 // copy it into place so the app runs without a manual download.
 if (!existsSync(BIN_PATH) && existsSync(SRC_LIB)) {
   mkdirSync(BIN_DIR, { recursive: true });
@@ -41,9 +41,9 @@ if (!existsSync(BIN_PATH) && existsSync(SRC_LIB)) {
 
 if (!existsSync(BIN_PATH)) {
   console.error("");
-  console.error(`  C++ server binary not found: ${BIN_PATH}`);
+  console.error(`  Backend server binary not found: ${BIN_PATH}`);
   console.error("");
-  console.error(`  The backend is a native C++ binary and is NEVER compiled on this machine.`);
+  console.error(`  The backend is a native binary and is NEVER compiled on this machine.`);
   console.error(`  Download the pre-built "${BIN_NAME}" for ${PLATFORM}-${ARCH} from the`);
   console.error(`  GitHub release page (or Actions artifacts) and place it at:`);
   console.error(`      ${BIN_PATH}`);
@@ -66,7 +66,7 @@ const child = spawn(BIN_PATH, [port, hostname], {
 });
 
 child.on("error", (err) => {
-  console.error(`Failed to launch C++ server: ${err.message}`);
+  console.error(`Failed to launch backend server: ${err.message}`);
   process.exit(1);
 });
 

@@ -1,4 +1,4 @@
-name: Build C++ Server (Windows)
+name: Build Backend Server (Windows)
 
 on:
   workflow_dispatch:
@@ -12,15 +12,15 @@ jobs:
         with:
           msystem: UCRT64
           install: mingw-w64-ucrt-x86_64-toolchain
-      - name: Build C++ server (x64)
+      - name: Build backend server (x64)
         shell: bash
         run: |
-          CXX=g++ CC=gcc TARGET_OS=windows bash build_cpp.sh
+          CXX=g++ CC=gcc TARGET_OS=windows bash build.sh
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-x64
-          path: src/server/cpp/lib/
+          path: src/server/out/
           retention-days: 30
 
   build-windows-arm64:
@@ -34,14 +34,14 @@ jobs:
           tar -xJf llvm-mingw.tar.xz
           ls -d llvm-mingw-*/bin
           echo "LLVM_MINGW_BIN=$(pwd)/$(ls -d llvm-mingw-*/bin)" >> "$GITHUB_ENV"
-      - name: Build C++ server (ARM64 cross)
+      - name: Build backend server (ARM64 cross)
         run: |
           CXX="$LLVM_MINGW_BIN/aarch64-w64-mingw32-clang++" \
           CC="$LLVM_MINGW_BIN/aarch64-w64-mingw32-clang" \
-          TARGET_OS=windows bash build_cpp.sh
+          TARGET_OS=windows bash build.sh
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-arm64
-          path: src/server/cpp/lib/
+          path: src/server/out/
           retention-days: 30

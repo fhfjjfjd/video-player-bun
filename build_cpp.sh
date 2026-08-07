@@ -3,7 +3,7 @@ set -e
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 SRC="$ROOT/src/server/cpp"
-OUT="$ROOT/src/server/cpp/lib"
+OUT="$ROOT/src/server/out"
 mkdir -p "$OUT"
 
 CXX_BIN="${CXX:-g++}"

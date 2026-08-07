@@ -22,7 +22,8 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 
 - Bun 1.3 (runtime + bundler)
 - React 19 + TypeScript + Tailwind 4 + shadcn/ui
-- Backend C++ native với SQLite (lưu trữ), không cần cài database riêng
+- Backend native (hiện là C++ với SQLite), không cần cài database riêng
+- Build backend **không phụ thuộc ngôn ngữ** (`build.sh`): chuyển sang Rust, Go, Python hoặc Node không cần sửa CI hay Release
 - hls.js cho phát HLS
 
 ## Cài đặt nhanh (một lệnh duy nhất)
@@ -51,7 +52,13 @@ videohub
 ```
 
 Ứng dụng được cài vào `~/videohub` (đặt biến `VIDEOHUB_DIR` để đổi vị trí).
-Chạy lại script cài đặt để cập nhật cả mã nguồn lẫn binary.
+Để cập nhật cả mã nguồn lẫn binary, chạy:
+
+```bash
+videohub update
+```
+
+hoặc chạy lại script cài đặt (`bash install.sh update`).
 
 ## Cài đặt
 
@@ -97,10 +104,11 @@ Các đường dẫn được hỗ trợ: `bin/linux-x64`, `bin/linux-arm64`,
 
 ## Cấu trúc
 
-- `src/server/cpp/` — mã nguồn backend C++ (HTTP server, SQLite, auth/session, media token, SHA-256/HMAC/PBKDF2)
+- `src/server/` — mã nguồn backend; `build.sh` tự phát hiện ngôn ngữ qua các marker file (`Cargo.toml`, `go.mod`, `pyproject.toml`, `package.json` hoặc `cpp/`)
+- `src/server/cpp/` — bản triển khai backend hiện tại bằng C++ (HTTP server, SQLite, auth/session, media token, SHA-256/HMAC/PBKDF2)
 - `src/server/cpp/vendor/` — SQLite nhúng sẵn (amalgamation, không cần thư viện hệ thống)
-- `build_cpp.sh` — script biên dịch đa nền tảng (chỉ dùng cho GitHub Actions, không chạy trên máy thường)
-- `.github/workflows/build-<os>.yml` — các workflow CI biên dịch backend cho Linux, macOS, Windows và Android
+- `build.sh` — script build backend không phụ thuộc ngôn ngữ (tự phát hiện ngôn ngữ, luôn xuất ra `src/server/out/video-server`; dùng cho GitHub Actions, không chạy trên máy thường)
+- `.github/workflows/build-<os>.yml` — các workflow CI manual-only build backend cho Linux, macOS, Windows và Android qua `build.sh`
 - `bin/` — các executable `video-server` biên dịch sẵn cho từng nền tảng/kiến trúc (tải từ Release, không commit vào repo)
 - `bin/detect.ts` — phát hiện nền tảng/kiến trúc hiện tại và chạy binary tương ứng
 - `src/App.tsx` — routing (trang chủ `/` và trang xem `/video/:id`)
