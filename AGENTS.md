@@ -7,6 +7,16 @@ feature, fix a bug, or cut a release. Do not skip steps, do not reorder
 phases, and do not rely on memory — re-read the relevant sections each time
 you start work.
 
+**When the release pipeline applies.** The full pipeline (Section 2) runs ONLY
+for **source-code** changes — a new feature, a bugfix, or replacing/rewriting
+a core (e.g. the backend in `src/server/`) — and only when the user asks for
+it (e.g. "add a new feature", "fix a bug", "bring a whole new core"). It does
+NOT apply to docs, scripts, config, or CI-only changes: those are committed
+and pushed directly, with doc sync (Section 1) when needed, but no version
+bump, no manual CI run, and no release. Never prompt or remind the user to
+cut a release; run the pipeline only when the user's request is a source-code
+change.
+
 ---
 
 ## 0. How this document is organized
@@ -49,6 +59,10 @@ The pipeline has **14 phases**. Phases 0–8 happen on this machine. Phases 9–
 happen on GitHub. Phase 14 is close-out. Every phase must complete before the
 next one starts. If any phase fails, do not proceed; fix and retry.
 
+> **Scope:** this pipeline applies to **source code only** (e.g. changes in
+> `src/`, `src/server/`). Docs, scripts, config, and CI-only changes are
+> committed directly without this pipeline (see the intro above).
+
 ### Phase 0 — Intake and reconnaissance
 
 0.1. **Check open GitHub Issues.** Run
@@ -80,6 +94,8 @@ next one starts. If any phase fails, do not proceed; fix and retry.
      - `breaking` — removes features, changes storage formats, or breaks
        existing deployments.
      - `chore` — docs, config, CI, refactor with no behavior change.
+     If the classification is `chore`, the change does NOT go through the full
+     pipeline — commit it directly (with doc sync when needed) and stop here.
 
 1.3. **Draft the version bump** based on the classification (see Phase 3 for
      exact rules). Do not edit `package.json` yet — first confirm the current
