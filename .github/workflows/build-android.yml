@@ -18,7 +18,7 @@ jobs:
           unzip -q ndk.zip
           echo "NDK_TOOLCHAIN=$(pwd)/android-ndk-r26d/toolchains/llvm/prebuilt/linux-x86_64/bin" >> "$GITHUB_ENV"
       - name: Build C++ server (ARM64)
-        run: CXX="$NDK_TOOLCHAIN/aarch64-linux-android24-clang++" bash build_cpp.sh
+        run: CXX="$NDK_TOOLCHAIN/aarch64-linux-android24-clang++" CC="$NDK_TOOLCHAIN/aarch64-linux-android24-clang" bash build_cpp.sh
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -36,7 +36,7 @@ jobs:
           unzip -q ndk.zip
           echo "NDK_TOOLCHAIN=$(pwd)/android-ndk-r26d/toolchains/llvm/prebuilt/linux-x86_64/bin" >> "$GITHUB_ENV"
       - name: Build C++ server (x86_64)
-        run: CXX="$NDK_TOOLCHAIN/x86_64-linux-android24-clang++" bash build_cpp.sh
+        run: CXX="$NDK_TOOLCHAIN/x86_64-linux-android24-clang++" CC="$NDK_TOOLCHAIN/x86_64-linux-android24-clang" bash build_cpp.sh
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

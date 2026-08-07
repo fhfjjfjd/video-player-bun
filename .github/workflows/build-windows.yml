@@ -12,11 +12,14 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          install: mingw-w64-ucrt-x86_64-toolchain
       - name: Build C++ server (x64)
         shell: bash
         run: |
-          export PATH="/c/msys64/ucrt64/bin:$PATH"
-          CXX=/c/msys64/ucrt64/bin/g++.exe TARGET_OS=windows bash build_cpp.sh
+          CXX=g++ CC=gcc TARGET_OS=windows bash build_cpp.sh
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -37,7 +40,9 @@ jobs:
           echo "LLVM_MINGW_BIN=$(pwd)/$(ls -d llvm-mingw-*/bin)" >> "$GITHUB_ENV"
       - name: Build C++ server (ARM64 cross)
         run: |
-          CXX="$LLVM_MINGW_BIN/aarch64-w64-mingw32-clang++.exe" TARGET_OS=windows bash build_cpp.sh
+          CXX="$LLVM_MINGW_BIN/aarch64-w64-mingw32-clang++" \
+          CC="$LLVM_MINGW_BIN/aarch64-w64-mingw32-clang" \
+          TARGET_OS=windows bash build_cpp.sh
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

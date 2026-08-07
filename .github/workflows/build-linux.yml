@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y g++-aarch64-linux-gnu
       - name: Build C++ server (ARM64)
-        run: CXX=aarch64-linux-gnu-g++ bash build_cpp.sh
+        run: CXX=aarch64-linux-gnu-g++ CC=aarch64-linux-gnu-gcc bash build_cpp.sh
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
