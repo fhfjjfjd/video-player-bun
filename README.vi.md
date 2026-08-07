@@ -52,13 +52,19 @@ videohub
 ```
 
 Ứng dụng được cài vào `~/videohub` (đặt biến `VIDEOHUB_DIR` để đổi vị trí).
-Để cập nhật cả mã nguồn lẫn binary, chạy:
+Quản lý từ mọi nơi:
 
 ```bash
-videohub update
+videohub           # khởi động ứng dụng
+videohub update    # cập nhật mã nguồn và binary tại chỗ
+videohub reinstall # cài lại từ đầu (hỏi có giữ uploads/ + data.db không)
+videohub uninstall # gỡ bỏ lệnh, PATH và ứng dụng (hỏi có giữ uploads/ + data.db không)
 ```
 
-hoặc chạy lại script cài đặt (`bash install.sh update`).
+`videohub reinstall` và `videohub uninstall` luôn hỏi bạn có muốn giữ video
+đã upload (`uploads/` và `data.db`) hay không. Gõ `y` để giữ dữ liệu, gõ bất
+kỳ phím nào khác để xóa toàn bộ. Các thao tác này cũng tương đương
+`bash install.sh reinstall|uninstall`.
 
 ## Cài đặt
 

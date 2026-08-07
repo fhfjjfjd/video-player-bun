@@ -52,13 +52,19 @@ videohub
 ```
 
 The app installs to `~/videohub` (set `VIDEOHUB_DIR` to change the location).
-To update both the source and the binary, run:
+Manage it from anywhere:
 
 ```bash
-videohub update
+videohub           # start the app
+videohub update    # update source and binary in place
+videohub reinstall # fresh install (asks whether to keep uploads/ + data.db)
+videohub uninstall # remove launcher, PATH entries, and app (asks whether to keep uploads/ + data.db)
 ```
 
-or re-run the installer (`bash install.sh update`).
+`videohub reinstall` and `videohub uninstall` always ask whether you want to
+keep your uploaded videos (`uploads/` and `data.db`). Answer `y` to keep the
+data, anything else to delete everything. The same flows work as
+`bash install.sh reinstall|uninstall`.
 
 ## Install
 
