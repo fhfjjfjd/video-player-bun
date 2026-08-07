@@ -1,5 +1,6 @@
 #include "db.h"
 #include <sqlite3.h>
+#include <cctype>
 #include <cstring>
 #include <sstream>
 #include <string>
@@ -208,6 +209,60 @@ int db_find_user_by_identifier(const char* identifier, char* username_out, size_
             strncpy(hash_out, hash, hash_len - 1);
             hash_out[hash_len - 1] = '\0';
         }
+        sqlite3_finalize(stmt);
+        return 0;
+    }
+
+    sqlite3_finalize(stmt);
+    return -1;
+}
+
+int db_find_user_by_id(int user_id, char* output, size_t output_len) {
+    if (!g_db || user_id <= 0 || !output) return -1;
+    sqlite3* db = static_cast<sqlite3*>(g_db);
+
+    sqlite3_stmt* stmt;
+    const char* sql = "SELECT id, username, email FROM users WHERE id = ?";
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) return -1;
+
+    sqlite3_bind_int(stmt, 1, user_id);
+
+    int rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+        int uid = sqlite3_column_int(stmt, 0);
+        const char* uname = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        const char* email = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+
+        std::string result = "{\"id\":" + std::to_string(uid) +
+                             ",\"username\":\"" + (uname ? uname : "") + "\"" +
+                             ",\"email\":\"" + (email ? email : "") + "\"}";
+
+        if (result.size() + 1 > output_len) {
+            sqlite3_finalize(stmt);
+            return -1;
+        }
+        strcpy(output, result.c_str());
+        sqlite3_finalize(stmt);
+        return 0;
+    }
+
+    sqlite3_finalize(stmt);
+    return -1;
+}
+
+int db_get_user_id_by_username(const char* username, int* user_id_out) {
+    if (!g_db || !username || !user_id_out) return -1;
+    sqlite3* db = static_cast<sqlite3*>(g_db);
+
+    sqlite3_stmt* stmt;
+    const char* sql = "SELECT id FROM users WHERE username = ?";
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) return -1;
+
+    sqlite3_bind_text(stmt, 1, username, -1, SQLITE_TRANSIENT);
+
+    int rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+        *user_id_out = sqlite3_column_int(stmt, 0);
         sqlite3_finalize(stmt);
         return 0;
     }

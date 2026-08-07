@@ -1,25 +1,42 @@
 #!/bin/bash
 set -e
 
-SRC_DIR="$(dirname "$0")/src/server/cpp"
-OUT_DIR="$(dirname "$0")/src/server/cpp/lib"
-mkdir -p "$OUT_DIR"
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+SRC="$ROOT/src/server/cpp"
+OUT="$ROOT/src/server/cpp/lib"
+mkdir -p "$OUT"
 
-echo "Building C++ shared libraries..."
+CXX_BIN="${CXX:-g++}"
+TARGET="${TARGET_OS:-$(uname -s 2>/dev/null || echo unknown)}"
 
-g++ -shared -fPIC -O2 -o "$OUT_DIR/libmediatoken.so" "$SRC_DIR/mediatoken.cpp" -I"$SRC_DIR" -lssl -lcrypto -lstdc++
-echo "  [OK] libmediatoken.so"
+case "$TARGET" in
+  MINGW*|MSYS*|CYGWIN*|Windows*|windows)
+    BIN_NAME="video-server.exe"
+    LIBS="-lws2_32 -lwinpthread"
+    ;;
+  *)
+    BIN_NAME="video-server"
+    LIBS="-lpthread -lm"
+    ;;
+esac
 
-g++ -shared -fPIC -O2 -o "$OUT_DIR/libsecurity.so" "$SRC_DIR/security.cpp" -I"$SRC_DIR" -lstdc++
-echo "  [OK] libsecurity.so"
+if [[ "$CXX" == *android* ]]; then
+  LIBS="-lpthread -lm"
+fi
 
-g++ -shared -fPIC -O2 -o "$OUT_DIR/libauth.so" "$SRC_DIR/auth.cpp" "$SRC_DIR/mediatoken.cpp" -I"$SRC_DIR" -lssl -lcrypto -lstdc++
-echo "  [OK] libauth.so"
+echo "Building C++ server ($BIN_NAME) with $CXX_BIN ..."
 
-g++ -shared -fPIC -O2 -o "$OUT_DIR/libdb.so" "$SRC_DIR/db.cpp" -I"$SRC_DIR" -lsqlite3 -lstdc++
-echo "  [OK] libdb.so"
+"$CXX_BIN" -std=c++17 -O2 -pthread $EXTRA_CFLAGS \
+    -DSQLITE_THREADSAFE=1 -DSQLITE_OMIT_LOAD_EXTENSION \
+    -I"$SRC" -I"$SRC/vendor" \
+    "$SRC/server.cpp" \
+    "$SRC/server_handlers.cpp" \
+    "$SRC/db.cpp" \
+    "$SRC/auth.cpp" \
+    "$SRC/mediatoken.cpp" \
+    "$SRC/sha256.cpp" \
+    "$SRC/vendor/sqlite3.c" \
+    -o "$OUT/$BIN_NAME" $LIBS
 
-g++ -shared -fPIC -O2 -o "$OUT_DIR/libvideos.so" "$SRC_DIR/videos.cpp" "$SRC_DIR/mediatoken.cpp" -I"$SRC_DIR" -lsqlite3 -lssl -lcrypto -lstdc++
-echo "  [OK] libvideos.so"
-
-echo "All C++ libraries built successfully in $OUT_DIR/"
+echo "  [OK] $OUT/$BIN_NAME"
+echo "C++ server built successfully."

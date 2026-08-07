@@ -1,16 +1,13 @@
 {
   "name": "bun-react-template",
-  "version": "4.0.1",
+  "version": "4.2.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun run dev.ts",
-    "devb": "bun --hot src/server/api.ts",
-    "devf": "WEB_ONLY=1 bun run dev.ts",
-    "devs": "HOSTNAME=0.0.0.0 bun run dev.ts",
-    "start": "NODE_ENV=production bun src/index.ts",
-    "start:api": "NODE_ENV=production bun src/server/api.ts",
-    "build": "bun run build.ts"
+    "start": "NODE_ENV=production bun bin/detect.ts",
+    "dev": "NODE_ENV=development bun bin/detect.ts",
+    "build": "bun run build.ts",
+    "setup": "bun bin/detect.ts"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.7",

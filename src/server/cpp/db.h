@@ -1,6 +1,7 @@
-#include <stddef.h>
 #ifndef DB_H
 #define DB_H
+
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,6 +16,8 @@ int db_create_user(const char* username, const char* email, const char* password
 int db_find_user_by_username(const char* username, char* email_out, size_t email_len, char* hash_out, size_t hash_len);
 int db_find_user_by_email(const char* email, char* username_out, size_t username_len, char* hash_out, size_t hash_len);
 int db_find_user_by_identifier(const char* identifier, char* username_out, size_t username_len, char* email_out, size_t email_len, char* hash_out, size_t hash_len);
+int db_find_user_by_id(int user_id, char* output, size_t output_len);
+int db_get_user_id_by_username(const char* username, int* user_id_out);
 
 int db_create_session(int user_id, const char* token, const char* expires_at);
 int db_find_user_by_session_token(const char* token, int* user_id_out);

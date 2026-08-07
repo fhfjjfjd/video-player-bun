@@ -1,13 +1,17 @@
 #include "mediatoken.h"
+#include "sha256.h"
 #include <cstring>
 #include <cstdlib>
-#include <openssl/hmac.h>
-#include <openssl/evp.h>
 #include <sstream>
 #include <iomanip>
 #include <fstream>
 #include <random>
 #include <sys/stat.h>
+
+#ifdef _WIN32
+#include <io.h>
+#define chmod _chmod
+#endif
 
 static std::string load_secret_from_file(const char* path) {
     std::ifstream f(path);
@@ -97,13 +101,12 @@ const char* mediatoken_sign(const char* filename, const char* secret, char* outp
 
     std::string b64_payload = base64url_encode(reinterpret_cast<const unsigned char*>(payload.c_str()), payload.size());
 
-    unsigned char hash[EVP_MAX_MD_SIZE];
-    unsigned int hash_len = 0;
-    HMAC(EVP_sha256(), secret, strlen(secret),
-         reinterpret_cast<const unsigned char*>(b64_payload.c_str()), b64_payload.size(),
-         hash, &hash_len);
+    unsigned char hash[SHA256_DIGEST_SIZE];
+    hmac_sha256(reinterpret_cast<const uint8_t*>(secret), strlen(secret),
+                reinterpret_cast<const uint8_t*>(b64_payload.c_str()), b64_payload.size(),
+                hash);
 
-    std::string b64_sig = base64url_encode(hash, hash_len);
+    std::string b64_sig = base64url_encode(hash, SHA256_DIGEST_SIZE);
 
     std::string token = b64_payload + "." + b64_sig;
     if (token.size() + 1 > output_len) return nullptr;
@@ -124,13 +127,12 @@ int mediatoken_verify(const char* token, const char* secret, char* output, size_
 
     std::string payload_json = base64url_decode(payload_b64.c_str());
 
-    unsigned char hash[EVP_MAX_MD_SIZE];
-    unsigned int hash_len = 0;
-    HMAC(EVP_sha256(), secret, strlen(secret),
-         reinterpret_cast<const unsigned char*>(payload_b64.c_str()), payload_b64.size(),
-         hash, &hash_len);
+    unsigned char hash[SHA256_DIGEST_SIZE];
+    hmac_sha256(reinterpret_cast<const uint8_t*>(secret), strlen(secret),
+                reinterpret_cast<const uint8_t*>(payload_b64.c_str()), payload_b64.size(),
+                hash);
 
-    std::string expected_sig = base64url_encode(hash, hash_len);
+    std::string expected_sig = base64url_encode(hash, SHA256_DIGEST_SIZE);
     if (sig_b64 != expected_sig) return -1;
 
     size_t e_pos = payload_json.find("\"e\":");

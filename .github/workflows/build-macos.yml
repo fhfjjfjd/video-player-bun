@@ -1,0 +1,35 @@
+name: Build C++ Server (macOS)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-macos-arm64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build C++ server (ARM64)
+        run: bash build_cpp.sh
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: darwin-arm64
+          path: src/server/cpp/lib/
+          retention-days: 30
+
+  build-macos-x64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build C++ server (x86_64)
+        run: EXTRA_CFLAGS="-arch x86_64" bash build_cpp.sh
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: darwin-x64
+          path: src/server/cpp/lib/
+          retention-days: 30

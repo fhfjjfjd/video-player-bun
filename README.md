@@ -22,7 +22,7 @@ share videos through dedicated per-video URLs.
 
 - Bun 1.3 (runtime + bundler)
 - React 19 + TypeScript + Tailwind 4 + shadcn/ui
-- SQLite storage — no separate database to install
+- Native C++ backend with SQLite storage — no separate database to install
 - hls.js for HLS playback
 
 ## Install
@@ -38,35 +38,38 @@ bun install
 ## Run
 
 ```bash
-# run both frontend (3000) and API (3001) — auto-restarts on src/ changes
-bun dev
-
-# API only
-bun devb
-
-# frontend only (uses an already-running API server)
-bun devf
-
-# share over LAN (binds 0.0.0.0, prints the LAN IP)
-bun devs
-
-# production
-bun start
+bun run build   # build the frontend into dist/
+bun start       # start the native server (SPA + API, http://127.0.0.1:3000)
 ```
 
-`bun dev` uses a small runner (`dev.ts`) that watches `src/` and restarts the
-server automatically when you edit files — no manual restarts.
+`bun dev` does the same in development mode. The server binds to
+`127.0.0.1:3000` by default; set `HOST=0.0.0.0` to share over LAN.
+
+### The backend binary
+
+The backend is a pre-compiled native executable (`video-server`). It is
+**never compiled on your machine** — GitHub Actions builds it for every
+platform/arch (Linux, macOS, Windows, Android; x86 and ARM) and the binaries
+are attached to each Release.
+
+1. Download the binary for your platform from the Release page.
+2. Place it at the matching path, e.g. `bin/linux-x64/video-server`
+   (for Windows: `bin/windows-x64/video-server.exe`).
+3. Then run the app as above. `bin/detect.ts` picks the correct binary for
+   your OS and architecture automatically.
+
+Supported paths: `bin/linux-x64`, `bin/linux-arm64`, `bin/darwin-x64`,
+`bin/darwin-arm64`, `bin/windows-x64`, `bin/windows-arm64`,
+`bin/android-arm64`, `bin/android-x64`.
 
 ## Structure
 
-- `src/index.ts` — frontend server (port 3000), proxies `/api/*` to the API and serves the SPA
-- `dev.ts` — dev runner: watches `src/` and auto-restarts the dev server on file changes
-- `src/server/api.ts` — standalone API server (port 3001)
-- `src/server/` — routes, handlers, db (SQLite), auth (session cookie), storage (upload), media tokens (`mediaToken.ts`), security headers (`security.ts`)
-- `bin/` — platform-specific native C++ binaries (linux-x64, linux-arm64, darwin-x64, darwin-arm64, windows-x64, android-arm64). The server detects the current architecture and loads the correct binary from this directory. This is mandatory — the server will not start without the correct binary.
-- `src/server/cpp/` — C++ source code for native modules (mediatoken, security, auth, db, videos)
-- `build_cpp.sh` — compiles C++ source into shared libraries for the current platform
-- `bin/detect.ts` — detects platform architecture and copies the correct binaries to `bin/`
+- `src/server/cpp/` — C++ backend source (HTTP server, SQLite, auth/sessions, media tokens, SHA-256/HMAC/PBKDF2)
+- `src/server/cpp/vendor/` — vendored SQLite (amalgamation source, no system lib needed)
+- `build_cpp.sh` — cross-platform build script (used by GitHub Actions; not meant to be run locally)
+- `.github/workflows/build-<os>.yml` — CI workflows that compile the backend for Linux, macOS, Windows and Android
+- `bin/` — pre-compiled `video-server` executables, one per platform/arch (downloaded from Releases, not committed)
+- `bin/detect.ts` — detects the current platform/arch and launches the matching binary
 - `src/App.tsx` — routing (home `/` and watch page `/video/:id`)
 - `src/HomePage.tsx` — home page: search, upload, video list, feedback link to GitHub Issues
 - `src/UploadModal.tsx` — upload modal with video and thumbnail image selection + progress bar
