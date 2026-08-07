@@ -417,6 +417,13 @@ launch logic, or release assets:
      and pass `CXX`/`CC`/`EXTRA_CFLAGS`/`TARGET_OS` to `build.sh`. A new
      language should use the toolchains already present on the runners.
 
+3.10. **The two installers must stay in sync.** `install.sh` (Unix/Termux) and
+     `install.bat` (Windows) are the SAME product on two OSes. A change to one
+     MUST update the other in the SAME commit: same commands/modes
+     (`install`, `update`, `reinstall`, `uninstall`), same keep-data prompt
+     (`uploads/` + `data.db`), and the same `videohub` launcher passthrough.
+     Never ship a mode in one installer without the other.
+
 ---
 
 ## 4. Using subagents (tác nhân) in this pipeline

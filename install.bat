@@ -1,9 +1,27 @@
 @echo off
 setlocal EnableDelayedExpansion
+rem videohub - one-command installer for the video-player-bun app.
+rem
+rem Usage:
+rem   install.bat            install (or update if already installed)
+rem   install.bat update     update the app in place
+rem   install.bat reinstall  remove everything, then install fresh
+rem   install.bat uninstall  remove launcher, PATH entries, and app data
+rem
+rem After install, `videohub update|reinstall|uninstall` run the same flows.
+rem
+rem The app lives in %USERPROFILE%\videohub.
 set "REPO=fhfjjfjd/video-player-bun"
 set "APP_NAME=videohub"
 set "INSTALL_DIR=%USERPROFILE%\videohub"
 set "BASE_URL=https://github.com/%REPO%/releases/latest/download"
+
+set "MODE=%~1"
+if "%MODE%"=="" set "MODE=install"
+if not "%MODE%"=="install" if not "%MODE%"=="update" if not "%MODE%"=="reinstall" if not "%MODE%"=="uninstall" (
+    echo [videohub ERROR] Unknown argument: %MODE%. Usage: install.bat [install^|update^|reinstall^|uninstall]
+    exit /b 1
+)
 
 echo [videohub] Detecting system...
 set "OS=windows"
@@ -15,9 +33,46 @@ if /i "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
     echo [videohub ERROR] Unsupported CPU architecture: %PROCESSOR_ARCHITECTURE%
     exit /b 1
 )
+set "BIN_DIR=%INSTALL_DIR%\bin\%OS%-%ARCH%"
+set "WINAPPS=%USERPROFILE%\AppData\Local\Microsoft\WindowsApps"
 echo [videohub] Detected platform: %OS%-%ARCH%
 
-rem --- prerequisites --------------------------------------------------------
+rem --- uninstall -------------------------------------------------------------
+if /i "%MODE%"=="uninstall" (
+    echo [videohub] Uninstalling %APP_NAME%...
+    del /f /q "%WINAPPS%\%APP_NAME%.cmd" >nul 2>nul
+    del /f /q "%BIN_DIR%\%APP_NAME%.cmd" >nul 2>nul
+    echo [videohub]   Removed launcher
+    if exist "%INSTALL_DIR%" (
+        call :ask_keep_data
+        if "!KEEP_DATA!"=="1" (
+            for /d %%D in ("%INSTALL_DIR%\*") do if /i not "%%~nxD"=="uploads" rmdir /s /q "%%D"
+            for %%F in ("%INSTALL_DIR%\*") do if /i not "%%~nxF"=="data.db" if /i not "%%~nxF"=="data.db-wal" if /i not "%%~nxF"=="data.db-shm" if /i not "%%~nxF"==".media-secret" del /f /q "%%F"
+            echo [videohub]   Kept uploads/ and data.db
+        ) else (
+            rmdir /s /q "%INSTALL_DIR%"
+            echo [videohub]   Removed app directory
+        )
+    )
+    echo [videohub] %APP_NAME% has been uninstalled.
+    exit /b 0
+)
+
+rem --- reinstall -------------------------------------------------------------
+if /i "%MODE%"=="reinstall" (
+    echo [videohub] Reinstalling %APP_NAME% (fresh)...
+    if exist "%INSTALL_DIR%" (
+        call :ask_keep_data
+        if "!KEEP_DATA!"=="1" (
+            for /d %%D in ("%INSTALL_DIR%\*") do if /i not "%%~nxD"=="uploads" rmdir /s /q "%%D"
+            for %%F in ("%INSTALL_DIR%\*") do if /i not "%%~nxF"=="data.db" if /i not "%%~nxF"=="data.db-wal" if /i not "%%~nxF"=="data.db-shm" if /i not "%%~nxF"==".media-secret" del /f /q "%%F"
+        ) else (
+            rmdir /s /q "%INSTALL_DIR%"
+        )
+    )
+)
+
+rem --- prerequisites ---------------------------------------------------------
 where git >nul 2>nul || (
     echo [videohub ERROR] Git not found. Install it from https://git-scm.com
     exit /b 1
@@ -36,7 +91,7 @@ where bun >nul 2>nul || (
     )
 )
 
-rem --- source code ----------------------------------------------------------
+rem --- source code -----------------------------------------------------------
 if exist "%INSTALL_DIR%\.git" (
     echo [videohub] Updating source...
     pushd "%INSTALL_DIR%"
@@ -49,28 +104,29 @@ if exist "%INSTALL_DIR%\.git" (
 
 pushd "%INSTALL_DIR%"
 
-rem --- frontend -------------------------------------------------------------
+rem --- frontend --------------------------------------------------------------
 echo [videohub] Installing frontend dependencies...
 call bun install || exit /b 1
 echo [videohub] Building frontend...
 call bun run build || exit /b 1
 
-rem --- backend binary -------------------------------------------------------
-set "BIN_DIR=%INSTALL_DIR%\bin\%OS%-%ARCH%"
+rem --- backend binary --------------------------------------------------------
 mkdir "%BIN_DIR%" 2>nul
 set "ASSET=video-server-%OS%-%ARCH%.exe"
 echo [videohub] Downloading %ASSET%...
 curl.exe -fsSL -o "%BIN_DIR%\video-server.exe" "%BASE_URL%/%ASSET%" || exit /b 1
 
-rem --- launcher command -----------------------------------------------------
+rem --- launcher command ------------------------------------------------------
 echo [videohub] Creating %APP_NAME% command...
 (
     echo @echo off
+    echo if /i "%%~1"=="update" call "%~dp0install.bat" update ^& exit /b
+    echo if /i "%%~1"=="reinstall" call "%~dp0install.bat" reinstall ^& exit /b
+    echo if /i "%%~1"=="uninstall" call "%~dp0install.bat" uninstall ^& exit /b
     echo cd /d "%INSTALL_DIR%"
     echo call bun start %%*
 ) > "%BIN_DIR%\%APP_NAME%.cmd"
 
-set "WINAPPS=%USERPROFILE%\AppData\Local\Microsoft\WindowsApps"
 copy /y "%BIN_DIR%\%APP_NAME%.cmd" "%WINAPPS%\%APP_NAME%.cmd" >nul 2>nul
 if exist "%WINAPPS%\%APP_NAME%.cmd" (
     echo [videohub] Command installed at %WINAPPS%\%APP_NAME%.cmd
@@ -88,3 +144,11 @@ echo [videohub]   Run          : %APP_NAME%
 echo.
 echo [videohub] Open a NEW terminal, then run:  %APP_NAME%
 endlocal
+exit /b 0
+
+rem --- helper: ask whether to keep uploaded videos ---------------------------
+:ask_keep_data
+set "KEEP_DATA=0"
+set /p KEEP_DATA="[videohub] Keep uploaded videos (uploads/ + data.db)? [y/N] "
+if /i "%KEEP_DATA%"=="y" set "KEEP_DATA=1"
+exit /b 0

@@ -64,7 +64,8 @@ videohub uninstall # remove launcher, PATH entries, and app (asks whether to kee
 `videohub reinstall` and `videohub uninstall` always ask whether you want to
 keep your uploaded videos (`uploads/` and `data.db`). Answer `y` to keep the
 data, anything else to delete everything. The same flows work as
-`bash install.sh reinstall|uninstall`.
+`bash install.sh reinstall|uninstall` (Unix) or `install.bat reinstall|uninstall`
+(Windows).
 
 ## Install
 

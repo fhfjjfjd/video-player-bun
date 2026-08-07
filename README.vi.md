@@ -64,7 +64,8 @@ videohub uninstall # gỡ bỏ lệnh, PATH và ứng dụng (hỏi có giữ up
 `videohub reinstall` và `videohub uninstall` luôn hỏi bạn có muốn giữ video
 đã upload (`uploads/` và `data.db`) hay không. Gõ `y` để giữ dữ liệu, gõ bất
 kỳ phím nào khác để xóa toàn bộ. Các thao tác này cũng tương đương
-`bash install.sh reinstall|uninstall`.
+`bash install.sh reinstall|uninstall` (Unix) hoặc `install.bat reinstall|uninstall`
+(Windows).
 
 ## Cài đặt
 
