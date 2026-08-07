@@ -67,6 +67,12 @@ data, anything else to delete everything. The same flows work as
 `bash install.sh reinstall|uninstall` (Unix) or `install.bat reinstall|uninstall`
 (Windows).
 
+**Version pinning:** install and update always fetch the **latest GitHub
+release** — the source is checked out at the release tag and the backend
+binary is downloaded from that same release, so the frontend and backend you
+get are always a matching pair (never a newer `main` mixed with an older
+binary).
+
 ## Install
 
 ```bash

@@ -16,6 +16,10 @@
 #
 # After install, `videohub update|reinstall|uninstall` run the same flows.
 #
+# Install/update pins the app to the LATEST GitHub release: the source is
+# checked out at the release tag and the backend binary is downloaded from
+# that same release, so frontend and backend always match.
+#
 # The app lives in ~/videohub (override with VIDEOHUB_DIR).
 #
 set -euo pipefail
@@ -23,7 +27,6 @@ set -euo pipefail
 REPO="fhfjjfjd/video-player-bun"
 APP_NAME="videohub"
 INSTALL_DIR="${VIDEOHUB_DIR:-$HOME/videohub}"
-BASE_URL="https://github.com/$REPO/releases/latest/download"
 
 info() { printf '\033[1;34m[videohub]\033[0m %s\n' "$*"; }
 die()  { printf '\033[1;31m[videohub ERROR]\033[0m %s\n' "$*" >&2; exit 1; }
@@ -159,32 +162,38 @@ if [ "$MODE" = "reinstall" ]; then
     fi
 fi
 
-# --- 4. Source code -----------------------------------------------------------
-if [ "$MODE" = "update" ]; then
-    [ -d "$INSTALL_DIR/.git" ] || die "App is not installed yet. Run: bash install.sh"
-    info "Updating source in $INSTALL_DIR ..."
-    git -C "$INSTALL_DIR" pull --ff-only
+# --- 4. Latest release ---------------------------------------------------------
+info "Fetching the latest release tag..."
+LATEST_TAG="$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" 2>/dev/null \
+    | sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -n 1)"
+[ -n "$LATEST_TAG" ] || die "Failed to fetch the latest release tag from GitHub API"
+info "Latest release: $LATEST_TAG"
+
+# --- 5. Source code (pinned to the latest release tag) -------------------------
+if [ -d "$INSTALL_DIR/.git" ]; then
+    info "Updating source to $LATEST_TAG ..."
+    git -C "$INSTALL_DIR" fetch --depth 1 origin tag "$LATEST_TAG" \
+        || die "Failed to fetch tag $LATEST_TAG"
+    git -C "$INSTALL_DIR" checkout --detach "$LATEST_TAG" \
+        || die "Failed to checkout $LATEST_TAG"
 else
-    if [ -d "$INSTALL_DIR/.git" ]; then
-        info "Updating source in $INSTALL_DIR ..."
-        git -C "$INSTALL_DIR" pull --ff-only
-    else
-        info "Cloning source into $INSTALL_DIR ..."
-        git clone --depth 1 "https://github.com/$REPO.git" "$INSTALL_DIR"
-    fi
+    [ "$MODE" = "update" ] && die "App is not installed yet. Run: bash install.sh"
+    info "Cloning source at $LATEST_TAG ..."
+    git clone --depth 1 --branch "$LATEST_TAG" "https://github.com/$REPO.git" "$INSTALL_DIR" \
+        || die "Failed to clone $REPO"
 fi
 
 cd "$INSTALL_DIR"
 
-# --- 5. Frontend --------------------------------------------------------------
+# --- 6. Frontend --------------------------------------------------------------
 info "Installing frontend dependencies..."
 bun install
 
 info "Building frontend..."
 bun run build
 
-# --- 6. Backend binary --------------------------------------------------------
-info "Downloading $OS-$ARCH backend binary..."
+# --- 7. Backend binary (from the same release) --------------------------------
+info "Downloading $LATEST_TAG backend binary..."
 mkdir -p "$BIN_DIR"
 ASSET="video-server-$OS-$ARCH"
 TARGET="$BIN_DIR/video-server"
@@ -192,10 +201,11 @@ if [ "$OS" = "windows" ]; then
     ASSET="$ASSET.exe"
     TARGET="$TARGET.exe"
 fi
-curl -fsSL -o "$TARGET" "$BASE_URL/$ASSET" || die "Failed to download $ASSET from $BASE_URL"
+curl -fsSL -o "$TARGET" "https://github.com/$REPO/releases/download/$LATEST_TAG/$ASSET" \
+    || die "Failed to download $ASSET from the $LATEST_TAG release"
 chmod +x "$TARGET" 2>/dev/null || true
 
-# --- 7. Create the global `videohub` command ----------------------------------
+# --- 8. Create the global `videohub` command ----------------------------------
 mkdir -p "$CMD_DIR"
 
 LAUNCHER="$CMD_DIR/$APP_NAME"
@@ -226,7 +236,7 @@ if [ "$OS" != "android" ]; then
     esac
 fi
 
-# --- 8. Done ------------------------------------------------------------------
+# --- 9. Done ------------------------------------------------------------------
 info ""
 info "Install complete!"
 info "  App directory : $INSTALL_DIR"

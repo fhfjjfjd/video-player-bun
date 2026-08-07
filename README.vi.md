@@ -67,6 +67,11 @@ kỳ phím nào khác để xóa toàn bộ. Các thao tác này cũng tương �
 `bash install.sh reinstall|uninstall` (Unix) hoặc `install.bat reinstall|uninstall`
 (Windows).
 
+**Khóa đúng phiên bản:** cài đặt và cập nhật luôn lấy **release GitHub mới
+nhất** — mã nguồn được checkout đúng tag release và binary backend cũng tải
+từ chính release đó, nên frontend và backend luôn khớp nhau (không bao giờ
+bị `main` mới hơn trộn với binary cũ).
+
 ## Cài đặt
 
 ```bash
