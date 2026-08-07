@@ -52,6 +52,11 @@ The backend is a pre-compiled native executable (`video-server`). It is
 platform/arch (Linux, macOS, Windows, Android; x86 and ARM) and the binaries
 are attached to each Release.
 
+These builds are **manual-only**: they never run automatically on push. The
+maintainer triggers each build by hand (Actions tab → Run workflow), so a
+Release is only published after all 8 platform/arch builds pass. Each Release
+ships all 8 binaries.
+
 1. Download the binary for your platform from the Release page.
 2. Place it at the matching path, e.g. `bin/linux-x64/video-server`
    (for Windows: `bin/windows-x64/video-server.exe`).

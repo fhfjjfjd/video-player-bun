@@ -35,6 +35,11 @@ subagent", follow the instructions in **Section 4** first.
   language.
 - Update the README (and its translation mirrors) whenever behavior, commands,
   or the tech stack change.
+- **Docs are mandatory, not an afterthought.** Every change — code, config, CI,
+  or docs — MUST also update `README.md` and ALL existing per-language mirrors
+  (e.g. `README.vi.md`) in the SAME commit. A change is not complete until its
+  docs are synced in every shipped language. If a mirror is missing but that
+  language already ships in the repo, create it.
 
 ---
 
@@ -119,17 +124,25 @@ next one starts. If any phase fails, do not proceed; fix and retry.
 3.4. **If you are unsure** which version to use, STOP and ask the user. Never
      guess a version number.
 
-### Phase 4 — Documentation update
+### Phase 4 — Documentation update (mandatory)
 
-4.1. Decide whether the change affects features, commands, setup, or the tech
-     stack. If it does, update `README.md` AND any per-language mirrors that
-     exist (e.g. `README.vi.md`).
+4.1. **Documentation is never optional.** Every change — code, config, CI, or
+     docs — MUST update `README.md` AND ALL existing per-language mirrors
+     (e.g. `README.vi.md`) in the SAME commit.
 
-4.2. If multiple translations are needed and the change is large, delegate the
+4.2. List every doc file that ships in the repo before editing: run
+     `ls README*.md` (or `glob "*.md"`) and update each one. Never leave a
+     mirror stale.
+
+4.3. If multiple translations are needed and the change is large, delegate the
      translation of each mirror to a `general` subagent (one per language),
      then review the results yourself before committing.
 
-4.3. Keep every doc file in a single language. Never interleave languages.
+4.4. Keep every doc file in a single language. Never interleave languages.
+
+4.5. Do the doc sync BEFORE Phase 6 (commit). Check the staged set in 6.3
+     includes every doc file; if a doc was not modified, STOP and update it
+     before committing.
 
 ### Phase 5 — Local review before commit
 
@@ -343,6 +356,11 @@ hand. Never assume a push will build the backend.
      databases, uploads, or build output.
 
 3.7. **Never guess a version.** When in doubt, ask the user.
+
+3.8. **Never push a change without its docs.** A commit that changes behavior,
+     config, commands, or CI MUST also update `README.md` and every existing
+     per-language mirror (Phase 4). Pushing code before the docs are synced is
+     a violation — fix the docs and amend/push again before releasing.
 
 ---
 

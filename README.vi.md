@@ -52,6 +52,11 @@ Backend là một executable native (`video-server`) được biên dịch sẵn
 dịch cho mọi nền tảng/kiến trúc (Linux, macOS, Windows, Android; x86 và ARM)
 và file binary được đính kèm vào mỗi Release.
 
+Các build này **chỉ chạy thủ công**: chúng không bao giờ tự động chạy khi
+push. Người quản trị phải tự kích hoạt từng build (tab Actions → Run
+workflow), nên Release chỉ được phát hành sau khi cả 8 build
+nền tảng/kiến trúc đều pass. Mỗi Release đính kèm đủ 8 binary.
+
 1. Tải binary cho nền tảng của bạn từ trang Release.
 2. Đặt nó vào đúng đường dẫn, ví dụ `bin/linux-x64/video-server`
    (trên Windows: `bin/windows-x64/video-server.exe`).
