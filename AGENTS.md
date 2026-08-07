@@ -278,8 +278,9 @@ hand. Never assume a push will build the backend.
         --latest \
         --notes "<what changed>"
       ```
-      Release notes can be written in any language and must summarize the
-      changes in this version.
+      **Release titles and notes MUST be written in English.** Do not use
+      Vietnamese or any other language in a release title or its notes — the
+      notes summarize the changes in this version for a global audience.
 
 12.2. Record the release ID (from the `gh release create` output or
       `gh api repos/fhfjjfjd/video-player-bun/releases/tags/v<version> --jq .id`).
