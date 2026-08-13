@@ -40,7 +40,10 @@ subagent", follow the instructions in **Section 4** first.
   `README.vi.md` for Vietnamese, `README.zh.md` for Chinese) for each
   translation you add.
 - Never mix multiple languages inside one doc; keep each doc file in one
-  language.
+  language. A doc file must be 100% one language: a document that contains no
+  Vietnamese must be written ENTIRELY in English (no Vietnamese at all), and a
+  document in Vietnamese must be ENTIRELY Vietnamese (no English at all). This
+  applies regardless of the language of the report or issue being worked on.
 - Update the README (and its translation mirrors) whenever behavior, commands,
   or the tech stack change.
 - **Docs are mandatory, not an afterthought.** Every change — code, config,
@@ -338,7 +341,18 @@ Rules:
   the title alone.
 - If an issue asks for a fix/feature, implement it following the workflow
   above (Phase 0 → 9).
-- After finishing, reply on the issue explaining what was done and close it:
+- **Re-read the issue after every compile.** Issues can change while you work:
+  the reporter may edit the body or add comments. Each time you compile or
+  build the code (Phase 2, `bun run build`, `php -l`, etc.), run
+  `gh issue view <number>` again and check the body, comments, and
+  `updatedAt`. If anything changed, fold the new information into the work
+  before continuing. Never finish against a stale version of the request.
+  Re-reading is ONLY to catch changes — it is NOT the signal to close.
+- **Closing is the final step.** Close the issue ONLY in Phase 9.1, AFTER the
+  whole workflow is done: compile, docs, version bump, commit, push, tag, and
+  release (Phases 2 → 8). Never close after merely re-reading the issue, and
+  never close before the change is committed, pushed, and released. Then reply
+  on the issue explaining what was done and close it:
   `gh issue close <number> --comment "<explanation>"`. Write the reply in any
   language (matching the issue's language if you can) so the reporter can read
   it.

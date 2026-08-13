@@ -24,6 +24,7 @@ share videos through dedicated per-video URLs.
 - Data validation on both sides: the React client validates forms live with Zod (per-field errors shown instantly), and the PHP server re-validates every payload with the Symfony Validator component — same rules and Vietnamese messages on both ends
 - Full-featured player: play/pause, seek, volume, playback speed, fullscreen, keyboard shortcuts
 - Logged-in users can submit feedback (feature request, bug report, or other) via the "Góp ý" button which opens the GitHub Issues page
+- The "Nguồn" button in the header (visible to everyone) links to the project's GitHub repository so visitors can find the source code
 
 ## Tech Stack
 
@@ -135,7 +136,7 @@ up.
   form validation
 - `scripts/start.ts` — launches the PHP backend via `php -S`
 - `src/App.tsx` — routing (home `/` and watch page `/video/:id`)
-- `src/HomePage.tsx` — home page: search, upload, video list, feedback link to GitHub Issues
+- `src/HomePage.tsx` — home page: search, upload, video list, feedback link to GitHub Issues, "Nguồn" button linking to the GitHub repository
 - `src/BrandLogo.tsx` — reusable gradient brand logo (also used as the favicon, `src/logo.svg`)
 - `src/UploadModal.tsx` — upload modal with video and thumbnail image selection + progress bar
 - `src/VideoPage.tsx` — video watch page

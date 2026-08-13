@@ -1,4 +1,4 @@
-import { Film, MessageSquare, Search, Sparkles, Upload } from "lucide-react";
+import { Code2, Film, MessageSquare, Search, Sparkles, Upload } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "./BrandLogo";
@@ -77,6 +77,15 @@ export function HomePage({ user, onLogout, onLogin, search, onSearchChange, onOp
             </Button>
           </>
         )}
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => window.open("https://github.com/fhfjjfjd/video-player-bun", "_blank")}
+          className="hidden h-10 shrink-0 gap-2 rounded-lg text-zinc-300 hover:bg-white/10 hover:text-white md:inline-flex"
+        >
+          <Code2 className="h-4 w-4" />
+          Nguồn
+        </Button>
         <HeaderActions user={user} onLogout={onLogout} onLogin={onLogin} />
       </header>
 

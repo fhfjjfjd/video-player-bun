@@ -24,6 +24,7 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 - Player đầy đủ: phát/tạm dừng, tua, âm lượng, tốc độ phát, toàn màn hình, phím tắt
 - Hỗ trợ HLS (`.m3u8`) qua hls.js
 - Người dùng đã đăng nhập có thể gửi góp ý (tính năng mới, báo lỗi hoặc ý kiến khác) bằng nút "Góp ý" trên giao diện, sẽ mở trang GitHub Issues của dự án
+- Nút "Nguồn" trên thanh đầu trang (hiển thị cho tất cả mọi người) liên kết tới kho chứa GitHub của dự án để khách truy cập có thể tìm thấy mã nguồn
 
 ## Công nghệ
 
@@ -132,7 +133,7 @@ nếu chưa có và kiểm tra extension `pdo_sqlite` trước khi cài đặt.
 - `src/lib/validation.ts` — schema Zod cho đăng nhập/đăng ký dùng cho xác thực form phía client
 - `scripts/start.ts` — khởi động backend PHP qua `php -S`
 - `src/App.tsx` — routing (trang chủ `/` và trang xem `/video/:id`)
-- `src/HomePage.tsx` — trang chủ: tìm kiếm, tải lên, danh sách video, nút góp ý mở GitHub Issues
+- `src/HomePage.tsx` — trang chủ: tìm kiếm, tải lên, danh sách video, nút góp ý mở GitHub Issues, nút "Nguồn" mở kho chứa GitHub của dự án
 - `src/BrandLogo.tsx` — logo thương hiệu gradient dùng chung (cũng được dùng làm favicon, `src/logo.svg`)
 - `src/UploadModal.tsx` — modal tải lên video và ảnh thu nhỏ với thanh tiến trình
 - `src/VideoPage.tsx` — trang xem video
