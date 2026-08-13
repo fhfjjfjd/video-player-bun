@@ -8,6 +8,7 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 
 - Xem video công khai mà không cần đăng nhập
 - Đăng ký / đăng nhập để tải video lên và quản lý video của mình (đăng ký bắt buộc có email Gmail — email phải kết thúc bằng `@gmail.com`; đăng nhập nhận Gmail hoặc username)
+- Sau khi tải video lên bạn quay lại thư viện và video mới hiện trong danh sách — không tự mở hay phát video
 - Chỉ chủ sở hữu mới xóa được video của mình
 - Hỗ trợ hình ảnh thu nhỏ (thumbnail) tùy chỉnh hoặc tự động trích xuất bằng FFmpeg khi tải video lên
 - Tối ưu hóa giao diện di động hoàn chỉnh và lưới thẻ video responsive trực quan

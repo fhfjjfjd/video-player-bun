@@ -25,8 +25,9 @@ const formatBytes = (bytes: number): string => {
 };
 
 export function HomePage({ user, onLogout, onLogin, search, onSearchChange, onOpenVideo }: HomePageProps) {
-  const { videos, deleteVideo } = useVideoList(search, user ?? "");
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [listRefresh, setListRefresh] = useState(0);
+  const { videos, deleteVideo } = useVideoList(search, `${user ?? ""}:${listRefresh}`);
 
   const featured: Video | null = videos[0] ?? null;
   const thumbUrl = featured?.thumbnail_url
@@ -183,7 +184,7 @@ export function HomePage({ user, onLogout, onLogin, search, onSearchChange, onOp
       <UploadModal
         open={uploadModalOpen}
         onClose={() => setUploadModalOpen(false)}
-        onUploaded={videoId => onOpenVideo(videoId)}
+        onUploaded={() => setListRefresh(n => n + 1)}
       />
     </div>
   );

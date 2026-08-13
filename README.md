@@ -9,6 +9,7 @@ share videos through dedicated per-video URLs.
 
 - Watch videos publicly without logging in
 - Register / log in to upload videos and manage your own uploads (registration requires a Gmail address — the email must end in `@gmail.com`; login accepts your Gmail or username)
+- Uploading a video returns you to the library where the new video appears in the list — it is never opened or played automatically
 - Only the owner can delete a video
 - Support for video thumbnails (automatic extraction using FFmpeg upon upload, or custom image upload)
 - Completely optimized mobile UI and responsive video library card grid
