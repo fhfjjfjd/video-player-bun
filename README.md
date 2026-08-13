@@ -2,8 +2,8 @@
 
 **English** | [Tiếng Việt](./README.vi.md)
 
-> **Development is temporarily paused.** This project is currently in a
-> maintenance hold — no new features or changes are being worked on right now.
+> **Development of new features is temporarily paused.** This project is not
+> accepting new features or changes right now — only bug fixes are being made.
 > The latest release still works as documented below.
 
 A web video player: register, log in, upload videos, watch online, search, and
