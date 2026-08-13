@@ -1,0 +1,14 @@
+{
+    "name": "videohub/php-server",
+    "description": "PHP backend for the video-player-bun app",
+    "type": "project",
+    "require": {
+        "php": ">=8.2",
+        "symfony/cache": "^7.2",
+        "symfony/rate-limiter": "^7.2"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

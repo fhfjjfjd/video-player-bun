@@ -20,6 +20,7 @@ share videos through dedicated per-video URLs.
 - Every video has its own shareable URL (`/video/:id`)
 - Direct media URLs are never exposed — the API returns a short-lived HMAC-signed media token, and the client streams the video through `/api/media?t=<token>` (Range requests supported)
 - Hardened responses: Content-Security-Policy, `X-Content-Type-Options`, `X-Frame-Options` and other security headers on every request
+- Per-IP rate limiting on every API endpoint (fixed time windows, via the Symfony Rate Limiter component): protects login, registration and uploads from abuse; limited clients get HTTP 429 with a `Retry-After` header and `X-RateLimit-*` headers
 - Full-featured player: play/pause, seek, volume, playback speed, fullscreen, keyboard shortcuts
 - Logged-in users can submit feedback (feature request, bug report, or other) via the "Góp ý" button which opens the GitHub Issues page
 
@@ -100,7 +101,9 @@ bun start       # start the PHP backend (SPA + API, http://127.0.0.1:3000)
 
 The backend is a PHP router in `src/server/php/`, launched by `scripts/start.ts`
 with PHP's built-in web server (`php -S`). There is no compilation and no
-binary to download — the server runs straight from the source.
+binary to download — the server runs straight from the source. API endpoints
+are rate-limited per client IP with `symfony/rate-limiter`; counter state is
+kept in a local filesystem cache under `cache/` (regenerated at runtime).
 
 Requirements:
 
@@ -108,6 +111,8 @@ Requirements:
   database to install)
 - `ffmpeg` on PATH for automatic thumbnail extraction (optional — custom
   thumbnails still work without it)
+- PHP dependencies (`symfony/rate-limiter`, `symfony/cache`) are bundled in
+  `src/server/php/vendor/` — no Composer needed at install time
 
 The installers (`scripts/install.sh` / `scripts/install.bat`) install PHP and
 ffmpeg when missing and verify the `pdo_sqlite` extension before setting things
@@ -116,9 +121,10 @@ up.
 ## Structure
 
 - `src/server/php/` — the PHP backend: `server.php` (HTTP router, API
-  handlers, media streaming with Range support, static files), `db.php`
-  (SQLite storage via PDO), `crypto.php` (signed media tokens, sessions,
-  PBKDF2/bcrypt password hashing)
+  handlers, per-IP rate limiting via `symfony/rate-limiter`, media streaming
+  with Range support, static files), `db.php` (SQLite storage via PDO),
+  `crypto.php` (signed media tokens, sessions, PBKDF2/bcrypt password hashing),
+  `composer.json` + `vendor/` (bundled PHP dependencies)
 - `scripts/start.ts` — launches the PHP backend via `php -S`
 - `src/App.tsx` — routing (home `/` and watch page `/video/:id`)
 - `src/HomePage.tsx` — home page: search, upload, video list, feedback link to GitHub Issues

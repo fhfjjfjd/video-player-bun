@@ -43,6 +43,7 @@ feedback
 .eslintcache
 .cache
 *.tsbuildinfo
+cache
 
 # IntelliJ based IDEs
 .idea

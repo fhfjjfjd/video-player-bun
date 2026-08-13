@@ -32,12 +32,50 @@ const SESSION_COOKIE   = 'session';
 const SESSION_TTL_SEC  = 2592000;          // 30 days
 const MAX_UPLOAD_SIZE  = 1024 * 1024 * 1024; // 1GB
 
+/*
+ * ---------------------------------------------------------------------------
+ * Rate limiting — general setup (thiết lập tổng quan).
+ *
+ * Every API endpoint is rate-limited per client IP inside a fixed time
+ * window using the Symfony Rate Limiter component (symfony/rate-limiter).
+ * Counters persist to a local filesystem cache (src/server/cache/rate-limiter)
+ * so limits survive restarts; no database writes are involved.
+ *
+ * RATE_LIMIT_ROUTES maps a route bucket to [max requests, window seconds].
+ * A limit of 0 disables limiting for that bucket. Routes not listed fall
+ * back to RATE_LIMIT_DEFAULT within RATE_LIMIT_WINDOW_SEC.
+ *
+ * The client IP is taken from REMOTE_ADDR only — X-Forwarded-For is NOT
+ * trusted (it can be spoofed). Behind a reverse proxy all clients share the
+ * proxy's address; expose the real address to PHP if you need per-client
+ * buckets there.
+ * ---------------------------------------------------------------------------
+ */
+const RATE_LIMIT_WINDOW_SEC = 60;
+const RATE_LIMIT_DEFAULT    = 120;   // fallback: 120 req / min / IP
+
+const RATE_LIMIT_ROUTES = [
+    'health'       => [0, 0],     // unlimited — monitoring endpoints
+    'hello'        => [120, 60],
+    'hello_name'   => [120, 60],
+    'register'     => [10, 3600], // 10 registrations / hour / IP
+    'login'        => [10, 300],  // 10 login attempts / 5 min / IP
+    'logout'       => [60, 60],
+    'me'           => [120, 60],
+    'list_videos'  => [120, 60],
+    'get_video'    => [240, 60],
+    'delete_video' => [30, 60],
+    'upload_video' => [20, 3600], // 20 uploads / hour / IP
+    'media'        => [1200, 60], // generous — hls.js/seek issues many Range requests
+];
+
 function server_root(): string {
     return dirname(__DIR__, 2);
 }
 
 require_once __DIR__ . '/crypto.php';
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 /* ------------------------------------------------------------------ paths */
 
@@ -143,6 +181,73 @@ function current_user_id(): int {
     return $uid ?? 0;
 }
 
+function client_ip(): string {
+    return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+}
+
+/** Directory where Symfony stores rate-limit counter state (gitignored). */
+function rate_limiter_cache_dir(): string {
+    return server_root() . '/cache/rate-limiter';
+}
+
+/**
+ * Shared Symfony RateLimiter for a route bucket (created lazily, per process).
+ *
+ * Returns a fixed-window limiter whose key is the client IP, so every client
+ * gets its own counter. Rejected requests carry a Retry-After header.
+ */
+function rate_limiter_for(string $bucket): Symfony\Component\RateLimiter\LimiterInterface {
+    static $limiters = [];
+    if (isset($limiters[$bucket])) return $limiters[$bucket];
+
+    $cfg = RATE_LIMIT_ROUTES[$bucket] ?? [RATE_LIMIT_DEFAULT, RATE_LIMIT_WINDOW_SEC];
+    [$limit, $window] = $cfg;
+
+    $factory = new Symfony\Component\RateLimiter\RateLimiterFactory(
+        [
+            'id'       => 'rl_' . $bucket,
+            'policy'   => 'fixed_window',
+            'limit'    => $limit,
+            'interval' => $window . ' seconds',
+        ],
+        new Symfony\Component\RateLimiter\Storage\CacheStorage(
+            new Symfony\Component\Cache\Adapter\FilesystemAdapter(
+                'ratelimiter',
+                0,
+                rate_limiter_cache_dir()
+            )
+        )
+    );
+
+    return $limiters[$bucket] = $factory->create();
+}
+
+/**
+ * Apply the per-IP rate limit for a route bucket. On violation it sends a
+ * 429 response (with Retry-After) and terminates the request.
+ */
+function rate_limit_apply(string $bucket): void {
+    $cfg = RATE_LIMIT_ROUTES[$bucket] ?? [RATE_LIMIT_DEFAULT, RATE_LIMIT_WINDOW_SEC];
+    [$limit, $window] = $cfg;
+    if ($limit <= 0) return;
+
+    $limiter = rate_limiter_for($bucket);
+    $result  = $limiter->consume(1, client_ip());
+
+    $now    = time();
+    $reset  = intdiv($now, $window) * $window + $window;
+    header('X-RateLimit-Limit: ' . $limit);
+    header('X-RateLimit-Remaining: ' . $result->getRemainingTokens());
+    header('X-RateLimit-Reset: ' . $reset);
+
+    if ($result->isAccepted()) return;
+
+    $retryAfter = max(1, $reset - $now);
+    header('Retry-After: ' . $retryAfter);
+    respond_json(429, err('Quá nhiều yêu cầu. Vui lòng thử lại sau ' . $retryAfter . ' giây.'));
+    exit;
+}
+
 function json_body(): array {
     $raw = file_get_contents('php://input');
     if ($raw === false || $raw === '') return [];
@@ -182,18 +287,22 @@ function video_json(array $row, ?int $viewerId, string $secret): array {
 /* ------------------------------------------------------------- API routes */
 
 function handle_health(): void {
+    rate_limit_apply('health');
     respond_json(200, ['status' => 'ok', 'uptime' => time()]);
 }
 
 function handle_hello(string $method): void {
+    rate_limit_apply('hello');
     respond_json(200, ['message' => 'Hello, world!', 'method' => $method]);
 }
 
 function handle_hello_name(string $name): void {
+    rate_limit_apply('hello_name');
     respond_json(200, ['message' => 'Hello, ' . $name . '!']);
 }
 
 function handle_register(): void {
+    rate_limit_apply('register');
     $raw = file_get_contents('php://input');
     if ($raw === false || $raw === '') {
         respond_json(400, err('Body JSON không hợp lệ.'));
@@ -247,6 +356,7 @@ function handle_register(): void {
 }
 
 function handle_login(): void {
+    rate_limit_apply('login');
     $raw = file_get_contents('php://input');
     if ($raw === false || $raw === '') {
         respond_json(400, err('Body JSON không hợp lệ.'));
@@ -289,6 +399,7 @@ function handle_login(): void {
 }
 
 function handle_logout(): void {
+    rate_limit_apply('logout');
     $token = request_cookie(SESSION_COOKIE);
     if ($token !== null) delete_session($token);
     clear_session_cookie();
@@ -296,6 +407,7 @@ function handle_logout(): void {
 }
 
 function handle_me(): void {
+    rate_limit_apply('me');
     $uid = current_user_id();
     if ($uid <= 0) {
         respond_json(401, err('Chưa đăng nhập.'));
@@ -314,6 +426,7 @@ function handle_me(): void {
 }
 
 function handle_list_videos(): void {
+    rate_limit_apply('list_videos');
     $q = $_GET['q'] ?? '';
     $rows = list_all_videos(is_string($q) ? $q : '');
     $uid = current_user_id();
@@ -324,6 +437,7 @@ function handle_list_videos(): void {
 }
 
 function handle_upload_video(): void {
+    rate_limit_apply('upload_video');
     $uid = current_user_id();
     if ($uid <= 0) {
         respond_json(401, err('Chưa đăng nhập.'));
@@ -419,6 +533,7 @@ function handle_upload_video(): void {
 }
 
 function handle_get_video(int $id): void {
+    rate_limit_apply('get_video');
     if ($id <= 0) {
         respond_json(400, err('ID video không hợp lệ.'));
         return;
@@ -433,6 +548,7 @@ function handle_get_video(int $id): void {
 }
 
 function handle_delete_video(int $id): void {
+    rate_limit_apply('delete_video');
     $uid = current_user_id();
     if ($uid <= 0) {
         respond_json(401, err('Chưa đăng nhập.'));
@@ -451,6 +567,7 @@ function handle_delete_video(int $id): void {
 }
 
 function handle_media(): void {
+    rate_limit_apply('media');
     $token = $_GET['t'] ?? null;
     if (!is_string($token) || $token === '') {
         respond_json(400, err('Missing token'));
