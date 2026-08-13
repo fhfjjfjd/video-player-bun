@@ -2,10 +2,6 @@
 
 **English** | [Tiếng Việt](./README.vi.md)
 
-> **Development of new features is temporarily paused.** This project is not
-> accepting new features or changes right now — only bug fixes are being made.
-> The latest release still works as documented below.
-
 A web video player: register, log in, upload videos, watch online, search, and
 share videos through dedicated per-video URLs.
 

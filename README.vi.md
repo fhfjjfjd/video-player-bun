@@ -2,10 +2,6 @@
 
 **English** | [Tiếng Việt](./README.vi.md)
 
-> **Dự án đang tạm ngưng phát triển tính năng mới.** Hiện dự án không nhận
-> thêm tính năng hay thay đổi mới nào trong thời gian này — chỉ sửa lỗi
-> (bugfix). Bản release mới nhất vẫn hoạt động như mô tả bên dưới.
-
 Một web video player: đăng ký, đăng nhập, tải video lên, xem video trực tuyến, tìm kiếm và chia sẻ video qua URL riêng.
 
 ## Tính năng
