@@ -148,6 +148,7 @@ export function AuthScreen({
                   onChange={event => setEmail(event.target.value)}
                   placeholder="Bắt buộc dùng Gmail (…@gmail.com)"
                   autoComplete="email"
+                  required
                   className="h-11 rounded-xl border-white/10 bg-white/5 text-zinc-100 placeholder:text-zinc-500 focus:border-emerald-400/60"
                 />
               </div>

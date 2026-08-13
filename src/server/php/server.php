@@ -224,7 +224,7 @@ function handle_register(): void {
         return;
     }
 
-    if ($email === null || strlen($email) < 1 || strpos($email, '@gmail.com') === false) {
+    if ($email === null || preg_match('/^[^@\s]+@gmail\.com$/i', $email) !== 1) {
         respond_json(400, err('Email phải là tài khoản Gmail hợp lệ (…@gmail.com).'));
         return;
     }
