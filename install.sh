@@ -2,9 +2,9 @@
 #
 # videohub - one-command installer for the video-player-bun app.
 #
-# Detects your OS and CPU, clones the source code, downloads the matching
-# pre-built backend binary from the latest GitHub release, builds the
-# frontend, and creates a global `videohub` command so you can just type
+# Detects your OS, clones the source code at the latest GitHub release,
+# installs PHP (the backend runtime), builds the frontend, and creates a
+# global `videohub` command so you can just type
 #   videohub
 # to start the app.
 #
@@ -17,8 +17,7 @@
 # After install, `videohub update|reinstall|uninstall` run the same flows.
 #
 # Install/update pins the app to the LATEST GitHub release: the source is
-# checked out at the release tag and the backend binary is downloaded from
-# that same release, so frontend and backend always match.
+# checked out at the release tag so frontend and backend always match.
 #
 # The app lives in ~/videohub (override with VIDEOHUB_DIR).
 #
@@ -133,7 +132,6 @@ if [ "$MODE" = "uninstall" ]; then
 fi
 
 ARCH="$(detect_arch)"
-BIN_DIR="$INSTALL_DIR/bin/$OS-$ARCH"
 
 [ "$ARCH" = "unknown" ] && die "Unsupported CPU architecture: $(uname -m)"
 info "Detected platform: $OS-$ARCH"
@@ -148,6 +146,47 @@ if ! command -v bun >/dev/null 2>&1; then
     curl -fsSL https://bun.sh/install | bash
     export PATH="$HOME/.bun/bin:$PATH"
     command -v bun >/dev/null 2>&1 || die "Bun install failed. Install it manually from https://bun.sh"
+fi
+
+# PHP is the backend runtime. Install it (and ffmpeg for thumbnails) when missing.
+if ! command -v php >/dev/null 2>&1; then
+    info "PHP not found - installing it..."
+    case "$OS" in
+        android)
+            pkg install -y php ffmpeg
+            ;;
+        darwin)
+            command -v brew >/dev/null 2>&1 || die "Homebrew not found. Install Homebrew, then re-run."
+            brew install php ffmpeg
+            ;;
+        linux)
+            if command -v apt-get >/dev/null 2>&1; then
+                if [ "$(id -u)" = "0" ]; then
+                    apt-get update -y
+                    apt-get install -y php-cli php-sqlite3 ffmpeg
+                else
+                    sudo apt-get update -y
+                    sudo apt-get install -y php-cli php-sqlite3 ffmpeg
+                fi
+            elif command -v dnf >/dev/null 2>&1; then
+                if [ "$(id -u)" = "0" ]; then
+                    dnf install -y php-cli php-pdo ffmpeg
+                else
+                    sudo dnf install -y php-cli php-pdo ffmpeg
+                fi
+            else
+                die "PHP not found and no supported package manager. Install PHP (>= 8.1) manually and re-run."
+            fi
+            ;;
+    esac
+    command -v php >/dev/null 2>&1 || die "PHP install failed. Install PHP (>= 8.1) manually and re-run."
+fi
+
+php -r 'exit(extension_loaded("pdo_sqlite") ? 0 : 1);' 2>/dev/null \
+    || die "PHP is missing the pdo_sqlite extension (php-sqlite3). Install it and re-run."
+
+if ! command -v ffmpeg >/dev/null 2>&1; then
+    info "ffmpeg not found - automatic thumbnails will be skipped. Install ffmpeg to enable them."
 fi
 
 # --- Reinstall --------------------------------------------------------------
@@ -192,18 +231,9 @@ bun install
 info "Building frontend..."
 bun run build
 
-# --- 7. Backend binary (from the same release) --------------------------------
-info "Downloading $LATEST_TAG backend binary..."
-mkdir -p "$BIN_DIR"
-ASSET="video-server-$OS-$ARCH"
-TARGET="$BIN_DIR/video-server"
-if [ "$OS" = "windows" ]; then
-    ASSET="$ASSET.exe"
-    TARGET="$TARGET.exe"
-fi
-curl -fsSL -o "$TARGET" "https://github.com/$REPO/releases/download/$LATEST_TAG/$ASSET" \
-    || die "Failed to download $ASSET from the $LATEST_TAG release"
-chmod +x "$TARGET" 2>/dev/null || true
+# --- 7. Backend (PHP) ----------------------------------------------------------
+# The backend is the PHP router in src/server/php (run via `php -S` through
+# bin/detect.ts). No binary is downloaded; the runtime was installed above.
 
 # --- 8. Create the global `videohub` command ----------------------------------
 mkdir -p "$CMD_DIR"
@@ -240,7 +270,7 @@ fi
 info ""
 info "Install complete!"
 info "  App directory : $INSTALL_DIR"
-info "  Backend       : $BIN_DIR"
+info "  Backend       : PHP (src/server/php)"
 info "  Command       : $APP_NAME"
 info ""
 info "Open a NEW terminal, then run:  $APP_NAME"

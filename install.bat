@@ -11,8 +11,10 @@ rem
 rem After install, `videohub update|reinstall|uninstall` run the same flows.
 rem
 rem Install/update pins the app to the LATEST GitHub release: the source is
-rem checked out at the release tag and the backend binary is downloaded from
-rem that same release, so frontend and backend always match.
+rem checked out at the release tag so frontend and backend always match.
+rem
+rem The backend is PHP (src/server/php, run through bin/detect.ts). PHP must be
+rem installed and on PATH; no binary is downloaded.
 rem
 rem The app lives in %USERPROFILE%\videohub.
 set "REPO=fhfjjfjd/video-player-bun"
@@ -36,7 +38,7 @@ if /i "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
     echo [videohub ERROR] Unsupported CPU architecture: %PROCESSOR_ARCHITECTURE%
     exit /b 1
 )
-set "BIN_DIR=%INSTALL_DIR%\bin\%OS%-%ARCH%"
+set "BIN_DIR=%INSTALL_DIR%\bin"
 set "WINAPPS=%USERPROFILE%\AppData\Local\Microsoft\WindowsApps"
 echo [videohub] Detected platform: %OS%-%ARCH%
 
@@ -93,6 +95,22 @@ where bun >nul 2>nul || (
         exit /b 1
     )
 )
+where php >nul 2>nul || (
+    echo [videohub] PHP not found - installing it via winget...
+    powershell -NoProfile -Command "winget install --id PHP.PHP -e --accept-package-agreements --accept-source-agreements" >nul 2>nul
+    set "PATH=%ProgramFiles%\PHP;%PATH%"
+    where php >nul 2>nul || (
+        echo [videohub ERROR] PHP not found. Install PHP ^(>= 8.1^) from https://windows.php.net/download, add it to PATH, and re-run.
+        exit /b 1
+    )
+)
+php -r "exit(extension_loaded('pdo_sqlite') ? 0 : 1);" >nul 2>nul || (
+    echo [videohub ERROR] PHP is missing the pdo_sqlite extension.
+    exit /b 1
+)
+where ffmpeg >nul 2>nul || (
+    echo [videohub] Warning: ffmpeg not found - automatic thumbnails will be skipped.
+)
 
 rem --- latest release ---------------------------------------------------------
 echo [videohub] Fetching the latest release tag...
@@ -127,11 +145,10 @@ call bun install || exit /b 1
 echo [videohub] Building frontend...
 call bun run build || exit /b 1
 
-rem --- backend binary (from the same release) ---------------------------------
-mkdir "%BIN_DIR%" 2>nul
-set "ASSET=video-server-%OS%-%ARCH%.exe"
-echo [videohub] Downloading %ASSET%...
-curl.exe -fsSL -o "%BIN_DIR%\video-server.exe" "https://github.com/%REPO%/releases/download/%LATEST_TAG%/%ASSET%" || exit /b 1
+rem --- backend (PHP) ----------------------------------------------------------
+rem The backend is the PHP router in src/server/php, started by bin/detect.ts
+rem via `php -S`. No binary is downloaded; the runtime was checked above.
+echo [videohub] Backend: PHP (src/server/php)
 
 rem --- launcher command ------------------------------------------------------
 echo [videohub] Creating %APP_NAME% command...

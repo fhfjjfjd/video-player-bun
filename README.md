@@ -22,15 +22,14 @@ share videos through dedicated per-video URLs.
 
 - Bun 1.3 (runtime + bundler)
 - React 19 + TypeScript + Tailwind 4 + shadcn/ui
-- Native backend server (currently C++ with SQLite) — no separate database to install
-- Backend build is **language-agnostic** (`build.sh`): switching to Rust, Go, Python, or Node needs no CI or release changes
+- PHP backend (PHP 8.1+, SQLite via PDO) — no separate database to install
 - hls.js for HLS playback
 
 ## Quick install (one command)
 
-No manual setup needed. Run the installer for your OS — it clones the source,
-downloads the pre-built backend binary for your CPU/OS, builds the frontend,
-and creates a `videohub` command:
+No manual setup needed. Run the installer for your OS — it installs PHP (the
+backend runtime) if missing, clones the source, builds the frontend, and
+creates a `videohub` command:
 
 - **Linux / macOS / Android (Termux):**
 
@@ -56,7 +55,7 @@ Manage it from anywhere:
 
 ```bash
 videohub           # start the app
-videohub update    # update source and binary in place
+videohub update    # update source in place
 videohub reinstall # fresh install (asks whether to keep uploads/ + data.db)
 videohub uninstall # remove launcher, PATH entries, and app (asks whether to keep uploads/ + data.db)
 ```
@@ -68,10 +67,9 @@ data, anything else to delete everything. The same flows work as
 (Windows).
 
 **Version pinning:** install and update always fetch the **latest GitHub
-release** — the source is checked out at the release tag and the backend
-binary is downloaded from that same release, so the frontend and backend you
-get are always a matching pair (never a newer `main` mixed with an older
-binary).
+release** — the source is checked out at the release tag so the frontend and
+backend you get are always a matching pair (never a newer `main` mixed with an
+older release).
 
 ## Install
 
@@ -87,43 +85,35 @@ bun install
 
 ```bash
 bun run build   # build the frontend into dist/
-bun start       # start the native server (SPA + API, http://127.0.0.1:3000)
+bun start       # start the PHP backend (SPA + API, http://127.0.0.1:3000)
 ```
 
 `bun dev` does the same in development mode. The server binds to
 `127.0.0.1:3000` by default; set `HOST=0.0.0.0` to share over LAN.
 
-### The backend binary
+### The backend (PHP)
 
-The backend is a pre-compiled native executable (`video-server`). It is
-**never compiled on your machine** — GitHub Actions builds it for every
-platform/arch (Linux, macOS, Windows, Android; x86 and ARM) and the binaries
-are attached to each Release.
+The backend is a PHP router in `src/server/php/`, launched by `bin/detect.ts`
+with PHP's built-in web server (`php -S`). There is no compilation and no
+binary to download — the server runs straight from the source.
 
-These builds are **manual-only**: they never run automatically on push. The
-maintainer triggers each build by hand (Actions tab → Run workflow), so a
-Release is only published after all 8 platform/arch builds pass. Each Release
-ships all 8 binaries.
+Requirements:
 
-1. Download the binary for your platform from the Release page.
-2. Place it at the matching path, e.g. `bin/linux-x64/video-server`
-   (for Windows: `bin/windows-x64/video-server.exe`).
-3. Then run the app as above. `bin/detect.ts` picks the correct binary for
-   your OS and architecture automatically.
+- PHP 8.1+ with the `pdo_sqlite` extension (SQLite is embedded, no separate
+  database to install)
+- `ffmpeg` on PATH for automatic thumbnail extraction (optional — custom
+  thumbnails still work without it)
 
-Supported paths: `bin/linux-x64`, `bin/linux-arm64`, `bin/darwin-x64`,
-`bin/darwin-arm64`, `bin/windows-x64`, `bin/windows-arm64`,
-`bin/android-arm64`, `bin/android-x64`.
+The installers (`install.sh` / `install.bat`) install PHP and ffmpeg when
+missing and verify the `pdo_sqlite` extension before setting things up.
 
 ## Structure
 
-- `src/server/` — backend source; language is auto-detected by `build.sh` from marker files (`Cargo.toml`, `go.mod`, `pyproject.toml`, `package.json`, or `cpp/`)
-- `src/server/cpp/` — current backend implementation in C++ (HTTP server, SQLite, auth/sessions, media tokens, SHA-256/HMAC/PBKDF2)
-- `src/server/cpp/vendor/` — vendored SQLite (amalgamation source, no system lib needed)
-- `build.sh` — language-agnostic backend build dispatcher (detects language, always outputs `src/server/out/video-server`; used by GitHub Actions, never run locally)
-- `.github/workflows/build-<os>.yml` — manual-only CI workflows that build the backend for Linux, macOS, Windows and Android via `build.sh`
-- `bin/` — pre-compiled `video-server` executables, one per platform/arch (downloaded from Releases, not committed)
-- `bin/detect.ts` — detects the current platform/arch and launches the matching binary
+- `src/server/php/` — the PHP backend: `server.php` (HTTP router, API
+  handlers, media streaming with Range support, static files), `db.php`
+  (SQLite storage via PDO), `crypto.php` (signed media tokens, sessions,
+  PBKDF2/bcrypt password hashing)
+- `bin/detect.ts` — launches the PHP backend via `php -S`
 - `src/App.tsx` — routing (home `/` and watch page `/video/:id`)
 - `src/HomePage.tsx` — home page: search, upload, video list, feedback link to GitHub Issues
 - `src/UploadModal.tsx` — upload modal with video and thumbnail image selection + progress bar
