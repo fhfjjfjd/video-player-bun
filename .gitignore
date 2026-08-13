@@ -1,6 +1,9 @@
 # dependencies (bun install)
 node_modules
 
+# opencode agent tooling — never pushed
+.opencode/
+
 # output
 out
 dist

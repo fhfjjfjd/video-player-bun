@@ -181,9 +181,9 @@ starts. If any phase fails, do not proceed; fix and retry.
      staged.
 
 5.2. **Never stage or commit** `data.db*`, `uploads/`, `node_modules/`,
-     `dist/`, `src/server/out/`, or any secret/credential file. They are
-     gitignored; if `git status` shows them, something is wrong — investigate
-     before staging.
+     `dist/`, `src/server/out/`, `.opencode/`, or any secret/credential file.
+     They are gitignored; if `git status` shows them, something is wrong —
+     investigate before staging.
 
 5.3. Stage with `git add -A`, then review the staged set with
      `git diff --cached --stat` and confirm only intended files are present.
@@ -276,7 +276,8 @@ starts. If any phase fails, do not proceed; fix and retry.
      management.
 
 3.6. **Keep the local repo clean.** Never commit secrets, credentials,
-     databases, uploads, or build output (e.g. `src/server/out/`).
+     databases, uploads, `.opencode/`, or build output (e.g.
+     `src/server/out/`).
 
 3.7. **Never guess a version.** When in doubt, ask the user.
 
