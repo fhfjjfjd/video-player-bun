@@ -6,7 +6,11 @@
   }
 
   body {
-    @apply m-0 min-w-[320px] min-h-screen bg-zinc-950 text-zinc-100;
+    @apply m-0 min-w-[320px] min-h-screen bg-zinc-950 text-zinc-100 antialiased;
+    background-image:
+      radial-gradient(1100px 500px at 85% -10%, rgb(16 185 129 / 0.12), transparent 60%),
+      radial-gradient(900px 450px at -10% 110%, rgb(6 182 212 / 0.08), transparent 60%);
+    background-attachment: fixed;
   }
 }
 

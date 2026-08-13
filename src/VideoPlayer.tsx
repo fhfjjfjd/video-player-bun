@@ -310,7 +310,7 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
           onClick={() => showControls()}
           className={cn(
             "group relative overflow-hidden bg-black shadow-2xl select-none",
-            isFullscreen ? "h-full w-full" : "aspect-video w-full max-w-6xl rounded-xl",
+            isFullscreen ? "h-full w-full" : "aspect-video w-full max-w-6xl rounded-2xl",
             controlsHidden && "cursor-none",
           )}
           style={!isFullscreen && aspectRatio ? { aspectRatio: String(aspectRatio) } : undefined}
@@ -319,7 +319,7 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
 
           {isBuffering && (
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <Loader2 className="h-14 w-14 animate-spin text-white/90" />
+              <Loader2 className="h-14 w-14 animate-spin text-emerald-400 drop-shadow-[0_0_20px_rgb(52_211_153/0.6)]" />
             </div>
           )}
 
@@ -328,7 +328,7 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
               type="button"
               onClick={togglePlay}
               aria-label="Phát"
-              className="absolute inset-0 m-auto flex h-20 w-20 items-center justify-center rounded-full bg-white/90 text-zinc-900 shadow-xl transition hover:scale-105"
+              className="absolute inset-0 m-auto flex h-20 w-20 items-center justify-center rounded-full bg-brand-gradient text-zinc-950 shadow-brand transition hover:scale-105"
             >
               <Play className="ml-1 h-10 w-10 fill-current" />
             </button>
@@ -345,7 +345,7 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
 
           <div
             className={cn(
-              "absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent pb-2 pt-10 transition-opacity duration-300",
+              "absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/90 via-black/50 to-transparent pb-2 pt-12 transition-opacity duration-300",
               controlsHidden ? "pointer-events-none opacity-0" : "opacity-100",
             )}
           >
@@ -364,11 +364,11 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
             >
               <div className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-white/25">
                 <div
-                  className="absolute inset-y-0 left-0 rounded-full bg-emerald-400"
+                  className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 shadow-[0_0_12px_rgb(45_212_191/0.7)]"
                   style={{ width: `${progress}%` }}
                 />
                 <div
-                  className="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-emerald-400 shadow transition-opacity group-hover/seek:opacity-100"
+                  className="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white shadow-[0_0_12px_rgb(45_212_191/0.9)] transition-opacity group-hover/seek:opacity-100"
                   style={{ left: `${progress}%`, opacity: isDraggingRef.current ? 1 : undefined }}
                 />
               </div>
@@ -386,9 +386,9 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
                 {isPlaying ? <Pause className="h-5 w-5 fill-current" /> : <Play className="h-5 w-5 fill-current" />}
               </Button>
 
-              <span className="min-w-[90px] text-center font-mono tabular-nums text-zinc-200">
+              <span className="min-w-[90px] text-center font-mono tabular-nums text-zinc-200 text-xs sm:text-sm">
                 {formatTime(dragTime ?? currentTime)}
-                <span className="text-zinc-400"> / {formatTime(duration)}</span>
+                <span className="text-zinc-500"> / {formatTime(duration)}</span>
               </span>
 
               <div className="flex-1" />
@@ -420,7 +420,7 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
                     setMuted(value === 0);
                   }}
                   aria-label="Âm lượng"
-                  className="h-1 w-20 cursor-pointer accent-emerald-400"
+                  className="h-1 w-16 cursor-pointer accent-emerald-400 sm:w-20"
                 />
               </div>
 
@@ -428,9 +428,9 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
                 <SelectTrigger aria-label="Tốc độ phát" className="h-9 w-16 border-white/15 bg-white/10 text-white hover:bg-white/15">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-zinc-900 text-zinc-100">
+                <SelectContent className="border-white/10 bg-zinc-900 text-zinc-100 shadow-2xl">
                   {PLAYBACK_RATES.map(rate => (
-                    <SelectItem key={rate} value={String(rate)}>
+                    <SelectItem key={rate} value={String(rate)} className="focus:bg-emerald-400/15 focus:text-emerald-300">
                       {rate}x
                     </SelectItem>
                   ))}
@@ -460,8 +460,8 @@ export function VideoPlayer({ src }: VideoPlayerProps) {
               </button>
             </p>
           )}
-          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/5 text-zinc-400">
-            <Film className="h-10 w-10" />
+          <div className="flex h-20 w-20 items-center justify-center rounded-3xl border border-white/10 bg-white/5">
+            <Film className="h-10 w-10 text-emerald-400" />
           </div>
           <div>
             <h2 className="text-xl font-semibold">Chưa có video nào</h2>

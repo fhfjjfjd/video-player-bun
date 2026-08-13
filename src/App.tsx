@@ -17,19 +17,24 @@ function getVideoIdFromPath(pathname: string): number | null {
 function Splash() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-zinc-100">
-      <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
+      <div className="relative flex flex-col items-center gap-4">
+        <div className="absolute inset-0 -z-10 scale-150 rounded-full bg-brand-gradient-soft blur-2xl" />
+        <Loader2 className="h-9 w-9 animate-spin text-emerald-400" />
+        <span className="text-sm font-medium tracking-tight text-zinc-400">Video Player</span>
+      </div>
     </div>
   );
 }
 
 function OfflineScreen({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-zinc-950 p-4 text-center text-zinc-100">
-      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-red-500/10 text-red-400">
+    <div className="relative flex min-h-screen flex-col items-center justify-center gap-6 overflow-hidden bg-zinc-950 p-4 text-center text-zinc-100">
+      <div className="pointer-events-none absolute -top-32 right-0 h-72 w-72 rounded-full bg-red-500/10 blur-3xl" />
+      <div className="flex h-20 w-20 items-center justify-center rounded-3xl border border-red-500/20 bg-red-500/10 text-red-400">
         <ServerCrash className="h-10 w-10" />
       </div>
       <div>
-        <h1 className="text-xl font-semibold">Không thể kết nối máy chủ</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Không thể kết nối máy chủ</h1>
         <p className="mt-1 max-w-xs text-sm text-zinc-400">
           Không nhận được phản hồi từ máy chủ. Vui lòng kiểm tra server API rồi thử lại.
         </p>
@@ -37,7 +42,7 @@ function OfflineScreen({ onRetry }: { onRetry: () => void }) {
       <button
         type="button"
         onClick={onRetry}
-        className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-zinc-950 transition-colors hover:bg-emerald-400"
+        className="inline-flex items-center gap-2 rounded-full bg-brand-gradient px-5 py-2.5 text-sm font-semibold text-zinc-950 shadow-brand transition hover:brightness-110"
       >
         <RefreshCw className="h-4 w-4" />
         Thử lại

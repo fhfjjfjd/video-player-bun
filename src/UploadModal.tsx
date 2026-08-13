@@ -93,20 +93,23 @@ export function UploadModal({ open, onClose, onUploaded }: UploadModalProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Tải lên video"
-        className="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-white/15 bg-zinc-900 text-zinc-100 shadow-2xl"
+        className="relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-white/10 bg-zinc-900 text-zinc-100 shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-emerald-400/10 to-transparent" />
+        <div className="relative flex items-center justify-between border-b border-white/10 px-5 py-4">
           <h2 className="flex items-center gap-2 text-lg font-semibold">
-            <Upload className="h-5 w-5 text-emerald-400" />
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-gradient text-zinc-950 shadow-brand">
+              <Upload className="h-4.5 w-4.5" />
+            </span>
             Tải lên video mới
           </h2>
-          <Button type="button" variant="ghost" size="icon" onClick={onClose} disabled={uploading} aria-label="Đóng" className="h-8 w-8 text-white hover:bg-white/10">
+          <Button type="button" variant="ghost" size="icon" onClick={onClose} disabled={uploading} aria-label="Đóng" className="h-8 w-8 rounded-full text-white hover:bg-white/10">
             <X className="h-5 w-5" />
           </Button>
         </div>
 
-        <form onSubmit={handleUpload} className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-5">
+        <form onSubmit={handleUpload} className="relative flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-5">
           {error && <p className="rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-400">{error}</p>}
 
           {/* Video file selection */}
@@ -123,9 +126,9 @@ export function UploadModal({ open, onClose, onUploaded }: UploadModalProps) {
               }}
             />
             {videoFile ? (
-              <div className="flex items-center justify-between rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3">
+              <div className="flex items-center justify-between rounded-xl border border-emerald-400/30 bg-emerald-400/10 p-3">
                 <div className="flex items-center gap-3 truncate">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-300">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-gradient text-zinc-950">
                     <Film className="h-5 w-5" />
                   </div>
                   <div className="truncate">
@@ -148,10 +151,12 @@ export function UploadModal({ open, onClose, onUploaded }: UploadModalProps) {
               <button
                 type="button"
                 onClick={() => videoInputRef.current?.click()}
-                className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 bg-white/5 py-8 transition hover:border-emerald-500/50 hover:bg-white/10"
+                className="group flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/20 bg-white/5 py-10 transition hover:border-emerald-400/60 hover:bg-emerald-400/5"
               >
-                <Upload className="h-8 w-8 text-emerald-400" />
-                <span className="text-sm font-medium text-zinc-200">Nhấn để chọn video</span>
+                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-gradient text-zinc-950 shadow-brand transition-transform group-hover:scale-110">
+                  <Upload className="h-7 w-7" />
+                </span>
+                <span className="mt-1 text-sm font-semibold text-zinc-200">Nhấn để chọn video</span>
                 <span className="text-xs text-zinc-500">Hỗ trợ tối đa 1GB</span>
               </button>
             )}
@@ -194,10 +199,10 @@ export function UploadModal({ open, onClose, onUploaded }: UploadModalProps) {
               <button
                 type="button"
                 onClick={() => thumbInputRef.current?.click()}
-                className="flex items-center gap-3 rounded-xl border border-dashed border-white/15 bg-white/5 p-3 transition hover:border-emerald-500/50 hover:bg-white/10"
+                className="group flex items-center gap-3 rounded-xl border border-dashed border-white/15 bg-white/5 p-3 transition hover:border-emerald-400/60 hover:bg-emerald-400/5"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10 text-zinc-400">
-                  <ImagePlus className="h-5 w-5 text-emerald-400" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10 text-zinc-400 transition group-hover:bg-brand-gradient group-hover:text-zinc-950">
+                  <ImagePlus className="h-5 w-5" />
                 </div>
                 <div className="text-left">
                   <p className="text-sm font-medium text-zinc-200">Thêm ảnh thu nhỏ tùy chỉnh (Tùy chọn)</p>
@@ -217,7 +222,7 @@ export function UploadModal({ open, onClose, onUploaded }: UploadModalProps) {
               placeholder="Nhập tiêu đề video…"
               required
               disabled={uploading}
-              className="h-10 border-white/15 bg-white/5 text-zinc-100"
+              className="h-11 rounded-xl border-white/10 bg-white/5 text-zinc-100 placeholder:text-zinc-500 focus:border-emerald-400/60"
             />
           </div>
 
@@ -228,16 +233,16 @@ export function UploadModal({ open, onClose, onUploaded }: UploadModalProps) {
                 <span className="font-mono tabular-nums">{progress}%</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                <div className="h-full rounded-full bg-emerald-400 transition-all duration-200" style={{ width: `${progress}%` }} />
+                <div className="h-full rounded-full bg-brand-gradient transition-all duration-200" style={{ width: `${progress}%` }} />
               </div>
             </div>
           )}
 
           <div className="mt-2 flex gap-3">
-            <Button type="button" variant="ghost" onClick={onClose} disabled={uploading} className="flex-1 h-10 text-zinc-300">
+            <Button type="button" variant="ghost" onClick={onClose} disabled={uploading} className="flex-1 h-11 rounded-xl text-zinc-300">
               Hủy
             </Button>
-            <Button type="submit" disabled={uploading || !videoFile} className="flex-1 h-10 bg-emerald-500 text-zinc-950 hover:bg-emerald-400">
+            <Button type="submit" disabled={uploading || !videoFile} variant="brand" className="flex-1 h-11 rounded-xl">
               {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Tải lên ngay"}
             </Button>
           </div>

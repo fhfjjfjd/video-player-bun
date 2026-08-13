@@ -1,8 +1,9 @@
-import { ArrowLeft, CheckCircle2, Loader2, MonitorPlay } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clapperboard, Loader2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { BrandLogo } from "./BrandLogo";
 import { cn } from "@/lib/utils";
 import type { User } from "./types";
 
@@ -56,30 +57,53 @@ export function AuthScreen({
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-4 text-zinc-100">
-      <div className="w-full max-w-sm">
-        <div className="mb-6 flex flex-col items-center gap-3 text-center">
-          {onCancel && (
-            <button
-              type="button"
-              onClick={onCancel}
-              className="mb-1 inline-flex items-center gap-1.5 self-start rounded-lg px-2 py-1 text-sm text-zinc-400 transition hover:text-zinc-100"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Quay lại
-            </button>
-          )}
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-400">
-            <MonitorPlay className="h-7 w-7" />
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-zinc-950 p-4 text-zinc-100">
+      <div className="pointer-events-none absolute -top-40 -right-40 h-96 w-96 rounded-full bg-emerald-500/15 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
+
+      <div className="relative grid w-full max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] shadow-2xl backdrop-blur-xl lg:grid-cols-2">
+        <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-emerald-500/15 via-transparent to-cyan-500/15 p-8 lg:flex">
+          <div className="flex items-center gap-3">
+            <BrandLogo className="h-12 w-12" />
+            <div>
+              <div className="text-lg font-bold tracking-tight">
+                Video<span className="text-brand-gradient">Player</span>
+              </div>
+              <p className="text-xs text-zinc-400">Trải nghiệm xem video mượt mà</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Video Player</h1>
-            <p className="text-sm text-zinc-400">Đăng nhập để tiếp tục xem video</p>
+
+          <div className="flex items-center gap-3 text-sm text-zinc-300">
+            <Clapperboard className="h-5 w-5 text-emerald-400" />
+            <span>Xem, tải lên và quản lý video mọi lúc mọi nơi.</span>
           </div>
         </div>
 
-        <div className="rounded-xl border border-white/10 bg-zinc-900 p-6 shadow-xl">
-          <div className="mb-6 grid grid-cols-2 gap-1 rounded-lg bg-white/5 p-1">
+        <div className="p-6 sm:p-10">
+          <div className="mb-6 flex items-center justify-between">
+            {onCancel && (
+              <button
+                type="button"
+                onClick={onCancel}
+                className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm text-zinc-400 transition hover:text-zinc-100"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Quay lại
+              </button>
+            )}
+            <BrandLogo className="h-10 w-10 lg:hidden" />
+          </div>
+
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold tracking-tight">
+              {mode === "login" ? "Chào mừng trở lại" : "Tạo tài khoản"}
+            </h1>
+            <p className="mt-1 text-sm text-zinc-400">
+              {mode === "login" ? "Đăng nhập để tiếp tục xem video" : "Đăng ký để bắt đầu trải nghiệm"}
+            </p>
+          </div>
+
+          <div className="mb-6 grid grid-cols-2 gap-1 rounded-full border border-white/10 bg-white/5 p-1">
             {(["login", "register"] as const).map(item => (
               <button
                 key={item}
@@ -90,8 +114,10 @@ export function AuthScreen({
                   setSuccess(null);
                 }}
                 className={cn(
-                  "rounded-md py-2 text-sm font-medium transition",
-                  mode === item ? "bg-emerald-500 text-zinc-950" : "text-zinc-400 hover:text-zinc-200",
+                  "rounded-full py-2 text-sm font-medium transition-all",
+                  mode === item
+                    ? "bg-brand-gradient text-zinc-950 shadow-brand"
+                    : "text-zinc-400 hover:text-zinc-200",
                 )}
               >
                 {item === "login" ? "Đăng nhập" : "Đăng ký"}
@@ -109,6 +135,7 @@ export function AuthScreen({
                 placeholder={mode === "login" ? "Tên người dùng hoặc …@gmail.com" : "3–32 ký tự chữ, số hoặc _"}
                 autoComplete="username"
                 autoFocus
+                className="h-11 rounded-xl border-white/10 bg-white/5 text-zinc-100 placeholder:text-zinc-500 focus:border-emerald-400/60"
               />
             </div>
             {mode === "register" && (
@@ -121,6 +148,7 @@ export function AuthScreen({
                   onChange={event => setEmail(event.target.value)}
                   placeholder="Bắt buộc dùng Gmail (…@gmail.com)"
                   autoComplete="email"
+                  className="h-11 rounded-xl border-white/10 bg-white/5 text-zinc-100 placeholder:text-zinc-500 focus:border-emerald-400/60"
                 />
               </div>
             )}
@@ -133,6 +161,7 @@ export function AuthScreen({
                 onChange={event => setPassword(event.target.value)}
                 placeholder="Ít nhất 6 ký tự"
                 autoComplete={mode === "login" ? "current-password" : "new-password"}
+                className="h-11 rounded-xl border-white/10 bg-white/5 text-zinc-100 placeholder:text-zinc-500 focus:border-emerald-400/60"
               />
             </div>
 
@@ -148,7 +177,8 @@ export function AuthScreen({
             <Button
               type="submit"
               disabled={submitting}
-              className="h-10 w-full bg-emerald-500 text-zinc-950 hover:bg-emerald-400"
+              variant="brand"
+              className="mt-1 h-11 w-full rounded-xl"
             >
               {submitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

@@ -12,6 +12,7 @@ share videos through dedicated per-video URLs.
 - Only the owner can delete a video
 - Support for video thumbnails (automatic extraction using FFmpeg upon upload, or custom image upload)
 - Completely optimized mobile UI and responsive video library card grid
+- Modern streaming-style dark UI: cinematic gradient brand (emerald → teal → cyan), glassy blurred header, featured-video hero banner, hover-rich video cards, and redesigned player, auth and upload screens
 - Every video has its own shareable URL (`/video/:id`)
 - Direct media URLs are never exposed — the API returns a short-lived HMAC-signed media token, and the client streams the video through `/api/media?t=<token>` (Range requests supported)
 - Hardened responses: Content-Security-Policy, `X-Content-Type-Options`, `X-Frame-Options` and other security headers on every request
@@ -21,7 +22,7 @@ share videos through dedicated per-video URLs.
 ## Tech Stack
 
 - Bun 1.3 (runtime + bundler)
-- React 19 + TypeScript + Tailwind 4 + shadcn/ui
+- React 19 + TypeScript + Tailwind 4 + shadcn/ui (custom dark design system with gradient brand tokens)
 - PHP backend (PHP 8.1+, SQLite via PDO) — no separate database to install
 - hls.js for HLS playback
 
@@ -116,5 +117,6 @@ missing and verify the `pdo_sqlite` extension before setting things up.
 - `bin/detect.ts` — launches the PHP backend via `php -S`
 - `src/App.tsx` — routing (home `/` and watch page `/video/:id`)
 - `src/HomePage.tsx` — home page: search, upload, video list, feedback link to GitHub Issues
+- `src/BrandLogo.tsx` — reusable gradient brand logo (also used as the favicon, `src/logo.svg`)
 - `src/UploadModal.tsx` — upload modal with video and thumbnail image selection + progress bar
 - `src/VideoPage.tsx` — video watch page

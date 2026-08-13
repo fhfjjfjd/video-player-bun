@@ -19,14 +19,14 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-zinc-950 p-4 text-center text-zinc-100">
-          <h1 className="text-xl font-semibold">Có lỗi xảy ra</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Có lỗi xảy ra</h1>
           <p className="text-sm text-zinc-400">Giao diện đã gặp lỗi bất ngờ. Hãy tải lại trang.</p>
           <button
             type="button"
             onClick={() => {
               this.setState({ hasError: false });
             }}
-            className="rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-zinc-950 transition-colors hover:bg-emerald-400"
+            className="rounded-full bg-brand-gradient px-6 py-2.5 text-sm font-semibold text-zinc-950 shadow-brand transition hover:brightness-110"
           >
             Tải lại
           </button>
