@@ -191,19 +191,21 @@ function rate_limiter_cache_dir(): string {
 }
 
 /**
- * Shared Symfony RateLimiter for a route bucket (created lazily, per process).
+ * Shared Symfony RateLimiterFactory for a route bucket (created lazily, per
+ * process).
  *
- * Returns a fixed-window limiter whose key is the client IP, so every client
- * gets its own counter. Rejected requests carry a Retry-After header.
+ * The factory produces fixed-window limiters. The client IP is passed to
+ * create() as the limiter key, so every client gets its own counter. Rejected
+ * requests carry a Retry-After header.
  */
-function rate_limiter_for(string $bucket): Symfony\Component\RateLimiter\LimiterInterface {
-    static $limiters = [];
-    if (isset($limiters[$bucket])) return $limiters[$bucket];
+function rate_limiter_factory_for(string $bucket): Symfony\Component\RateLimiter\RateLimiterFactory {
+    static $factories = [];
+    if (isset($factories[$bucket])) return $factories[$bucket];
 
     $cfg = RATE_LIMIT_ROUTES[$bucket] ?? [RATE_LIMIT_DEFAULT, RATE_LIMIT_WINDOW_SEC];
     [$limit, $window] = $cfg;
 
-    $factory = new Symfony\Component\RateLimiter\RateLimiterFactory(
+    return $factories[$bucket] = new Symfony\Component\RateLimiter\RateLimiterFactory(
         [
             'id'       => 'rl_' . $bucket,
             'policy'   => 'fixed_window',
@@ -218,8 +220,6 @@ function rate_limiter_for(string $bucket): Symfony\Component\RateLimiter\Limiter
             )
         )
     );
-
-    return $limiters[$bucket] = $factory->create();
 }
 
 /**
@@ -231,8 +231,7 @@ function rate_limit_apply(string $bucket): void {
     [$limit, $window] = $cfg;
     if ($limit <= 0) return;
 
-    $limiter = rate_limiter_for($bucket);
-    $result  = $limiter->consume(1, client_ip());
+    $result  = rate_limiter_factory_for($bucket)->create(client_ip())->consume(1);
 
     $now    = time();
     $reset  = intdiv($now, $window) * $window + $window;
