@@ -5,6 +5,12 @@
 A web video player: register, log in, upload videos, watch online, search, and
 share videos through dedicated per-video URLs.
 
+> **Status: storage / maintenance mode.** Development of this version has
+> stopped; the project is now in storage (archive) mode — existing videos stay
+> watchable and the app keeps working. Active development has moved to the new
+> project **[video-player-php](https://github.com/fhfjjfjd/video-player-php)**.
+> New features and new users belong there — please migrate to the new version.
+
 ## Features
 
 - Watch videos publicly without logging in

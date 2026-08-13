@@ -4,6 +4,12 @@
 
 Một web video player: đăng ký, đăng nhập, tải video lên, xem video trực tuyến, tìm kiếm và chia sẻ video qua URL riêng.
 
+> **Trạng thái: lưu trữ.** Phiên bản này đã ngừng phát triển và chuyển sang chế
+> độ lưu trữ — các video hiện có vẫn xem được và ứng dụng vẫn hoạt động. Việc
+> phát triển tiếp tục tại dự án mới
+> **[video-player-php](https://github.com/fhfjjfjd/video-player-php)**. Tính năng
+> mới và người dùng mới sẽ ở đó — hãy chuyển sang phiên bản mới.
+
 ## Tính năng
 
 - Xem video công khai mà không cần đăng nhập

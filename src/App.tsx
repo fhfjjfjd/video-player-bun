@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AuthScreen } from "./AuthScreen";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { HomePage } from "./HomePage";
+import { MigrationBanner } from "./MigrationBanner";
 import { VideoPage } from "./VideoPage";
 import type { User } from "./types";
 import "./index.css";
@@ -123,6 +124,7 @@ export function App() {
 
   return (
     <ErrorBoundary>
+      <MigrationBanner />
       {authOpen ? (
         <AuthScreen onAuth={handleAuth} onCancel={() => setAuthOpen(false)} />
       ) : videoId !== null ? (
