@@ -348,6 +348,12 @@ Rules:
   `updatedAt`. If anything changed, fold the new information into the work
   before continuing. Never finish against a stale version of the request.
   Re-reading is ONLY to catch changes — it is NOT the signal to close.
+- **Replies must be polite and clear.** Always answer the reporter with
+  courtesy and respect: greet/thank them, state the answer in plain language,
+  explain the reason briefly, and confirm the outcome. Never give a curt,
+  robotic, or perfunctory answer ("just for the sake of saying"). Match the
+  reporter's language when you can; a Vietnamese reporter gets a warm,
+  natural Vietnamese reply, not a cold or mechanical one.
 - **Closing is the final step.** Close the issue ONLY in Phase 9.1, AFTER the
   whole workflow is done: compile, docs, version bump, commit, push, tag, and
   release (Phases 2 → 8). Never close after merely re-reading the issue, and
