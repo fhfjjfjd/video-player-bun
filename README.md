@@ -35,13 +35,13 @@ creates a `videohub` command:
 - **Linux / macOS / Android (Termux):**
 
   ```bash
-  curl -fsSL https://raw.githubusercontent.com/fhfjjfjd/video-player-bun/main/install.sh | bash
+  curl -fsSL https://raw.githubusercontent.com/fhfjjfjd/video-player-bun/main/scripts/install.sh | bash
   ```
 
 - **Windows (PowerShell):**
 
   ```powershell
-  Invoke-WebRequest -Uri "https://raw.githubusercontent.com/fhfjjfjd/video-player-bun/main/install.bat" -OutFile install.bat
+  Invoke-WebRequest -Uri "https://raw.githubusercontent.com/fhfjjfjd/video-player-bun/main/scripts/install.bat" -OutFile install.bat
   .\install.bat
   ```
 
@@ -64,8 +64,8 @@ videohub uninstall # remove launcher, PATH entries, and app (asks whether to kee
 `videohub reinstall` and `videohub uninstall` always ask whether you want to
 keep your uploaded videos (`uploads/` and `data.db`). Answer `y` to keep the
 data, anything else to delete everything. The same flows work as
-`bash install.sh reinstall|uninstall` (Unix) or `install.bat reinstall|uninstall`
-(Windows).
+`bash scripts/install.sh reinstall|uninstall` (Unix) or
+`scripts/install.bat reinstall|uninstall` (Windows).
 
 **Version pinning:** install and update always fetch the **latest GitHub
 release** — the source is checked out at the release tag so the frontend and
@@ -94,7 +94,7 @@ bun start       # start the PHP backend (SPA + API, http://127.0.0.1:3000)
 
 ### The backend (PHP)
 
-The backend is a PHP router in `src/server/php/`, launched by `bin/detect.ts`
+The backend is a PHP router in `src/server/php/`, launched by `scripts/start.ts`
 with PHP's built-in web server (`php -S`). There is no compilation and no
 binary to download — the server runs straight from the source.
 
@@ -105,8 +105,9 @@ Requirements:
 - `ffmpeg` on PATH for automatic thumbnail extraction (optional — custom
   thumbnails still work without it)
 
-The installers (`install.sh` / `install.bat`) install PHP and ffmpeg when
-missing and verify the `pdo_sqlite` extension before setting things up.
+The installers (`scripts/install.sh` / `scripts/install.bat`) install PHP and
+ffmpeg when missing and verify the `pdo_sqlite` extension before setting things
+up.
 
 ## Structure
 
@@ -114,7 +115,7 @@ missing and verify the `pdo_sqlite` extension before setting things up.
   handlers, media streaming with Range support, static files), `db.php`
   (SQLite storage via PDO), `crypto.php` (signed media tokens, sessions,
   PBKDF2/bcrypt password hashing)
-- `bin/detect.ts` — launches the PHP backend via `php -S`
+- `scripts/start.ts` — launches the PHP backend via `php -S`
 - `src/App.tsx` — routing (home `/` and watch page `/video/:id`)
 - `src/HomePage.tsx` — home page: search, upload, video list, feedback link to GitHub Issues
 - `src/BrandLogo.tsx` — reusable gradient brand logo (also used as the favicon, `src/logo.svg`)

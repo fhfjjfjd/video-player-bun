@@ -286,12 +286,13 @@ starts. If any phase fails, do not proceed; fix and retry.
      per-language mirror (Phase 3). Pushing before the docs are synced is a
      violation — fix the docs and amend/push again before releasing.
 
-3.9. **The two installers must stay in sync.** `install.sh` (Unix/Termux) and
-     `install.bat` (Windows) are the SAME product on two OSes. A change to one
-     MUST update the other in the SAME commit: same commands/modes
-     (`install`, `update`, `reinstall`, `uninstall`), same keep-data prompt
-     (`uploads/` + `data.db`), and the same `videohub` launcher passthrough.
-     Never ship a mode in one installer without the other.
+3.9. **The two installers must stay in sync.** `scripts/install.sh`
+     (Unix/Termux) and `scripts/install.bat` (Windows) are the SAME product on
+     two OSes. A change to one MUST update the other in the SAME commit: same
+     commands/modes (`install`, `update`, `reinstall`, `uninstall`), same
+     keep-data prompt (`uploads/` + `data.db`), and the same `videohub`
+     launcher passthrough. Never ship a mode in one installer without the
+     other.
 
 ---
 

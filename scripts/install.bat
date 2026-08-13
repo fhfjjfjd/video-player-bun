@@ -13,7 +13,7 @@ rem
 rem Install/update pins the app to the LATEST GitHub release: the source is
 rem checked out at the release tag so frontend and backend always match.
 rem
-rem The backend is PHP (src/server/php, run through bin/detect.ts). PHP must be
+rem The backend is PHP (src/server/php, run through scripts/start.ts). PHP must be
 rem installed and on PATH; no binary is downloaded.
 rem
 rem The app lives in %USERPROFILE%\videohub.
@@ -146,7 +146,7 @@ echo [videohub] Building frontend...
 call bun run build || exit /b 1
 
 rem --- backend (PHP) ----------------------------------------------------------
-rem The backend is the PHP router in src/server/php, started by bin/detect.ts
+rem The backend is the PHP router in src/server/php, started by scripts/start.ts
 rem via `php -S`. No binary is downloaded; the runtime was checked above.
 echo [videohub] Backend: PHP (src/server/php)
 
@@ -154,9 +154,9 @@ rem --- launcher command ------------------------------------------------------
 echo [videohub] Creating %APP_NAME% command...
 (
     echo @echo off
-    echo if /i "%%~1"=="update" call "%~dp0install.bat" update ^& exit /b
-    echo if /i "%%~1"=="reinstall" call "%~dp0install.bat" reinstall ^& exit /b
-    echo if /i "%%~1"=="uninstall" call "%~dp0install.bat" uninstall ^& exit /b
+    echo if /i "%%~1"=="update" call "%INSTALL_DIR%\scripts\install.bat" update ^& exit /b
+    echo if /i "%%~1"=="reinstall" call "%INSTALL_DIR%\scripts\install.bat" reinstall ^& exit /b
+    echo if /i "%%~1"=="uninstall" call "%INSTALL_DIR%\scripts\install.bat" uninstall ^& exit /b
     echo cd /d "%INSTALL_DIR%"
     echo call bun start %%*
 ) > "%BIN_DIR%\%APP_NAME%.cmd"

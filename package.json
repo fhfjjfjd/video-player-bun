@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "NODE_ENV=production bun bin/detect.ts",
-    "dev": "NODE_ENV=development bun bin/detect.ts",
+    "start": "NODE_ENV=production bun scripts/start.ts",
+    "dev": "NODE_ENV=development bun scripts/start.ts",
     "build": "bun run build.ts",
-    "setup": "bun bin/detect.ts"
+    "setup": "bun scripts/start.ts"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.7",

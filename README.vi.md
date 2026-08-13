@@ -35,13 +35,13 @@ frontend và tạo lệnh `videohub`:
 - **Linux / macOS / Android (Termux):**
 
   ```bash
-  curl -fsSL https://raw.githubusercontent.com/fhfjjfjd/video-player-bun/main/install.sh | bash
+  curl -fsSL https://raw.githubusercontent.com/fhfjjfjd/video-player-bun/main/scripts/install.sh | bash
   ```
 
 - **Windows (PowerShell):**
 
   ```powershell
-  Invoke-WebRequest -Uri "https://raw.githubusercontent.com/fhfjjfjd/video-player-bun/main/install.bat" -OutFile install.bat
+  Invoke-WebRequest -Uri "https://raw.githubusercontent.com/fhfjjfjd/video-player-bun/main/scripts/install.bat" -OutFile install.bat
   .\install.bat
   ```
 
@@ -64,8 +64,8 @@ videohub uninstall # gỡ bỏ lệnh, PATH và ứng dụng (hỏi có giữ up
 `videohub reinstall` và `videohub uninstall` luôn hỏi bạn có muốn giữ video
 đã upload (`uploads/` và `data.db`) hay không. Gõ `y` để giữ dữ liệu, gõ bất
 kỳ phím nào khác để xóa toàn bộ. Các thao tác này cũng tương đương
-`bash install.sh reinstall|uninstall` (Unix) hoặc `install.bat reinstall|uninstall`
-(Windows).
+`bash scripts/install.sh reinstall|uninstall` (Unix) hoặc
+`scripts/install.bat reinstall|uninstall` (Windows).
 
 **Khóa đúng phiên bản:** cài đặt và cập nhật luôn lấy **release GitHub mới
 nhất** — mã nguồn được checkout đúng tag release nên frontend và backend luôn
@@ -93,7 +93,7 @@ bun start       # khởi động backend PHP (SPA + API, http://127.0.0.1:3000)
 
 ### Backend (PHP)
 
-Backend là router PHP trong `src/server/php/`, được `bin/detect.ts` khởi động
+Backend là router PHP trong `src/server/php/`, được `scripts/start.ts` khởi động
 bằng web server tích hợp của PHP (`php -S`). Không cần biên dịch và không cần
 tải binary nào — server chạy trực tiếp từ mã nguồn.
 
@@ -104,15 +104,15 @@ Yêu cầu:
 - `ffmpeg` trong PATH để tự động trích xuất thumbnail (tùy chọn — vẫn tải
   thumbnail tùy chỉnh được nếu không có ffmpeg)
 
-Installer (`install.sh` / `install.bat`) sẽ cài PHP và ffmpeg nếu chưa có và
-kiểm tra extension `pdo_sqlite` trước khi cài đặt.
+Installer (`scripts/install.sh` / `scripts/install.bat`) sẽ cài PHP và ffmpeg
+nếu chưa có và kiểm tra extension `pdo_sqlite` trước khi cài đặt.
 
 ## Cấu trúc
 
 - `src/server/php/` — backend PHP: `server.php` (router HTTP, handler API,
   phát media hỗ trợ Range, file tĩnh), `db.php` (lưu trữ SQLite qua PDO),
   `crypto.php` (media token ký HMAC, session, băm mật khẩu PBKDF2/bcrypt)
-- `bin/detect.ts` — khởi động backend PHP qua `php -S`
+- `scripts/start.ts` — khởi động backend PHP qua `php -S`
 - `src/App.tsx` — routing (trang chủ `/` và trang xem `/video/:id`)
 - `src/HomePage.tsx` — trang chủ: tìm kiếm, tải lên, danh sách video, nút góp ý mở GitHub Issues
 - `src/BrandLogo.tsx` — logo thương hiệu gradient dùng chung (cũng được dùng làm favicon, `src/logo.svg`)

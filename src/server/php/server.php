@@ -15,7 +15,7 @@ declare(strict_types=1);
  *
  * The script handles every request itself (API, media streaming with Range
  * support, and static files with SPA fallback) so behavior matches the old
- * native server. It is started through bin/detect.ts (bun start).
+ * native server. It is started through scripts/start.ts (bun start).
  */
 
 error_reporting(E_ALL);
