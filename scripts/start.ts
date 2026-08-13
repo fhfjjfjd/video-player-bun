@@ -1,13 +1,38 @@
 import { spawn } from "node:child_process";
+import os from "node:os";
 import path from "node:path";
 
 const ROOT = process.cwd();
 const ROUTER = path.join(ROOT, "src", "server", "php", "server.php");
 
-console.log("Starting backend with PHP's built-in web server...");
-
 const port = process.env.PORT ?? "3000";
 const hostname = process.env.HOST ?? process.env.HOSTNAME ?? "127.0.0.1";
+
+function getLanIp(): string | undefined {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const net of interfaces[name] ?? []) {
+      if (net.internal) continue;
+      if (net.family === "IPv4" || net.family === 4) return net.address;
+    }
+  }
+  return undefined;
+}
+
+function printAccessUrls(): void {
+  const wildcard = hostname === "0.0.0.0" || hostname === "::" || hostname === "";
+  const localHost = wildcard ? "127.0.0.1" : hostname;
+  console.log("Starting backend with PHP's built-in web server...");
+  console.log(`  Local:   http://${localHost}:${port}`);
+  if (wildcard) {
+    const lanIp = getLanIp();
+    if (lanIp) {
+      console.log(`  Network: http://${lanIp}:${port}  (other devices on the same network)`);
+    }
+  }
+}
+
+printAccessUrls();
 
 const child = spawn(
   "php",

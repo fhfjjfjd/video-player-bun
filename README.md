@@ -97,7 +97,10 @@ bun start       # start the PHP backend (SPA + API, http://127.0.0.1:3000)
 
 `bun dev` does the same in development mode. The server binds to
 `127.0.0.1:3000` by default; set `HOST=0.0.0.0` to share over LAN (the bind
-address is read from `HOST`, falling back to `HOSTNAME`).
+address is read from `HOST`, falling back to `HOSTNAME`). When binding to a
+wildcard, startup prints the machine's detected LAN IP automatically — e.g.
+`Network: http://192.168.1.2:3000` — so devices on the same network can open
+the player without hunting for the IP.
 
 ### The backend (PHP)
 

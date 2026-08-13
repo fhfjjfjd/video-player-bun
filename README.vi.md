@@ -96,7 +96,10 @@ bun start       # khởi động backend PHP (SPA + API, http://127.0.0.1:3000)
 
 `bun dev` cũng làm tương tự ở chế độ development. Mặc định server bind vào
 `127.0.0.1:3000`; đặt biến `HOST=0.0.0.0` để chia sẻ qua mạng LAN (địa chỉ bind
-được đọc từ `HOST`, nếu không có thì dùng `HOSTNAME`).
+được đọc từ `HOST`, nếu không có thì dùng `HOSTNAME`). Khi bind vào địa chỉ
+wildcard, lúc khởi động server sẽ tự phát hiện IP LAN của máy và in ra — ví dụ
+`Network: http://192.168.1.2:3000` — để các thiết bị trong cùng mạng mở player
+mà không cần đi tìm IP.
 
 ### Backend (PHP)
 
