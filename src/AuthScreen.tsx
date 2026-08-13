@@ -55,8 +55,24 @@ export function AuthScreen({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      const res = (await response.json()) as { user?: User; error?: string; ok?: boolean };
+      const res = (await response.json()) as {
+        user?: User;
+        error?: string;
+        ok?: boolean;
+        code?: string;
+        email?: string;
+        message?: string;
+      };
       if (!response.ok) {
+        if (mode === "login" && res.code === "EMAIL_NOT_VERIFIED" && res.email) {
+          setVerifyingEmail(res.email);
+          setOtpCode("");
+          setError(null);
+          setSuccess(null);
+          setUsername("");
+          setPassword("");
+          return;
+        }
         setError(res.error ?? "Có lỗi xảy ra.");
         return;
       }
@@ -176,7 +192,7 @@ export function AuthScreen({
             </h1>
             <p className="mt-1 text-sm text-zinc-400">
               {verifyingEmail
-                ? "Nhập mã 6 chữ số chúng tôi vừa gửi để hoàn tất đăng ký"
+                ? "Nhập mã 6 chữ số chúng tôi vừa gửi để xác thực email"
                 : mode === "login"
                   ? "Đăng nhập để tiếp tục xem video"
                   : "Đăng ký để bắt đầu trải nghiệm"}
@@ -224,7 +240,7 @@ export function AuthScreen({
                 variant="brand"
                 className="mt-1 h-11 w-full rounded-xl"
               >
-                {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : "Xác nhận & hoàn tất đăng ký"}
+                {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : "Xác nhận mã xác thực"}
               </Button>
 
               <div className="flex items-center justify-between gap-3">
@@ -248,7 +264,7 @@ export function AuthScreen({
                   }}
                   className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm text-zinc-400 transition hover:text-zinc-100 disabled:opacity-50"
                 >
-                  Đăng ký lại với email khác
+                  Quay lại
                 </button>
               </div>
             </form>

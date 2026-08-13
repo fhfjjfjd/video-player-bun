@@ -428,17 +428,27 @@ function handle_verify_email(): void {
         return;
     }
 
-    if (find_user_by_username((string)$pending['username']) !== null || find_user_by_email($email) !== null) {
+    $existing = find_user_by_email($email);
+    if ($existing !== null) {
         delete_email_verification($email);
-        respond_json(409, err('Tài khoản đã tồn tại.'));
-        return;
-    }
-
-    $id = create_user((string)$pending['username'], $email, (string)$pending['password_hash']);
-    delete_email_verification($email);
-    if ($id === null) {
-        respond_json(500, err('Failed to create user'));
-        return;
+        $id = (int)$existing['id'];
+        if ((int)$existing['email_verified'] !== 1) {
+            mark_user_verified($id);
+        }
+        $username = (string)$existing['username'];
+    } else {
+        if (find_user_by_username((string)$pending['username']) !== null) {
+            delete_email_verification($email);
+            respond_json(409, err('Tài khoản đã tồn tại.'));
+            return;
+        }
+        $id = create_user((string)$pending['username'], $email, (string)$pending['password_hash']);
+        delete_email_verification($email);
+        if ($id === null) {
+            respond_json(500, err('Failed to create user'));
+            return;
+        }
+        $username = (string)$pending['username'];
     }
 
     $secret = load_media_secret();
@@ -447,7 +457,7 @@ function handle_verify_email(): void {
     set_session_cookie($token);
     respond_json(200, ['ok' => true, 'user' => [
         'id'       => $id,
-        'username' => (string)$pending['username'],
+        'username' => $username,
     ]]);
 }
 
@@ -516,6 +526,32 @@ function handle_login(): void {
     $user = find_user_by_identifier($identifier);
     if ($user === null || !verify_password($password, (string)$user['password_hash'])) {
         respond_json(401, err('Sai Gmail/username hoặc password.'));
+        return;
+    }
+
+    if ((int)$user['email_verified'] !== 1) {
+        $email = isset($user['email']) && is_string($user['email']) ? (string)$user['email'] : '';
+        if ($email === '') {
+            respond_json(403, err('Tài khoản này chưa có email nên không thể xác thực.'));
+            return;
+        }
+        if (!smtp_configured()) {
+            respond_json(403, err('Tài khoản của bạn chưa xác thực email. Hiện máy chủ chưa cấu hình SMTP nên không thể gửi mã xác thực.'));
+            return;
+        }
+        $code      = generate_verification_code();
+        $expiresAt = date('Y-m-d H:i:s', time() + VERIFICATION_TTL_SEC);
+        save_email_verification((string)$user['username'], $email, (string)$user['password_hash'], hash_verification_code($code), $expiresAt);
+        if (!send_verification_email($email, $code)) {
+            delete_email_verification($email);
+            respond_json(503, err('Không thể gửi email xác thực. Vui lòng kiểm tra cấu hình SMTP và thử lại.'));
+            return;
+        }
+        respond_json(403, [
+            'code'    => 'EMAIL_NOT_VERIFIED',
+            'email'   => $email,
+            'message' => 'Tài khoản chưa xác thực email. Chúng tôi đã gửi mã xác thực tới ' . $email . '.',
+        ]);
         return;
     }
 

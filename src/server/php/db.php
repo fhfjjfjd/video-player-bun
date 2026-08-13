@@ -35,6 +35,17 @@ function db_init(PDO $pdo): void {
         . 'email TEXT,'
         . 'created_at TEXT NOT NULL DEFAULT (datetime(\'now\')));'
     );
+    $userCols = $pdo->query('PRAGMA table_info(users)')->fetchAll(PDO::FETCH_ASSOC);
+    $hasVerified = false;
+    foreach ($userCols as $c) {
+        if (strtolower((string)$c['name']) === 'email_verified') {
+            $hasVerified = true;
+            break;
+        }
+    }
+    if (!$hasVerified) {
+        $pdo->exec('ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0');
+    }
     $pdo->exec(
         'CREATE TABLE IF NOT EXISTS sessions ('
         . 'token TEXT PRIMARY KEY,'
@@ -77,7 +88,7 @@ function db_init(PDO $pdo): void {
 
 function create_user(string $username, string $email, string $hash): ?int {
     try {
-        $st = db()->prepare('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)');
+        $st = db()->prepare('INSERT INTO users (username, email, password_hash, email_verified) VALUES (?, ?, ?, 1)');
         $st->execute([$username, $email, $hash]);
         return (int)db()->lastInsertId();
     } catch (PDOException $e) {
@@ -85,15 +96,24 @@ function create_user(string $username, string $email, string $hash): ?int {
     }
 }
 
+function mark_user_verified(int $userId): void {
+    try {
+        $st = db()->prepare('UPDATE users SET email_verified = 1 WHERE id = ?');
+        $st->execute([$userId]);
+    } catch (PDOException $e) {
+        // bỏ qua — lỗi ghi không làm hỏng luồng xác thực.
+    }
+}
+
 function find_user_by_username(string $username): ?array {
-    $st = db()->prepare('SELECT id, username, email, password_hash FROM users WHERE username = ?');
+    $st = db()->prepare('SELECT id, username, email, password_hash, email_verified FROM users WHERE username = ?');
     $st->execute([$username]);
     $row = $st->fetch(PDO::FETCH_ASSOC);
     return $row === false ? null : $row;
 }
 
 function find_user_by_email(string $email): ?array {
-    $st = db()->prepare('SELECT id, username, email, password_hash FROM users WHERE lower(email) = lower(?)');
+    $st = db()->prepare('SELECT id, username, email, password_hash, email_verified FROM users WHERE lower(email) = lower(?)');
     $st->execute([$email]);
     $row = $st->fetch(PDO::FETCH_ASSOC);
     return $row === false ? null : $row;
@@ -101,9 +121,9 @@ function find_user_by_email(string $email): ?array {
 
 function find_user_by_identifier(string $identifier): ?array {
     if (str_contains($identifier, '@')) {
-        $st = db()->prepare('SELECT id, username, email, password_hash FROM users WHERE lower(email) = lower(?)');
+        $st = db()->prepare('SELECT id, username, email, password_hash, email_verified FROM users WHERE lower(email) = lower(?)');
     } else {
-        $st = db()->prepare('SELECT id, username, email, password_hash FROM users WHERE username = ?');
+        $st = db()->prepare('SELECT id, username, email, password_hash, email_verified FROM users WHERE username = ?');
     }
     $st->execute([$identifier]);
     $row = $st->fetch(PDO::FETCH_ASSOC);
@@ -111,7 +131,7 @@ function find_user_by_identifier(string $identifier): ?array {
 }
 
 function find_user_by_id(int $userId): ?array {
-    $st = db()->prepare('SELECT id, username, email FROM users WHERE id = ?');
+    $st = db()->prepare('SELECT id, username, email, email_verified FROM users WHERE id = ?');
     $st->execute([$userId]);
     $row = $st->fetch(PDO::FETCH_ASSOC);
     return $row === false ? null : $row;

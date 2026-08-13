@@ -10,6 +10,7 @@ share videos through dedicated per-video URLs.
 - Watch videos publicly without logging in
 - Register / log in to upload videos and manage your own uploads (registration requires a Gmail address — the email must end in `@gmail.com`; login accepts your Gmail or username)
 - Email verification on registration: registering sends a 6-digit verification code to the Gmail address, which must be entered on the confirmation screen before the account is created — hand-typed, non-existent, or scrambled Gmail addresses can no longer slip through (codes expire after 10 minutes, resend supported)
+- Existing accounts that were never verified must verify their email when logging in: the server emails a 6-digit code to the account's Gmail address and login only proceeds after the code is entered
 - Uploading a video returns you to the library where the new video appears in the list — it is never opened or played automatically
 - Only the owner can delete a video
 - Support for video thumbnails (automatic extraction using FFmpeg upon upload, or custom image upload)
