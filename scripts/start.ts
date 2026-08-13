@@ -7,7 +7,7 @@ const ROUTER = path.join(ROOT, "src", "server", "php", "server.php");
 console.log("Starting backend with PHP's built-in web server...");
 
 const port = process.env.PORT ?? "3000";
-const hostname = process.env.HOSTNAME ?? "127.0.0.1";
+const hostname = process.env.HOST ?? process.env.HOSTNAME ?? "127.0.0.1";
 
 const child = spawn(
   "php",

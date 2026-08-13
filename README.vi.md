@@ -95,7 +95,8 @@ bun start       # khởi động backend PHP (SPA + API, http://127.0.0.1:3000)
 ```
 
 `bun dev` cũng làm tương tự ở chế độ development. Mặc định server bind vào
-`127.0.0.1:3000`; đặt biến `HOST=0.0.0.0` để chia sẻ qua mạng LAN.
+`127.0.0.1:3000`; đặt biến `HOST=0.0.0.0` để chia sẻ qua mạng LAN (địa chỉ bind
+được đọc từ `HOST`, nếu không có thì dùng `HOSTNAME`).
 
 ### Backend (PHP)
 

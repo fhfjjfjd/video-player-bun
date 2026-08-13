@@ -96,7 +96,8 @@ bun start       # start the PHP backend (SPA + API, http://127.0.0.1:3000)
 ```
 
 `bun dev` does the same in development mode. The server binds to
-`127.0.0.1:3000` by default; set `HOST=0.0.0.0` to share over LAN.
+`127.0.0.1:3000` by default; set `HOST=0.0.0.0` to share over LAN (the bind
+address is read from `HOST`, falling back to `HOSTNAME`).
 
 ### The backend (PHP)
 
