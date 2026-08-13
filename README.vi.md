@@ -20,6 +20,7 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 - Server không bao giờ lộ URL media trực tiếp — API trả token media ký HMAC có thời hạn ngắn, client phát video qua `/api/media?t=<token>` (hỗ trợ Range request)
 - Tăng cường bảo mật: Content-Security-Policy, `X-Content-Type-Options`, `X-Frame-Options` và các header bảo mật khác trên mọi request
 - Giới hạn số lượng yêu cầu (rate limiting) theo IP cho mọi API (cửa sổ thời gian cố định, dùng Symfony Rate Limiter): bảo vệ đăng nhập, đăng ký và tải lên khỏi bị lạm dụng; client bị giới hạn sẽ nhận HTTP 429 kèm header `Retry-After` và `X-RateLimit-*`
+- Xác thực dữ liệu ở cả 2 phía: client React xác thực form tức thì bằng Zod (hiện lỗi ngay theo từng trường), và server PHP xác thực lại mọi payload bằng Symfony Validator — cùng quy tắc và thông báo tiếng Việt ở cả 2 đầu
 - Player đầy đủ: phát/tạm dừng, tua, âm lượng, tốc độ phát, toàn màn hình, phím tắt
 - Hỗ trợ HLS (`.m3u8`) qua hls.js
 - Người dùng đã đăng nhập có thể gửi góp ý (tính năng mới, báo lỗi hoặc ý kiến khác) bằng nút "Góp ý" trên giao diện, sẽ mở trang GitHub Issues của dự án
@@ -27,8 +28,8 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 ## Công nghệ
 
 - Bun 1.3 (runtime + bundler)
-- React 19 + TypeScript + Tailwind 4 + shadcn/ui (hệ thống thiết kế dark tùy chỉnh với token thương hiệu gradient)
-- Backend PHP (PHP 8.1+, SQLite qua PDO), không cần cài database riêng
+- React 19 + TypeScript + Tailwind 4 + shadcn/ui (hệ thống thiết kế dark tùy chỉnh với token thương hiệu gradient); xác thực form bằng Zod
+- Backend PHP (PHP 8.1+, SQLite qua PDO), không cần cài database riêng; xác thực dữ liệu bằng Symfony Validator và giới hạn yêu cầu theo IP bằng Symfony Rate Limiter
 - hls.js cho phát HLS
 
 ## Cài đặt nhanh (một lệnh duy nhất)
@@ -120,9 +121,11 @@ nếu chưa có và kiểm tra extension `pdo_sqlite` trước khi cài đặt.
 
 - `src/server/php/` — backend PHP: `server.php` (router HTTP, handler API,
   giới hạn yêu cầu theo IP bằng `symfony/rate-limiter`, phát media hỗ trợ
-  Range, file tĩnh), `db.php` (lưu trữ SQLite qua PDO),
+  Range, file tĩnh), `validation.php` (xác thực request bằng `symfony/validator`),
+  `db.php` (lưu trữ SQLite qua PDO),
   `crypto.php` (media token ký HMAC, session, băm mật khẩu PBKDF2/bcrypt),
   `composer.json` + `vendor/` (dependency PHP đóng sẵn)
+- `src/lib/validation.ts` — schema Zod cho đăng nhập/đăng ký dùng cho xác thực form phía client
 - `scripts/start.ts` — khởi động backend PHP qua `php -S`
 - `src/App.tsx` — routing (trang chủ `/` và trang xem `/video/:id`)
 - `src/HomePage.tsx` — trang chủ: tìm kiếm, tải lên, danh sách video, nút góp ý mở GitHub Issues

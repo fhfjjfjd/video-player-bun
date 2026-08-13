@@ -75,6 +75,7 @@ function server_root(): string {
 
 require_once __DIR__ . '/crypto.php';
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/validation.php';
 require_once __DIR__ . '/vendor/autoload.php';
 
 /* ------------------------------------------------------------------ paths */
@@ -313,29 +314,15 @@ function handle_register(): void {
         return;
     }
 
-    $username = isset($data['username']) && is_string($data['username']) ? $data['username'] : null;
-    $email    = isset($data['email']) && is_string($data['email']) ? $data['email'] : null;
-    $password = isset($data['password']) && is_string($data['password']) ? $data['password'] : null;
-
-    if ($username === null || $password === null) {
-        respond_json(400, err('Thiếu username hoặc password.'));
+    $errors = validate_payload($data, register_constraints());
+    if ($errors !== []) {
+        respond_json(400, err((string)reset($errors)));
         return;
     }
 
-    if (preg_match('/^[A-Za-z0-9_]{3,32}$/', $username) !== 1) {
-        respond_json(400, err('Username phải gồm 3–32 ký tự chữ, số hoặc gạch dưới.'));
-        return;
-    }
-
-    if (strlen($password) < 6) {
-        respond_json(400, err('Password phải có ít nhất 6 ký tự.'));
-        return;
-    }
-
-    if ($email === null || preg_match('/^[^@\s]+@gmail\.com$/i', $email) !== 1) {
-        respond_json(400, err('Email phải là tài khoản Gmail hợp lệ (…@gmail.com).'));
-        return;
-    }
+    $username = (string)$data['username'];
+    $email    = (string)$data['email'];
+    $password = (string)$data['password'];
 
     if (find_user_by_username($username) !== null) {
         respond_json(409, err('Username đã tồn tại.'));
@@ -367,18 +354,14 @@ function handle_login(): void {
         return;
     }
 
-    $identifier = isset($data['username']) && is_string($data['username']) ? $data['username'] : null;
-    $password   = isset($data['password']) && is_string($data['password']) ? $data['password'] : null;
-
-    if ($identifier === null || $password === null) {
-        respond_json(400, err('Thiếu Gmail/username hoặc password.'));
+    $errors = validate_payload($data, login_constraints());
+    if ($errors !== []) {
+        respond_json(400, err((string)reset($errors)));
         return;
     }
 
-    if (strlen($password) < 6) {
-        respond_json(400, err('Password phải có ít nhất 6 ký tự.'));
-        return;
-    }
+    $identifier = (string)$data['username'];
+    $password   = (string)$data['password'];
 
     $user = find_user_by_identifier($identifier);
     if ($user === null || !verify_password($password, (string)$user['password_hash'])) {

@@ -5,7 +5,8 @@
     "require": {
         "php": ">=8.2",
         "symfony/cache": "^7.2",
-        "symfony/rate-limiter": "^7.2"
+        "symfony/rate-limiter": "^7.2",
+        "symfony/validator": "^8.1"
     },
     "config": {
         "optimize-autoloader": true,

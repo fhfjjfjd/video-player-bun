@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { BrandLogo } from "./BrandLogo";
 import { cn } from "@/lib/utils";
 import type { User } from "./types";
+import { loginSchema, registerSchema, validateForm, type FieldErrors } from "@/lib/validation";
 
 type Mode = "login" | "register";
 
@@ -22,10 +23,25 @@ export function AuthScreen({
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
+
+  const clearFieldError = (field: string) =>
+    setFieldErrors(prev => {
+      if (!(field in prev)) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const schema = mode === "register" ? registerSchema : loginSchema;
+    const data = mode === "register" ? { username, email, password } : { username, password };
+    const errors = validateForm(schema, data);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     setError(null);
     setSuccess(null);
     setSubmitting(true);
@@ -33,13 +49,11 @@ export function AuthScreen({
       const response = await fetch(`/api/${mode}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          mode === "register" ? { username, email, password } : { username, password },
-        ),
+        body: JSON.stringify(data),
       });
-      const data = (await response.json()) as { user?: User; error?: string; ok?: boolean };
+      const res = (await response.json()) as { user?: User; error?: string; ok?: boolean };
       if (!response.ok) {
-        setError(data.error ?? "Có lỗi xảy ra.");
+        setError(res.error ?? "Có lỗi xảy ra.");
         return;
       }
       if (mode === "register") {
@@ -48,7 +62,7 @@ export function AuthScreen({
         setPassword("");
         return;
       }
-      if (data.user) onAuth(data.user);
+      if (res.user) onAuth(res.user);
     } catch {
       setError("Không kết nối được máy chủ.");
     } finally {
@@ -131,12 +145,16 @@ export function AuthScreen({
               <Input
                 id="username"
                 value={username}
-                onChange={event => setUsername(event.target.value)}
+                onChange={event => {
+                  setUsername(event.target.value);
+                  clearFieldError("username");
+                }}
                 placeholder={mode === "login" ? "Tên người dùng hoặc …@gmail.com" : "3–32 ký tự chữ, số hoặc _"}
                 autoComplete="username"
                 autoFocus
                 className="h-11 rounded-xl border-white/10 bg-white/5 text-zinc-100 placeholder:text-zinc-500 focus:border-emerald-400/60"
               />
+              {fieldErrors.username && <p className="text-xs text-red-400">{fieldErrors.username}</p>}
             </div>
             {mode === "register" && (
               <div className="flex flex-col gap-1.5">
@@ -145,12 +163,16 @@ export function AuthScreen({
                   id="email"
                   type="email"
                   value={email}
-                  onChange={event => setEmail(event.target.value)}
+                  onChange={event => {
+                    setEmail(event.target.value);
+                    clearFieldError("email");
+                  }}
                   placeholder="Bắt buộc dùng Gmail (…@gmail.com)"
                   autoComplete="email"
                   required
                   className="h-11 rounded-xl border-white/10 bg-white/5 text-zinc-100 placeholder:text-zinc-500 focus:border-emerald-400/60"
                 />
+                {fieldErrors.email && <p className="text-xs text-red-400">{fieldErrors.email}</p>}
               </div>
             )}
             <div className="flex flex-col gap-1.5">
@@ -159,11 +181,15 @@ export function AuthScreen({
                 id="password"
                 type="password"
                 value={password}
-                onChange={event => setPassword(event.target.value)}
+                onChange={event => {
+                  setPassword(event.target.value);
+                  clearFieldError("password");
+                }}
                 placeholder="Ít nhất 6 ký tự"
                 autoComplete={mode === "login" ? "current-password" : "new-password"}
                 className="h-11 rounded-xl border-white/10 bg-white/5 text-zinc-100 placeholder:text-zinc-500 focus:border-emerald-400/60"
               />
+              {fieldErrors.password && <p className="text-xs text-red-400">{fieldErrors.password}</p>}
             </div>
 
             {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}

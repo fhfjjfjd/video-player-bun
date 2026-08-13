@@ -21,14 +21,15 @@ share videos through dedicated per-video URLs.
 - Direct media URLs are never exposed — the API returns a short-lived HMAC-signed media token, and the client streams the video through `/api/media?t=<token>` (Range requests supported)
 - Hardened responses: Content-Security-Policy, `X-Content-Type-Options`, `X-Frame-Options` and other security headers on every request
 - Per-IP rate limiting on every API endpoint (fixed time windows, via the Symfony Rate Limiter component): protects login, registration and uploads from abuse; limited clients get HTTP 429 with a `Retry-After` header and `X-RateLimit-*` headers
+- Data validation on both sides: the React client validates forms live with Zod (per-field errors shown instantly), and the PHP server re-validates every payload with the Symfony Validator component — same rules and Vietnamese messages on both ends
 - Full-featured player: play/pause, seek, volume, playback speed, fullscreen, keyboard shortcuts
 - Logged-in users can submit feedback (feature request, bug report, or other) via the "Góp ý" button which opens the GitHub Issues page
 
 ## Tech Stack
 
 - Bun 1.3 (runtime + bundler)
-- React 19 + TypeScript + Tailwind 4 + shadcn/ui (custom dark design system with gradient brand tokens)
-- PHP backend (PHP 8.1+, SQLite via PDO) — no separate database to install
+- React 19 + TypeScript + Tailwind 4 + shadcn/ui (custom dark design system with gradient brand tokens); form validation with Zod
+- PHP backend (PHP 8.1+, SQLite via PDO) — no separate database to install; data validation with the Symfony Validator component and per-IP rate limiting with the Symfony Rate Limiter component
 - hls.js for HLS playback
 
 ## Quick install (one command)
@@ -122,9 +123,12 @@ up.
 
 - `src/server/php/` — the PHP backend: `server.php` (HTTP router, API
   handlers, per-IP rate limiting via `symfony/rate-limiter`, media streaming
-  with Range support, static files), `db.php` (SQLite storage via PDO),
+  with Range support, static files), `validation.php` (request validation via
+  `symfony/validator`), `db.php` (SQLite storage via PDO),
   `crypto.php` (signed media tokens, sessions, PBKDF2/bcrypt password hashing),
   `composer.json` + `vendor/` (bundled PHP dependencies)
+- `src/lib/validation.ts` — Zod schemas for login/register used by the client
+  form validation
 - `scripts/start.ts` — launches the PHP backend via `php -S`
 - `src/App.tsx` — routing (home `/` and watch page `/video/:id`)
 - `src/HomePage.tsx` — home page: search, upload, video list, feedback link to GitHub Issues
