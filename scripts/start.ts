@@ -8,6 +8,9 @@ const ROUTER = path.join(ROOT, "src", "server", "php", "server.php");
 const port = process.env.PORT ?? "3000";
 const hostname = process.env.HOST ?? process.env.HOSTNAME ?? "127.0.0.1";
 
+const parsedWorkers = Number.parseInt(process.env.PHP_WORKERS ?? "4", 10);
+const workers = Number.isFinite(parsedWorkers) && parsedWorkers > 0 ? String(parsedWorkers) : "4";
+
 function getLanIp(): string | undefined {
   const interfaces = os.networkInterfaces();
   for (const name of Object.keys(interfaces)) {
@@ -57,6 +60,7 @@ const child = spawn(
       DIST_DIR: process.env.DIST_DIR ?? path.join(ROOT, "dist"),
       UPLOAD_DIR: process.env.UPLOAD_DIR ?? path.join(ROOT, "uploads"),
       DATABASE_PATH: process.env.DATABASE_PATH ?? path.join(ROOT, "data.db"),
+      ...(process.platform !== "win32" ? { PHP_CLI_SERVER_WORKERS: workers } : {}),
     },
   },
 );

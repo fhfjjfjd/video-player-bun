@@ -17,6 +17,7 @@ share videos through dedicated per-video URLs.
 - Completely optimized mobile UI and responsive video library card grid
 - Modern streaming-style dark UI: cinematic gradient brand (emerald → teal → cyan), glassy blurred header, featured-video hero banner, hover-rich video cards, and redesigned player, auth and upload screens
 - Every video has its own shareable URL (`/video/:id`)
+- Several devices can watch the same video at the same time — the backend runs multiple PHP worker processes, so one viewer's stream never blocks another
 - Direct media URLs are never exposed — the API returns a short-lived HMAC-signed media token, and the client streams the video through `/api/media?t=<token>` (Range requests supported)
 - Hardened responses: Content-Security-Policy, `X-Content-Type-Options`, `X-Frame-Options` and other security headers on every request
 - Per-IP rate limiting on every API endpoint (fixed time windows, via the Symfony Rate Limiter component): protects login, registration and uploads from abuse; limited clients get HTTP 429 with a `Retry-After` header and `X-RateLimit-*` headers
@@ -95,7 +96,7 @@ bun run build   # build the frontend into dist/
 bun start       # start the PHP backend (SPA + API, http://127.0.0.1:3000)
 ```
 
-`bun dev` does the same in development mode. The server binds to
+`bun run dev` does the same in development mode. The server binds to
 `127.0.0.1:3000` by default; set `HOST=0.0.0.0` to share over LAN (the bind
 address is read from `HOST`, falling back to `HOSTNAME`). When binding to a
 wildcard, startup prints the machine's detected LAN IP automatically — e.g.
@@ -111,6 +112,13 @@ are rate-limited per client IP with `symfony/rate-limiter`; counter state is
 kept in a local filesystem cache under `cache/` (regenerated at runtime).
 Permissions are checked with `symfony/security-core` voters (owner-only
 actions, plus an `admin` role stored in the `users.role` column).
+
+The PHP built-in server is single-threaded by default, so one long video
+stream would block every other viewer. `scripts/start.ts` therefore launches it
+with multiple worker processes (`PHP_CLI_SERVER_WORKERS`), letting several
+devices watch — or upload — at the same time without waiting for each other.
+The number of workers defaults to `4` and is configurable via the `PHP_WORKERS`
+environment variable, e.g. `PHP_WORKERS=8 bun run dev`.
 
 Requirements:
 

@@ -16,6 +16,7 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 - Tối ưu hóa giao diện di động hoàn chỉnh và lưới thẻ video responsive trực quan
 - Giao diện dark kiểu streaming hiện đại: nhận diện thương hiệu gradient (emerald → teal → cyan), header kính mờ (glassy), banner hero video nổi bật, thẻ video hiệu ứng hover phong phú, và các màn hình player, đăng nhập, tải lên được thiết kế lại
 - Mỗi video có URL riêng (`/video/:id`) để chia sẻ
+- Nhiều thiết bị có thể cùng xem một video cùng lúc — backend chạy nhiều tiến trình worker PHP nên luồng của người xem này không bao giờ chặn người xem khác
 - Server không bao giờ lộ URL media trực tiếp — API trả token media ký HMAC có thời hạn ngắn, client phát video qua `/api/media?t=<token>` (hỗ trợ Range request)
 - Tăng cường bảo mật: Content-Security-Policy, `X-Content-Type-Options`, `X-Frame-Options` và các header bảo mật khác trên mọi request
 - Giới hạn số lượng yêu cầu (rate limiting) theo IP cho mọi API (cửa sổ thời gian cố định, dùng Symfony Rate Limiter): bảo vệ đăng nhập, đăng ký và tải lên khỏi bị lạm dụng; client bị giới hạn sẽ nhận HTTP 429 kèm header `Retry-After` và `X-RateLimit-*`
@@ -94,7 +95,7 @@ bun run build   # build frontend vào thư mục dist/
 bun start       # khởi động backend PHP (SPA + API, http://127.0.0.1:3000)
 ```
 
-`bun dev` cũng làm tương tự ở chế độ development. Mặc định server bind vào
+`bun run dev` cũng làm tương tự ở chế độ development. Mặc định server bind vào
 `127.0.0.1:3000`; đặt biến `HOST=0.0.0.0` để chia sẻ qua mạng LAN (địa chỉ bind
 được đọc từ `HOST`, nếu không có thì dùng `HOSTNAME`). Khi bind vào địa chỉ
 wildcard, lúc khởi động server sẽ tự phát hiện IP LAN của máy và in ra — ví dụ
@@ -110,6 +111,13 @@ số lượng yêu cầu theo IP bằng `symfony/rate-limiter`; trạng thái đ
 trong bộ đệm cục bộ `cache/` (tự tạo lại khi chạy). Quyền được kiểm tra bằng
 `symfony/security-core` voter (thao tác chỉ dành cho chủ sở hữu, cộng với vai
 trò `admin` lưu ở cột `users.role`).
+
+Web server tích hợp của PHP mặc định chỉ xử lý một yêu cầu tại một thời điểm,
+nên một luồng video dài đang phát sẽ chặn mọi người xem khác. Vì vậy
+`scripts/start.ts` khởi động server với nhiều tiến trình worker
+(`PHP_CLI_SERVER_WORKERS`), cho phép nhiều thiết bị cùng xem — hoặc cùng tải lên
+— cùng lúc mà không phải chờ nhau. Số worker mặc định là `4` và có thể thay đổi
+qua biến môi trường `PHP_WORKERS`, ví dụ `PHP_WORKERS=8 bun run dev`.
 
 Yêu cầu:
 
