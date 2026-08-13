@@ -76,11 +76,12 @@ function server_root(): string {
     return dirname(__DIR__, 2);
 }
 
+require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/crypto.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/validation.php';
 require_once __DIR__ . '/mailer.php';
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/authz.php';
 
 /* ------------------------------------------------------------------ paths */
 
@@ -726,8 +727,14 @@ function handle_delete_video(int $id): void {
         respond_json(400, err('ID video không hợp lệ.'));
         return;
     }
-    if (find_video_by_id_and_user($id, $uid) === null) {
+    $row = find_video_by_id($id);
+    if ($row === null) {
         respond_json(404, err('Video không tồn tại.'));
+        return;
+    }
+    $user = find_user_by_id($uid);
+    if (!authz_can($uid, authz_roles_for($user), VideoVoter::DELETE, $row)) {
+        respond_json(403, err('Bạn không có quyền xóa video này.'));
         return;
     }
     delete_video($id);

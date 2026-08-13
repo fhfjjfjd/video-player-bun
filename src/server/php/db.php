@@ -37,14 +37,20 @@ function db_init(PDO $pdo): void {
     );
     $userCols = $pdo->query('PRAGMA table_info(users)')->fetchAll(PDO::FETCH_ASSOC);
     $hasVerified = false;
+    $hasRole = false;
     foreach ($userCols as $c) {
-        if (strtolower((string)$c['name']) === 'email_verified') {
+        $name = strtolower((string)$c['name']);
+        if ($name === 'email_verified') {
             $hasVerified = true;
-            break;
+        } elseif ($name === 'role') {
+            $hasRole = true;
         }
     }
     if (!$hasVerified) {
         $pdo->exec('ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0');
+    }
+    if (!$hasRole) {
+        $pdo->exec("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'");
     }
     $pdo->exec(
         'CREATE TABLE IF NOT EXISTS sessions ('
@@ -106,14 +112,14 @@ function mark_user_verified(int $userId): void {
 }
 
 function find_user_by_username(string $username): ?array {
-    $st = db()->prepare('SELECT id, username, email, password_hash, email_verified FROM users WHERE username = ?');
+    $st = db()->prepare('SELECT id, username, email, password_hash, email_verified, role FROM users WHERE username = ?');
     $st->execute([$username]);
     $row = $st->fetch(PDO::FETCH_ASSOC);
     return $row === false ? null : $row;
 }
 
 function find_user_by_email(string $email): ?array {
-    $st = db()->prepare('SELECT id, username, email, password_hash, email_verified FROM users WHERE lower(email) = lower(?)');
+    $st = db()->prepare('SELECT id, username, email, password_hash, email_verified, role FROM users WHERE lower(email) = lower(?)');
     $st->execute([$email]);
     $row = $st->fetch(PDO::FETCH_ASSOC);
     return $row === false ? null : $row;
@@ -121,9 +127,9 @@ function find_user_by_email(string $email): ?array {
 
 function find_user_by_identifier(string $identifier): ?array {
     if (str_contains($identifier, '@')) {
-        $st = db()->prepare('SELECT id, username, email, password_hash, email_verified FROM users WHERE lower(email) = lower(?)');
+        $st = db()->prepare('SELECT id, username, email, password_hash, email_verified, role FROM users WHERE lower(email) = lower(?)');
     } else {
-        $st = db()->prepare('SELECT id, username, email, password_hash, email_verified FROM users WHERE username = ?');
+        $st = db()->prepare('SELECT id, username, email, password_hash, email_verified, role FROM users WHERE username = ?');
     }
     $st->execute([$identifier]);
     $row = $st->fetch(PDO::FETCH_ASSOC);
@@ -131,7 +137,7 @@ function find_user_by_identifier(string $identifier): ?array {
 }
 
 function find_user_by_id(int $userId): ?array {
-    $st = db()->prepare('SELECT id, username, email, email_verified FROM users WHERE id = ?');
+    $st = db()->prepare('SELECT id, username, email, email_verified, role FROM users WHERE id = ?');
     $st->execute([$userId]);
     $row = $st->fetch(PDO::FETCH_ASSOC);
     return $row === false ? null : $row;

@@ -7,6 +7,7 @@
         "phpmailer/phpmailer": "^7.1",
         "symfony/cache": "^7.2",
         "symfony/rate-limiter": "^7.2",
+        "symfony/security-core": "^7.2",
         "symfony/validator": "^8.1"
     },
     "config": {

@@ -12,7 +12,7 @@ share videos through dedicated per-video URLs.
 - Email verification on registration: registering sends a 6-digit verification code to the Gmail address, which must be entered on the confirmation screen before the account is created — hand-typed, non-existent, or scrambled Gmail addresses can no longer slip through (codes expire after 10 minutes, resend supported)
 - Existing accounts that were never verified must verify their email when logging in: the server emails a 6-digit code to the account's Gmail address and login only proceeds after the code is entered
 - Uploading a video returns you to the library where the new video appears in the list — it is never opened or played automatically
-- Only the owner can delete a video
+- Only the owner can delete a video — authorization is enforced by the Symfony Security component (voters + access decision manager), and accounts marked `admin` in the database (`users.role`) can delete any video
 - Support for video thumbnails (automatic extraction using FFmpeg upon upload, or custom image upload)
 - Completely optimized mobile UI and responsive video library card grid
 - Modern streaming-style dark UI: cinematic gradient brand (emerald → teal → cyan), glassy blurred header, featured-video hero banner, hover-rich video cards, and redesigned player, auth and upload screens
@@ -29,7 +29,7 @@ share videos through dedicated per-video URLs.
 
 - Bun 1.3 (runtime + bundler)
 - React 19 + TypeScript + Tailwind 4 + shadcn/ui (custom dark design system with gradient brand tokens); form validation with Zod
-- PHP backend (PHP 8.1+, SQLite via PDO) — no separate database to install; data validation with the Symfony Validator component and per-IP rate limiting with the Symfony Rate Limiter component
+- PHP backend (PHP 8.1+, SQLite via PDO) — no separate database to install; data validation with the Symfony Validator component, per-IP rate limiting with the Symfony Rate Limiter component, and authorization with the Symfony Security component (role-based voters)
 - hls.js for HLS playback
 
 ## Quick install (one command)
@@ -109,6 +109,8 @@ with PHP's built-in web server (`php -S`). There is no compilation and no
 binary to download — the server runs straight from the source. API endpoints
 are rate-limited per client IP with `symfony/rate-limiter`; counter state is
 kept in a local filesystem cache under `cache/` (regenerated at runtime).
+Permissions are checked with `symfony/security-core` voters (owner-only
+actions, plus an `admin` role stored in the `users.role` column).
 
 Requirements:
 
@@ -151,6 +153,8 @@ registration is pending.
   `symfony/validator`), `db.php` (SQLite storage via PDO),
   `crypto.php` (signed media tokens, sessions, PBKDF2/bcrypt password hashing),
   `mailer.php` (outbound email via PHPMailer over SMTP),
+  `authz.php` (authorization via `symfony/security-core` voters — owner-only
+  actions with an `admin` role),
   `composer.json` + `vendor/` (bundled PHP dependencies)
 - `src/lib/validation.ts` — Zod schemas for login/register used by the client
   form validation

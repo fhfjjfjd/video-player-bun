@@ -11,7 +11,7 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 - Xác thực email khi đăng ký: đăng ký sẽ gửi một mã xác thực gồm 6 chữ số tới địa chỉ Gmail, phải nhập mã này trên màn hình xác nhận trước khi tài khoản được tạo — email Gmail viết thủ công, không tồn tại hay sắp xếp ký tự lộn xộn sẽ không qua được nữa (mã có hiệu lực 10 phút, hỗ trợ gửi lại mã)
 - Các tài khoản cũ chưa từng xác thực phải xác thực email khi đăng nhập: máy chủ gửi mã 6 chữ số tới Gmail của tài khoản và chỉ cho đăng nhập sau khi nhập đúng mã
 - Sau khi tải video lên bạn quay lại thư viện và video mới hiện trong danh sách — không tự mở hay phát video
-- Chỉ chủ sở hữu mới xóa được video của mình
+- Chỉ chủ sở hữu mới xóa được video của mình — quyền được kiểm tra bằng Symfony Security (voter + access decision manager), và tài khoản có vai trò `admin` trong database (cột `users.role`) có thể xóa mọi video
 - Hỗ trợ hình ảnh thu nhỏ (thumbnail) tùy chỉnh hoặc tự động trích xuất bằng FFmpeg khi tải video lên
 - Tối ưu hóa giao diện di động hoàn chỉnh và lưới thẻ video responsive trực quan
 - Giao diện dark kiểu streaming hiện đại: nhận diện thương hiệu gradient (emerald → teal → cyan), header kính mờ (glassy), banner hero video nổi bật, thẻ video hiệu ứng hover phong phú, và các màn hình player, đăng nhập, tải lên được thiết kế lại
@@ -29,7 +29,7 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 
 - Bun 1.3 (runtime + bundler)
 - React 19 + TypeScript + Tailwind 4 + shadcn/ui (hệ thống thiết kế dark tùy chỉnh với token thương hiệu gradient); xác thực form bằng Zod
-- Backend PHP (PHP 8.1+, SQLite qua PDO), không cần cài database riêng; xác thực dữ liệu bằng Symfony Validator và giới hạn yêu cầu theo IP bằng Symfony Rate Limiter
+- Backend PHP (PHP 8.1+, SQLite qua PDO), không cần cài database riêng; xác thực dữ liệu bằng Symfony Validator, giới hạn yêu cầu theo IP bằng Symfony Rate Limiter và kiểm tra quyền bằng Symfony Security (voter theo vai trò)
 - hls.js cho phát HLS
 
 ## Cài đặt nhanh (một lệnh duy nhất)
@@ -107,7 +107,9 @@ Backend là router PHP trong `src/server/php/`, được `scripts/start.ts` kh�
 bằng web server tích hợp của PHP (`php -S`). Không cần biên dịch và không cần
 tải binary nào — server chạy trực tiếp từ mã nguồn. Mọi API đều được giới hạn
 số lượng yêu cầu theo IP bằng `symfony/rate-limiter`; trạng thái đếm được lưu
-trong bộ đệm cục bộ `cache/` (tự tạo lại khi chạy).
+trong bộ đệm cục bộ `cache/` (tự tạo lại khi chạy). Quyền được kiểm tra bằng
+`symfony/security-core` voter (thao tác chỉ dành cho chủ sở hữu, cộng với vai
+trò `admin` lưu ở cột `users.role`).
 
 Yêu cầu:
 
@@ -149,6 +151,8 @@ còn đang chờ xác thực.
   `db.php` (lưu trữ SQLite qua PDO),
   `crypto.php` (media token ký HMAC, session, băm mật khẩu PBKDF2/bcrypt),
   `mailer.php` (gửi email qua PHPMailer dùng SMTP),
+  `authz.php` (kiểm tra quyền bằng `symfony/security-core` voter — thao tác chỉ
+  cho chủ sở hữu, có vai trò `admin`),
   `composer.json` + `vendor/` (dependency PHP đóng sẵn)
 - `src/lib/validation.ts` — schema Zod cho đăng nhập/đăng ký dùng cho xác thực form phía client
 - `scripts/start.ts` — khởi động backend PHP qua `php -S`
