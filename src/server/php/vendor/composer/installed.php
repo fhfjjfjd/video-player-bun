@@ -3,13 +3,22 @@
         'name' => 'videohub/php-server',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '6e2127a3b6e3de98a9fb52cb8a960c05937cc137',
+        'reference' => 'c125386bb019699d7297774f85920c4ed1257582',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => true,
     ),
     'versions' => array(
+        'phpmailer/phpmailer' => array(
+            'pretty_version' => 'v7.1.1',
+            'version' => '7.1.1.0',
+            'reference' => '1bc1716a507a65e039d4ac9d9adebbbd0d346e15',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../phpmailer/phpmailer',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'psr/cache' => array(
             'pretty_version' => '3.0.0',
             'version' => '3.0.0.0',
@@ -166,7 +175,7 @@
         'videohub/php-server' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '6e2127a3b6e3de98a9fb52cb8a960c05937cc137',
+            'reference' => 'c125386bb019699d7297774f85920c4ed1257582',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

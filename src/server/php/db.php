@@ -63,6 +63,16 @@ function db_init(PDO $pdo): void {
         . 'created_at TEXT NOT NULL DEFAULT (datetime(\'now\')),'
         . 'author TEXT);'
     );
+    $pdo->exec(
+        'CREATE TABLE IF NOT EXISTS email_verifications ('
+        . 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+        . 'username TEXT NOT NULL,'
+        . 'email TEXT NOT NULL,'
+        . 'password_hash TEXT NOT NULL,'
+        . 'code_hash TEXT NOT NULL,'
+        . 'expires_at TEXT NOT NULL,'
+        . 'created_at TEXT NOT NULL DEFAULT (datetime(\'now\')));'
+    );
 }
 
 function create_user(string $username, string $email, string $hash): ?int {
@@ -105,6 +115,33 @@ function find_user_by_id(int $userId): ?array {
     $st->execute([$userId]);
     $row = $st->fetch(PDO::FETCH_ASSOC);
     return $row === false ? null : $row;
+}
+
+function save_email_verification(string $username, string $email, string $passwordHash, string $codeHash, string $expiresAt): void {
+    try {
+        $st = db()->prepare('DELETE FROM email_verifications WHERE lower(email) = lower(?)');
+        $st->execute([$email]);
+        $st = db()->prepare('INSERT INTO email_verifications (username, email, password_hash, code_hash, expires_at) VALUES (?, ?, ?, ?, ?)');
+        $st->execute([$username, $email, $passwordHash, $codeHash, $expiresAt]);
+    } catch (PDOException $e) {
+        // bỏ qua lỗi ghi — luồng xác thực sẽ báo thất bại ở bước gửi email.
+    }
+}
+
+function find_email_verification(string $email): ?array {
+    $st = db()->prepare('SELECT id, username, email, password_hash, code_hash, expires_at FROM email_verifications WHERE lower(email) = lower(?)');
+    $st->execute([$email]);
+    $row = $st->fetch(PDO::FETCH_ASSOC);
+    return $row === false ? null : $row;
+}
+
+function delete_email_verification(string $email): void {
+    try {
+        $st = db()->prepare('DELETE FROM email_verifications WHERE lower(email) = lower(?)');
+        $st->execute([$email]);
+    } catch (PDOException $e) {
+        // bỏ qua.
+    }
 }
 
 function create_session(int $userId, string $token, string $expiresAt): void {

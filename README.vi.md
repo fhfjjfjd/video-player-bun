@@ -8,6 +8,7 @@ Một web video player: đăng ký, đăng nhập, tải video lên, xem video t
 
 - Xem video công khai mà không cần đăng nhập
 - Đăng ký / đăng nhập để tải video lên và quản lý video của mình (đăng ký bắt buộc có email Gmail — email phải kết thúc bằng `@gmail.com`; đăng nhập nhận Gmail hoặc username)
+- Xác thực email khi đăng ký: đăng ký sẽ gửi một mã xác thực gồm 6 chữ số tới địa chỉ Gmail, phải nhập mã này trên màn hình xác nhận trước khi tài khoản được tạo — email Gmail viết thủ công, không tồn tại hay sắp xếp ký tự lộn xộn sẽ không qua được nữa (mã có hiệu lực 10 phút, hỗ trợ gửi lại mã)
 - Sau khi tải video lên bạn quay lại thư viện và video mới hiện trong danh sách — không tự mở hay phát video
 - Chỉ chủ sở hữu mới xóa được video của mình
 - Hỗ trợ hình ảnh thu nhỏ (thumbnail) tùy chỉnh hoặc tự động trích xuất bằng FFmpeg khi tải video lên
@@ -119,6 +120,26 @@ Yêu cầu:
 Installer (`scripts/install.sh` / `scripts/install.bat`) sẽ cài PHP và ffmpeg
 nếu chưa có và kiểm tra extension `pdo_sqlite` trước khi cài đặt.
 
+### Xác thực email / SMTP
+
+Đăng ký bắt buộc phải cấu hình SMTP — mã xác thực gồm 6 chữ số được gửi qua
+SMTP và phải nhập trên màn hình xác nhận trước khi tài khoản được tạo. Nếu
+không cấu hình SMTP, đăng ký sẽ báo lỗi và không gửi mã. Cấu hình bằng biến môi
+trường trước khi khởi động:
+
+```bash
+export MAIL_HOST=smtp.gmail.com
+export MAIL_PORT=587
+export MAIL_USER=youraccount@gmail.com
+export MAIL_PASS=your-gmail-app-password
+export MAIL_FROM=youraccount@gmail.com   # tùy chọn, mặc định là MAIL_USER
+export MAIL_ENCRYPTION=tls               # tls (STARTTLS) hoặc ssl
+bun start
+```
+
+Mã có hiệu lực trong 10 phút; người dùng có thể yêu cầu gửi lại mã khi đăng ký
+còn đang chờ xác thực.
+
 ## Cấu trúc
 
 - `src/server/php/` — backend PHP: `server.php` (router HTTP, handler API,
@@ -126,6 +147,7 @@ nếu chưa có và kiểm tra extension `pdo_sqlite` trước khi cài đặt.
   Range, file tĩnh), `validation.php` (xác thực request bằng `symfony/validator`),
   `db.php` (lưu trữ SQLite qua PDO),
   `crypto.php` (media token ký HMAC, session, băm mật khẩu PBKDF2/bcrypt),
+  `mailer.php` (gửi email qua PHPMailer dùng SMTP),
   `composer.json` + `vendor/` (dependency PHP đóng sẵn)
 - `src/lib/validation.ts` — schema Zod cho đăng nhập/đăng ký dùng cho xác thực form phía client
 - `scripts/start.ts` — khởi động backend PHP qua `php -S`

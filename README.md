@@ -9,6 +9,7 @@ share videos through dedicated per-video URLs.
 
 - Watch videos publicly without logging in
 - Register / log in to upload videos and manage your own uploads (registration requires a Gmail address — the email must end in `@gmail.com`; login accepts your Gmail or username)
+- Email verification on registration: registering sends a 6-digit verification code to the Gmail address, which must be entered on the confirmation screen before the account is created — hand-typed, non-existent, or scrambled Gmail addresses can no longer slip through (codes expire after 10 minutes, resend supported)
 - Uploading a video returns you to the library where the new video appears in the list — it is never opened or played automatically
 - Only the owner can delete a video
 - Support for video thumbnails (automatic extraction using FFmpeg upon upload, or custom image upload)
@@ -121,6 +122,26 @@ The installers (`scripts/install.sh` / `scripts/install.bat`) install PHP and
 ffmpeg when missing and verify the `pdo_sqlite` extension before setting things
 up.
 
+### Email verification / SMTP
+
+Registration requires SMTP to be configured — the 6-digit verification code is
+emailed via SMTP and must be entered on the confirmation screen before the
+account is created. Without SMTP, registration returns an error and no code is
+sent. Configure it with environment variables before starting:
+
+```bash
+export MAIL_HOST=smtp.gmail.com
+export MAIL_PORT=587
+export MAIL_USER=youraccount@gmail.com
+export MAIL_PASS=your-gmail-app-password
+export MAIL_FROM=youraccount@gmail.com   # optional, defaults to MAIL_USER
+export MAIL_ENCRYPTION=tls               # tls (STARTTLS) or ssl
+bun start
+```
+
+Codes are valid for 10 minutes; users can ask to resend a code while a
+registration is pending.
+
 ## Structure
 
 - `src/server/php/` — the PHP backend: `server.php` (HTTP router, API
@@ -128,6 +149,7 @@ up.
   with Range support, static files), `validation.php` (request validation via
   `symfony/validator`), `db.php` (SQLite storage via PDO),
   `crypto.php` (signed media tokens, sessions, PBKDF2/bcrypt password hashing),
+  `mailer.php` (outbound email via PHPMailer over SMTP),
   `composer.json` + `vendor/` (bundled PHP dependencies)
 - `src/lib/validation.ts` — Zod schemas for login/register used by the client
   form validation

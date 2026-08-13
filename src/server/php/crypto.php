@@ -18,6 +18,14 @@ const MEDIA_TOKEN_TTL_MS = 86400000;        // 1 day
 const SESSION_TTL_MS     = 30 * 86400000;   // 30 days
 const PBKDF2_ITERATIONS  = 100000;
 
+function generate_verification_code(): string {
+    return (string)random_int(100000, 999999);
+}
+
+function hash_verification_code(string $code): string {
+    return hash_hmac('sha256', $code, load_media_secret());
+}
+
 function b64url_encode(string $data): string {
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
 }

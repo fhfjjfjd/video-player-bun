@@ -1,4 +1,4 @@
-import { ArrowLeft, CheckCircle2, Clapperboard, Loader2 } from "lucide-react";
+import { ArrowLeft, BadgeCheck, CheckCircle2, Clapperboard, Loader2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,10 @@ export function AuthScreen({
   const [success, setSuccess] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
+  const [verifyingEmail, setVerifyingEmail] = useState<string | null>(null);
+  const [otpCode, setOtpCode] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [resending, setResending] = useState(false);
 
   const clearFieldError = (field: string) =>
     setFieldErrors(prev => {
@@ -57,8 +61,12 @@ export function AuthScreen({
         return;
       }
       if (mode === "register") {
-        setSuccess("Đăng ký thành công! Mời bạn đăng nhập.");
-        setMode("login");
+        setVerifyingEmail(email);
+        setOtpCode("");
+        setError(null);
+        setSuccess(null);
+        setUsername("");
+        setEmail("");
         setPassword("");
         return;
       }
@@ -67,6 +75,60 @@ export function AuthScreen({
       setError("Không kết nối được máy chủ.");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const onVerify = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!verifyingEmail) return;
+    const code = otpCode.trim();
+    if (!/^\d{6}$/.test(code)) {
+      setError("Mã xác thực phải gồm 6 chữ số.");
+      return;
+    }
+    setError(null);
+    setSuccess(null);
+    setVerifying(true);
+    try {
+      const response = await fetch("/api/verify-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: verifyingEmail, code }),
+      });
+      const res = (await response.json()) as { user?: User; error?: string };
+      if (!response.ok) {
+        setError(res.error ?? "Xác thực thất bại.");
+        return;
+      }
+      if (res.user) onAuth(res.user);
+    } catch {
+      setError("Không kết nối được máy chủ.");
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const onResend = async () => {
+    if (!verifyingEmail || resending) return;
+    setError(null);
+    setSuccess(null);
+    setResending(true);
+    try {
+      const response = await fetch("/api/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: verifyingEmail }),
+      });
+      const res = (await response.json()) as { error?: string; message?: string };
+      if (!response.ok) {
+        setError(res.error ?? "Không thể gửi lại mã.");
+      } else {
+        setSuccess("Đã gửi lại mã xác thực. Kiểm tra email của bạn.");
+      }
+    } catch {
+      setError("Không kết nối được máy chủ.");
+    } finally {
+      setResending(false);
     }
   };
 
@@ -110,14 +172,91 @@ export function AuthScreen({
 
           <div className="mb-6">
             <h1 className="text-2xl font-bold tracking-tight">
-              {mode === "login" ? "Chào mừng trở lại" : "Tạo tài khoản"}
+              {verifyingEmail ? "Xác thực email" : mode === "login" ? "Chào mừng trở lại" : "Tạo tài khoản"}
             </h1>
             <p className="mt-1 text-sm text-zinc-400">
-              {mode === "login" ? "Đăng nhập để tiếp tục xem video" : "Đăng ký để bắt đầu trải nghiệm"}
+              {verifyingEmail
+                ? "Nhập mã 6 chữ số chúng tôi vừa gửi để hoàn tất đăng ký"
+                : mode === "login"
+                  ? "Đăng nhập để tiếp tục xem video"
+                  : "Đăng ký để bắt đầu trải nghiệm"}
             </p>
           </div>
 
-          <div className="mb-6 grid grid-cols-2 gap-1 rounded-full border border-white/10 bg-white/5 p-1">
+          {verifyingEmail && (
+            <form onSubmit={onVerify} className="mb-6 flex flex-col gap-4">
+              <div className="flex items-start gap-2 rounded-xl bg-emerald-500/10 px-3 py-2 text-sm text-emerald-400">
+                <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>
+                  Đã gửi mã xác thực tới <span className="font-medium">{verifyingEmail}</span>. Kiểm tra hộp thư
+                  (kể cả thư rác).
+                </span>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="otp">Mã xác thực (6 chữ số)</Label>
+                <Input
+                  id="otp"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  value={otpCode}
+                  onChange={event => {
+                    setOtpCode(event.target.value.replace(/\D/g, "").slice(0, 6));
+                    setError(null);
+                  }}
+                  placeholder="VD: 123456"
+                  className="h-11 rounded-xl border-white/10 bg-white/5 text-center font-mono text-lg tracking-[0.5em] text-zinc-100 placeholder:text-zinc-500 focus:border-emerald-400/60"
+                />
+              </div>
+
+              {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
+
+              {success && (
+                <p className="flex items-start gap-2 rounded-lg bg-emerald-500/10 px-3 py-2 text-sm text-emerald-400">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                  {success}
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                disabled={verifying || resending}
+                variant="brand"
+                className="mt-1 h-11 w-full rounded-xl"
+              >
+                {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : "Xác nhận & hoàn tất đăng ký"}
+              </Button>
+
+              <div className="flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  disabled={resending}
+                  onClick={onResend}
+                  className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm text-zinc-400 transition hover:text-zinc-100 disabled:opacity-50"
+                >
+                  {resending && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Gửi lại mã
+                </button>
+                <button
+                  type="button"
+                  disabled={verifying}
+                  onClick={() => {
+                    setVerifyingEmail(null);
+                    setOtpCode("");
+                    setError(null);
+                    setSuccess(null);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm text-zinc-400 transition hover:text-zinc-100 disabled:opacity-50"
+                >
+                  Đăng ký lại với email khác
+                </button>
+              </div>
+            </form>
+          )}
+
+          {!verifyingEmail && (
+            <>
+            <div className="mb-6 grid grid-cols-2 gap-1 rounded-full border border-white/10 bg-white/5 p-1">
             {(["login", "register"] as const).map(item => (
               <button
                 key={item}
@@ -215,7 +354,9 @@ export function AuthScreen({
                 "Đăng ký"
               )}
             </Button>
-          </form>
+            </form>
+            </>
+          )}
         </div>
       </div>
     </div>
